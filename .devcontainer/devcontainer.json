@@ -6,19 +6,23 @@
       "configureZshAsDefaultShell": true
     },
     "ghcr.io/devcontainers-extra/features/apt-packages:1": {
-      "packages": [
-        "git",
-        "vim"
-      ]
+      "packages": ["git", "vim"]
     }
   },
   "remoteUser": "bun",
   "customizations": {
     "vscode": {
       "extensions": [
+        "esbenp.prettier-vscode",
         "ms-azuretools.vscode-containers",
         "oven.bun-vscode"
-      ]
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "[typescript][json][jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
     }
   }
 }
