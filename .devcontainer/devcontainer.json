@@ -1,0 +1,16 @@
+{
+  "name": "SGHSS Dev Container",
+  "image": "oven/bun:1",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+      "packages": [
+        "git",
+        "vim"
+      ]
+    }
+  },
+  "remoteUser": "bun"
+}
