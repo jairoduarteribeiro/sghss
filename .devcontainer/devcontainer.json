@@ -12,5 +12,13 @@
       ]
     }
   },
-  "remoteUser": "bun"
+  "remoteUser": "bun",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-containers",
+        "oven.bun-vscode"
+      ]
+    }
+  }
 }
