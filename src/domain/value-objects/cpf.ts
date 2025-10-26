@@ -1,4 +1,6 @@
 import { DomainError } from "@/domain/errors/domain-error";
+import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
+
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 
 export class Cpf {
@@ -15,7 +17,7 @@ export class Cpf {
 
   private validate(cpf: string): void {
     if (!this.hasValidFormat(cpf)) {
-      throw new DomainError("CPF has an invalid format");
+      throw new DomainError(VALIDATION_MESSAGES.CPF_INVALID_FORMAT);
     }
   }
 
