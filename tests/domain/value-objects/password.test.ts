@@ -1,3 +1,5 @@
+import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
+import { DomainError } from "@/domain/errors/domain-error";
 import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect } from "bun:test";
 
@@ -12,6 +14,15 @@ describe("Password value object", () => {
       const passwordFromDatabase = Password.hydrate(password.hash);
       expect(await passwordFromDatabase.verify(validPassword)).toBeTrue();
       expect(await passwordFromDatabase.verify("WrongPassword1!")).toBeFalse();
+    }
+  );
+
+  test.each(["Short1!", "ThisIsWayTooLongPass1!"])(
+    "Should not create a Password if length is invalid (%s)",
+    async (invalidPassword) => {
+      expect(Password.create(invalidPassword)).rejects.toThrow(
+        new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_LENGTH)
+      );
     }
   );
 });
