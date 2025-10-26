@@ -4,9 +4,7 @@ import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 
 export class Cpf {
-  public readonly value: string;
-
-  constructor(value: string) {
+  constructor(public readonly value: string) {
     this.validate(value);
     this.value = this.clean(value);
   }
