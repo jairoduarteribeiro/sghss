@@ -4,4 +4,5 @@ export const VALIDATION_MESSAGES = {
   CPF_INVALID_CHECK_DIGITS: "CPF has invalid check digits",
   EMAIL_TOO_LONG: "Email cannot be longer than 254 characters",
   EMAIL_INVALID_FORMAT: "Email has an invalid format",
+  PASSWORD_INVALID_LENGTH: "Password must be between 8 and 20 characters long",
 };
