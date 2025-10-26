@@ -44,4 +44,32 @@ describe("Email value object", () => {
     const act = () => new Email(longEmail);
     expect(act).toThrow(new DomainError(VALIDATION_MESSAGES.EMAIL_TOO_LONG));
   });
+
+  test.each([
+    "testexample.com",
+    "test@.com",
+    "test@example",
+    "test@example.",
+    "test@example..com",
+    "test@e.com",
+    "test@example.c",
+    "test@1example.com",
+    "test@1example.1com",
+    "@example.com",
+    "test.@example.com",
+    ".test@example.com",
+    "my..test@example.com",
+    "t@example.com",
+    "my.t@example.com",
+    "1test@example.com",
+    "my.1test@example.com",
+  ])(
+    "Should not create an Email if format is invalid (%s)",
+    (invalidFormat) => {
+      const act = () => new Email(invalidFormat);
+      expect(act).toThrow(
+        new DomainError(VALIDATION_MESSAGES.EMAIL_INVALID_FORMAT)
+      );
+    }
+  );
 });
