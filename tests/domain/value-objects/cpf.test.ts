@@ -30,4 +30,25 @@ describe("Cpf value object", () => {
       );
     }
   );
+
+  test.each([
+    "00000000000",
+    "11111111111",
+    "22222222222",
+    "33333333333",
+    "44444444444",
+    "55555555555",
+    "66666666666",
+    "77777777777",
+    "88888888888",
+    "99999999999",
+  ])(
+    "Should not create a Cpf if all digits are the same (%s)",
+    (invalidCpf) => {
+      const act = () => new Cpf(invalidCpf);
+      expect(act).toThrow(
+        new DomainError(VALIDATION_MESSAGES.CPF_ALL_DIGITS_ARE_THE_SAME)
+      );
+    }
+  );
 });
