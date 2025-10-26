@@ -52,12 +52,7 @@ describe("Cpf value object", () => {
     }
   );
 
-  test.each([
-    "70000000401",
-    "70000000410",
-    "12984180039",
-    "12984180048"
-  ])(
+  test.each(["70000000401", "70000000410", "12984180039", "12984180048"])(
     "Should not create a Cpf if check digits are invalid (%s)",
     (invalidCpf) => {
       const act = () => new Cpf(invalidCpf);
