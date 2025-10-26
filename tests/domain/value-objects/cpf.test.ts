@@ -9,4 +9,13 @@ describe("Cpf value object", () => {
       expect(cpf.value).toBe(validCpf);
     }
   );
+
+  test.each(["700.000.004-00", "129.841.800-38"])(
+    "Should create a Cpf by removing symbols (%s)",
+    (formattedCpf) => {
+      const unformattedCpf = formattedCpf.replace(/\D/g, "");
+      const cpf = new Cpf(formattedCpf);
+      expect(cpf.value).toBe(unformattedCpf);
+    }
+  );
 });
