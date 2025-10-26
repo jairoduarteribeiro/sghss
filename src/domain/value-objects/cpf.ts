@@ -19,6 +19,12 @@ export class Cpf {
     if (this.hasAllDigitsTheSame(cleanedCpf)) {
       throw new DomainError(VALIDATION_MESSAGES.CPF_ALL_DIGITS_ARE_THE_SAME);
     }
+    const firstDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 9));
+    const secondDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 10));
+    const checkDigits = this.extractCheckDigits(cleanedCpf);
+    if (checkDigits !== `${firstDigit}${secondDigit}`) {
+      throw new DomainError(VALIDATION_MESSAGES.CPF_INVALID_CHECK_DIGITS);
+    }
   }
 
   private clean(cpf: string): string {
@@ -32,5 +38,19 @@ export class Cpf {
   private hasAllDigitsTheSame(cpf: string): boolean {
     const [firstDigit] = cpf;
     return cpf.split("").every((digit) => digit === firstDigit);
+  }
+
+  private calculateCheckDigit(cpf: string): number {
+    let weight = cpf.length + 1;
+    const sum = cpf
+      .split("")
+      .map((digit) => parseInt(digit, 10))
+      .reduce((acc, digit) => acc + digit * weight--, 0);
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  }
+
+  private extractCheckDigits(cpf: string): string {
+    return cpf.slice(-2);
   }
 }
