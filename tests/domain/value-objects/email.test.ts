@@ -16,4 +16,11 @@ describe("Email value object", () => {
       expect(email.value).toBe(validEmail);
     }
   );
+
+  test("Should create a normalized (lowercase and trimmed) Email", () => {
+    const unnormalizedEmail = "  Test@Example.COM  ";
+    const expectedNormalizedEmail = "test@example.com";
+    const email = new Email(unnormalizedEmail);
+    expect(email.value).toBe(expectedNormalizedEmail);
+  });
 });
