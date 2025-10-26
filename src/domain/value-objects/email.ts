@@ -3,6 +3,7 @@ import { DomainError } from "@/domain/errors/domain-error";
 
 const EMAIL_REGEX =
   /^[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)*@[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)+$/;
+const MAX_EMAIL_SIZE = 254;
 
 export class Email {
   constructor(public readonly value: string) {
@@ -11,7 +12,7 @@ export class Email {
   }
 
   private validate(email: string): void {
-    if (email.length > 254) {
+    if (email.length > MAX_EMAIL_SIZE) {
       throw new DomainError(VALIDATION_MESSAGES.EMAIL_TOO_LONG);
     }
     if (!this.hasValidFormat(email)) {
