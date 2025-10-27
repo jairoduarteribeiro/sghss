@@ -1,9 +1,14 @@
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
+import {
+  createPatientID,
+  hydratePatientID,
+  type PatientID,
+} from "@/domain/types/id";
 
 type PatientProps = {
-  id: string;
+  id: PatientID;
   name: string;
   cpf: Cpf;
   email: Email;
@@ -11,7 +16,7 @@ type PatientProps = {
 };
 
 export class Patient {
-  public readonly id: string;
+  public readonly id: PatientID;
   public readonly name: string;
   public readonly cpf: Cpf;
   public readonly email: Email;
@@ -32,7 +37,7 @@ export class Patient {
     password: string;
   }): Promise<Patient> {
     return new Patient({
-      id: Bun.randomUUIDv7(),
+      id: createPatientID(),
       name: input.name,
       cpf: new Cpf(input.cpf),
       email: new Email(input.email),
@@ -48,7 +53,7 @@ export class Patient {
     passwordHash: string;
   }): Patient {
     return new Patient({
-      id: input.id,
+      id: hydratePatientID(input.id),
       name: input.name,
       cpf: new Cpf(input.cpf),
       email: new Email(input.email),
