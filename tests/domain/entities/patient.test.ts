@@ -28,4 +28,14 @@ describe("Patient entity", () => {
     };
     await expect(Patient.create(input)).rejects.toThrow(DomainError);
   });
+
+  test("Should throw a DomainError if an invalid email is provided", async () => {
+    const input = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "invalid-email",
+      password: "Password123!",
+    };
+    await expect(Patient.create(input)).rejects.toThrow(DomainError);
+  });
 });
