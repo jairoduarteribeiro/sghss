@@ -2,6 +2,9 @@ import { Patient } from "@/domain/entities/patient";
 import { DomainError } from "@/domain/errors/domain-error";
 import { describe, test, expect } from "bun:test";
 
+const UUID7_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe("Patient entity", () => {
   test("Should create a Patient if valid data is provided", async () => {
     const input = {
@@ -11,7 +14,7 @@ describe("Patient entity", () => {
       password: "Password123!",
     };
     const patient = await Patient.create(input);
-    expect(patient.id.length).toBeGreaterThan(0);
+    expect(patient.id).toMatch(UUID7_REGEX);
     expect(patient.name).toBe(input.name);
     expect(patient.email.value).toBe(input.email);
     expect(patient.cpf.value).toBe(input.cpf);
