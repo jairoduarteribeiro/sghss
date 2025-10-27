@@ -5,4 +5,6 @@ export const VALIDATION_MESSAGES = {
   EMAIL_TOO_LONG: "Email cannot be longer than 254 characters",
   EMAIL_INVALID_FORMAT: "Email has an invalid format",
   PASSWORD_INVALID_LENGTH: "Password must be between 8 and 20 characters long",
+  PASSWORD_DOES_NOT_MEET_COMPLEXITY:
+    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
 };
