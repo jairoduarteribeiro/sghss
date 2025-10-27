@@ -38,4 +38,14 @@ describe("Patient entity", () => {
     };
     expect(Patient.create(input)).rejects.toThrow(DomainError);
   });
+
+  test("Should throw a DomainError if an invalid password is provided", async () => {
+    const input = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "invalid-password",
+    };
+    expect(Patient.create(input)).rejects.toThrow(DomainError);
+  });
 });
