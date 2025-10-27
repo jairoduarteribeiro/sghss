@@ -39,4 +39,20 @@ export class Patient {
       password: await Password.create(input.password),
     });
   }
+
+  public static hydrate(input: {
+    id: string;
+    name: string;
+    cpf: string;
+    email: string;
+    passwordHash: string;
+  }): Patient {
+    return new Patient({
+      id: input.id,
+      name: input.name,
+      cpf: new Cpf(input.cpf),
+      email: new Email(input.email),
+      password: Password.hydrate(input.passwordHash),
+    });
+  }
 }
