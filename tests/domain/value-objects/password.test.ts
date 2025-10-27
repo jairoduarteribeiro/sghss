@@ -25,4 +25,13 @@ describe("Password value object", () => {
       );
     }
   );
+
+  test.each(["password123!", "PASSWORD123!", "PasswordAbc!", "Password123"])(
+    "Should not create a Password if complexity is not met (%s)",
+    async (invalidPassword) => {
+      await expect(Password.create(invalidPassword)).rejects.toThrow(
+        new DomainError(VALIDATION_MESSAGES.PASSWORD_DOES_NOT_MEET_COMPLEXITY)
+      );
+    }
+  );
 });
