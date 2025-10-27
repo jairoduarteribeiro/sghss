@@ -43,6 +43,7 @@ export class Password {
       else if (ch >= "a" && ch <= "z") hasLower = true;
       else if (ch >= "0" && ch <= "9") hasNumber = true;
       else if (ALLOWED_SPECIAL_CHARS.includes(ch)) hasSpecial = true;
+      else throw new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_CHARS);
     }
     if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
       throw new DomainError(
