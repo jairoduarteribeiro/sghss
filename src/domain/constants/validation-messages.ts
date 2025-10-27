@@ -7,4 +7,5 @@ export const VALIDATION_MESSAGES = {
   PASSWORD_INVALID_LENGTH: "Password must be between 8 and 20 characters long",
   PASSWORD_DOES_NOT_MEET_COMPLEXITY:
     "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  PASSWORD_INVALID_CHARS: "Password contains invalid characters",
 };
