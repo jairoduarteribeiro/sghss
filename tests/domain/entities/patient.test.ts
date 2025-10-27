@@ -1,5 +1,6 @@
 import { Patient } from "@/domain/entities/patient";
 import { DomainError } from "@/domain/errors/domain-error";
+import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect } from "bun:test";
 
 const UUID7_REGEX =
@@ -50,5 +51,24 @@ describe("Patient entity", () => {
       password: "invalid-password",
     };
     expect(Patient.create(input)).rejects.toThrow(DomainError);
+  });
+
+  test("Should hydrate a Patient instance from input data", async () => {
+    const password = await Password.create("Password123!");
+    const input = {
+      id: "0195a6d5-6b5d-7a00-987d-1a2b3c4d5e6f",
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      passwordHash: password.hash,
+    };
+    const patient = Patient.hydrate(input);
+    expect(patient.id).toBe(input.id);
+    expect(patient.name).toBe(input.name);
+    expect(patient.cpf.value).toBe(input.cpf);
+    expect(patient.email.value).toBe(input.email);
+    expect(patient.password.hash).toBe(password.hash);
+    expect(await patient.password.verify("Password123!")).toBeTruthy();
+    expect(await patient.password.verify("WrongPassword1!")).toBeFalsy();
   });
 });
