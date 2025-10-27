@@ -34,4 +34,11 @@ describe("Password value object", () => {
       );
     }
   );
+
+  test("Should not create a Password if it contains invalid characters", async () => {
+    const invalidPassword = "Password123€";
+    await expect(Password.create(invalidPassword)).rejects.toThrow(
+      new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_CHARS)
+    );
+  });
 });
