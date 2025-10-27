@@ -3,6 +3,7 @@ import { DomainError } from "@/domain/errors/domain-error";
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 20;
+const ALLOWED_SPECIAL_CHARS = "!@#$%^&*._-";
 
 export class Password {
   private constructor(public readonly hash: string) {}
@@ -25,9 +26,28 @@ export class Password {
     if (!this.hasValidLength(plainText)) {
       throw new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_LENGTH);
     }
+    this.checkComplexity(plainText);
   }
 
   private static hasValidLength(plainText: string): boolean {
     return plainText.length >= MIN_LENGTH && plainText.length <= MAX_LENGTH;
+  }
+
+  private static checkComplexity(plainText: string): void {
+    let hasUpper = false;
+    let hasLower = false;
+    let hasNumber = false;
+    let hasSpecial = false;
+    for (const ch of plainText) {
+      if (ch >= "A" && ch <= "Z") hasUpper = true;
+      else if (ch >= "a" && ch <= "z") hasLower = true;
+      else if (ch >= "0" && ch <= "9") hasNumber = true;
+      else if (ALLOWED_SPECIAL_CHARS.includes(ch)) hasSpecial = true;
+    }
+    if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+      throw new DomainError(
+        VALIDATION_MESSAGES.PASSWORD_DOES_NOT_MEET_COMPLEXITY
+      );
+    }
   }
 }
