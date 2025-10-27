@@ -26,7 +26,7 @@ describe("Patient entity", () => {
       email: "john.doe@example.com",
       password: "Password123!",
     };
-    await expect(Patient.create(input)).rejects.toThrow(DomainError);
+    expect(Patient.create(input)).rejects.toThrow(DomainError);
   });
 
   test("Should throw a DomainError if an invalid email is provided", async () => {
@@ -36,6 +36,6 @@ describe("Patient entity", () => {
       email: "invalid-email",
       password: "Password123!",
     };
-    await expect(Patient.create(input)).rejects.toThrow(DomainError);
+    expect(Patient.create(input)).rejects.toThrow(DomainError);
   });
 });
