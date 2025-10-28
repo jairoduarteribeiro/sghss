@@ -94,4 +94,15 @@ describe("RegisterPatientUseCase", () => {
       new ApplicationError(APPLICATION_ERROR_MESSAGES.CPF_ALREADY_IN_USE)
     );
   });
+
+  test("Should throw an ApplicationError if CPF is invalid", async () => {
+    const input = {
+      name: "Invalid CPF User",
+      email: "invalid.cpf@example.com",
+      cpf: "111.111.111-11",
+      password: "Password456!",
+    };
+    const act = useCase.execute(input);
+    expect(act).rejects.toThrow(ApplicationError);
+  });
 });
