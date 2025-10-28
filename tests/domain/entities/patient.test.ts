@@ -20,8 +20,9 @@ describe("Patient entity", () => {
     expect(patient.name).toBe(input.name);
     expect(patient.email.value).toBe(input.email);
     expect(patient.cpf.value).toBe(input.cpf);
-    expect(patient.password.hash.length).toBeGreaterThan(0);
     expect(patient.password.hash).not.toBe(input.password);
+    expect(await patient.password.verify("Password123!")).toBeTruthy();
+    expect(await patient.password.verify("WrongPassword1!")).toBeFalsy();
   });
 
   test("Should throw a DomainError if an invalid CPF is provided", async () => {
