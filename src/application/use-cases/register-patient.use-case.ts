@@ -16,6 +16,10 @@ export class RegisterPatientUseCase {
   public async execute(
     input: RegisterPatientInput
   ): Promise<RegisterPatientOutput> {
+    const cpf = new Cpf(input.cpf);
+    if (await this.patientRepository.findByCpf(cpf)) {
+      throw new ApplicationError(APPLICATION_ERROR_MESSAGES.CPF_ALREADY_IN_USE);
+    }
     const email = new Email(input.email);
     if (await this.patientRepository.findByEmail(email)) {
       throw new ApplicationError(
@@ -25,7 +29,7 @@ export class RegisterPatientUseCase {
     const patient = Patient.create({
       name: input.name,
       email,
-      cpf: new Cpf(input.cpf),
+      cpf,
       password: await Password.create(input.password),
     });
     await this.patientRepository.save(patient);
