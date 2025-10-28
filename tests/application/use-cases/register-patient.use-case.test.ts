@@ -1,7 +1,12 @@
+import { APPLICATION_ERROR_MESSAGES } from "@/application/constants/application-error-messages";
+import { ApplicationError } from "@/application/errors/application-error";
 import type { PatientRepository } from "@/application/ports/patient-repository.port";
 import { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
 import { Patient } from "@/domain/entities/patient";
 import type { PatientID } from "@/domain/types/id";
+import { Cpf } from "@/domain/value-objects/cpf";
+import { Email } from "@/domain/value-objects/email";
+import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect, spyOn, beforeEach } from "bun:test";
 
 class FakePatientRepository implements PatientRepository {
@@ -13,6 +18,10 @@ class FakePatientRepository implements PatientRepository {
 
   async findById(id: PatientID): Promise<Patient | null> {
     return this.patients.find((p) => p.id === id) || null;
+  }
+
+  async findByEmail(email: Email): Promise<Patient | null> {
+    return this.patients.find((p) => p.email.value === email.value) || null;
   }
 }
 
@@ -40,5 +49,25 @@ describe("RegisterPatientUseCase", () => {
     expect(savedPatient?.name).toBe(input.name);
     expect(savedPatient?.cpf.value).toBe(input.cpf);
     expect(savedPatient?.email.value).toBe(input.email);
+  });
+
+  test("Should throw an error if email is already in use", async () => {
+    const existingPatient = Patient.create({
+      name: "Existing User",
+      cpf: new Cpf("70000000400"),
+      email: new Email("test@example.com"),
+      password: await Password.create("Password123!"),
+    });
+    await fakeRepo.save(existingPatient);
+    const input = {
+      name: "New User",
+      email: "test@example.com",
+      cpf: "12984180038",
+      password: "Password456!",
+    };
+    const act = useCase.execute(input);
+    expect(act).rejects.toThrow(
+      new ApplicationError(APPLICATION_ERROR_MESSAGES.EMAIL_ALREADY_IN_USE)
+    );
   });
 });
