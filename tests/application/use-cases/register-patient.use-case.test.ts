@@ -20,6 +20,10 @@ class FakePatientRepository implements PatientRepository {
     return this.patients.find((p) => p.id === id) || null;
   }
 
+  async findByCpf(cpf: Cpf): Promise<Patient | null> {
+    return this.patients.find((p) => p.cpf.value === cpf.value) || null;
+  }
+
   async findByEmail(email: Email): Promise<Patient | null> {
     return this.patients.find((p) => p.email.value === email.value) || null;
   }
@@ -68,6 +72,26 @@ describe("RegisterPatientUseCase", () => {
     const act = useCase.execute(input);
     expect(act).rejects.toThrow(
       new ApplicationError(APPLICATION_ERROR_MESSAGES.EMAIL_ALREADY_IN_USE)
+    );
+  });
+
+  test("Should throw an error if CPF is already in use", async () => {
+    const existingPatient = await Patient.create({
+      name: "Existing User",
+      cpf: new Cpf("70000000400"),
+      email: new Email("unique.email@example.com"),
+      password: await Password.create("Password123!"),
+    });
+    await fakeRepo.save(existingPatient);
+    const input = {
+      name: "New User",
+      cpf: "70000000400",
+      email: "new.user@example.com",
+      password: "Password456!",
+    };
+    const act = useCase.execute(input);
+    expect(act).rejects.toThrow(
+      new ApplicationError(APPLICATION_ERROR_MESSAGES.CPF_ALREADY_IN_USE)
     );
   });
 });
