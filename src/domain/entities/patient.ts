@@ -1,11 +1,7 @@
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
-import {
-  createPatientID,
-  hydratePatientID,
-  type PatientID,
-} from "@/domain/types/id";
+import { createPatientID, type PatientID } from "@/domain/types/id";
 
 type PatientProps = {
   id: PatientID;
@@ -30,34 +26,34 @@ export class Patient {
     this.password = props.password;
   }
 
-  public static async create(input: {
+  public static create(input: {
     name: string;
-    cpf: string;
-    email: string;
-    password: string;
-  }): Promise<Patient> {
+    cpf: Cpf;
+    email: Email;
+    password: Password;
+  }): Patient {
     return new Patient({
       id: createPatientID(),
       name: input.name,
-      cpf: new Cpf(input.cpf),
-      email: new Email(input.email),
-      password: await Password.create(input.password),
+      cpf: input.cpf,
+      email: input.email,
+      password: input.password,
     });
   }
 
   public static hydrate(input: {
-    id: string;
+    id: PatientID;
     name: string;
-    cpf: string;
-    email: string;
-    passwordHash: string;
+    cpf: Cpf;
+    email: Email;
+    password: Password;
   }): Patient {
     return new Patient({
-      id: hydratePatientID(input.id),
+      id: input.id,
       name: input.name,
-      cpf: new Cpf(input.cpf),
-      email: new Email(input.email),
-      password: Password.hydrate(input.passwordHash),
+      cpf: input.cpf,
+      email: input.email,
+      password: input.password,
     });
   }
 }
