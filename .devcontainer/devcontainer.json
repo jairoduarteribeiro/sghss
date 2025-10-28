@@ -10,6 +10,7 @@
     }
   },
   "remoteUser": "bun",
+  "postStartCommand": "bun install --frozen-lockfile",
   "customizations": {
     "vscode": {
       "extensions": [
