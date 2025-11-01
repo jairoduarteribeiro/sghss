@@ -4,12 +4,14 @@ import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 
 export class Cpf {
-  constructor(public readonly value: string) {
-    this.validate(value);
-    this.value = this.clean(value);
+  private constructor(public readonly value: string) {}
+
+  public static create(cpf: string): Cpf {
+    this.validate(cpf);
+    return new Cpf(this.clean(cpf));
   }
 
-  private validate(cpf: string): void {
+  private static validate(cpf: string): void {
     if (!this.hasValidFormat(cpf)) {
       throw new DomainError(VALIDATION_MESSAGES.CPF_INVALID_FORMAT);
     }
@@ -25,20 +27,20 @@ export class Cpf {
     }
   }
 
-  private clean(cpf: string): string {
+  private static clean(cpf: string): string {
     return cpf.replace(/\D/g, "");
   }
 
-  private hasValidFormat(cpf: string): boolean {
+  private static hasValidFormat(cpf: string): boolean {
     return CPF_REGEX.test(cpf);
   }
 
-  private hasAllDigitsTheSame(cpf: string): boolean {
+  private static hasAllDigitsTheSame(cpf: string): boolean {
     const [firstDigit] = cpf;
     return cpf.split("").every((digit) => digit === firstDigit);
   }
 
-  private calculateCheckDigit(cpf: string): number {
+  private static calculateCheckDigit(cpf: string): number {
     let weight = cpf.length + 1;
     const sum = cpf
       .split("")
@@ -48,7 +50,7 @@ export class Cpf {
     return remainder < 2 ? 0 : 11 - remainder;
   }
 
-  private extractCheckDigits(cpf: string): string {
+  private static extractCheckDigits(cpf: string): string {
     return cpf.slice(-2);
   }
 }

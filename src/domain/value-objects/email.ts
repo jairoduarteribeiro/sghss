@@ -6,12 +6,15 @@ const EMAIL_REGEX =
 const MAX_EMAIL_SIZE = 254;
 
 export class Email {
-  constructor(public readonly value: string) {
-    this.value = this.normalize(value);
-    this.validate(this.value);
+  private constructor(public readonly value: string) {}
+
+  public static create(email: string): Email {
+    const normalizedEmail = this.normalize(email);
+    this.validate(normalizedEmail);
+    return new Email(normalizedEmail);
   }
 
-  private validate(email: string): void {
+  private static validate(email: string): void {
     if (email.length > MAX_EMAIL_SIZE) {
       throw new DomainError(VALIDATION_MESSAGES.EMAIL_TOO_LONG);
     }
@@ -20,11 +23,11 @@ export class Email {
     }
   }
 
-  private normalize(email: string): string {
+  private static normalize(email: string): string {
     return email.trim().toLowerCase();
   }
 
-  private hasValidFormat(email: string): boolean {
+  private static hasValidFormat(email: string): boolean {
     return EMAIL_REGEX.test(email);
   }
 }

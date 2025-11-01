@@ -1,34 +1,16 @@
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
-import {
-  createPatientID,
-  hydratePatientID,
-  type PatientID,
-} from "@/domain/types/id";
-
-type PatientProps = {
-  id: PatientID;
-  name: string;
-  cpf: Cpf;
-  email: Email;
-  password: Password;
-};
+import { Uuid } from "@/domain/value-objects/uuid";
 
 export class Patient {
-  public readonly id: PatientID;
-  public readonly name: string;
-  public readonly cpf: Cpf;
-  public readonly email: Email;
-  public readonly password: Password;
-
-  private constructor(props: PatientProps) {
-    this.id = props.id;
-    this.name = props.name;
-    this.cpf = props.cpf;
-    this.email = props.email;
-    this.password = props.password;
-  }
+  private constructor(
+    private readonly _id: Uuid,
+    private readonly _name: string,
+    private readonly _cpf: Cpf,
+    private readonly _email: Email,
+    private readonly _password: Password
+  ) {}
 
   public static async create(input: {
     name: string;
@@ -36,13 +18,13 @@ export class Patient {
     email: string;
     password: string;
   }): Promise<Patient> {
-    return new Patient({
-      id: createPatientID(),
-      name: input.name,
-      cpf: new Cpf(input.cpf),
-      email: new Email(input.email),
-      password: await Password.create(input.password),
-    });
+    return new Patient(
+      Uuid.create(),
+      input.name,
+      Cpf.create(input.cpf),
+      Email.create(input.email),
+      await Password.create(input.password)
+    );
   }
 
   public static hydrate(input: {
@@ -52,12 +34,36 @@ export class Patient {
     email: string;
     passwordHash: string;
   }): Patient {
-    return new Patient({
-      id: hydratePatientID(input.id),
-      name: input.name,
-      cpf: new Cpf(input.cpf),
-      email: new Email(input.email),
-      password: Password.hydrate(input.passwordHash),
-    });
+    return new Patient(
+      Uuid.hydrate(input.id),
+      input.name,
+      Cpf.create(input.cpf),
+      Email.create(input.email),
+      Password.hydrate(input.passwordHash)
+    );
+  }
+
+  get id(): string {
+    return this._id.value;
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get cpf(): string {
+    return this._cpf.value;
+  }
+
+  get email(): string {
+    return this._email.value;
+  }
+
+  get passwordHash(): string {
+    return this._password.hash;
+  }
+
+  public async verifyPassword(plainText: string): Promise<boolean> {
+    return await this._password.verify(plainText);
   }
 }
