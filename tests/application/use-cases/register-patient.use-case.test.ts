@@ -32,7 +32,7 @@ describe("RegisterPatient Use Case", () => {
 
   beforeEach(() => {
     patientRepository = new InMemoryPatientRepository();
-    useCase = new RegisterPatientUseCase(patientRepository);
+    useCase = new RegisterPatientUseCase(patientRepository, patientRepository);
   });
 
   test("Should register a new patient successfully", async () => {
@@ -56,5 +56,24 @@ describe("RegisterPatient Use Case", () => {
     expect(savedPatient?.name).toBe(output.name);
     expect(savedPatient?.cpf).toBe(output.cpf);
     expect(savedPatient?.email).toBe(output.email);
+  });
+
+  test("Should not register a patient with an existing email", async () => {
+    const input1 = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    await useCase.execute(input1);
+    const input2 = {
+      name: "John Smith Doe",
+      cpf: "12984180038",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    await expect(useCase.execute(input2)).rejects.toThrowError(
+      "Email already in use"
+    );
   });
 });
