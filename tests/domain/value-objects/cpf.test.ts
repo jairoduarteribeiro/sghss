@@ -1,5 +1,3 @@
-import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
-import { DomainError } from "@/domain/errors/domain-error";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { describe, test, expect } from "bun:test";
 
@@ -25,9 +23,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if a invalid value (%s) is provided",
     (invalidCpf) => {
       const act = () => Cpf.create(invalidCpf);
-      expect(act).toThrow(
-        new DomainError(VALIDATION_MESSAGES.CPF_INVALID_FORMAT)
-      );
+      expect(act).toThrow(new Error("CPF with invalid format"));
     }
   );
 
@@ -46,9 +42,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if all digits are the same (%s)",
     (invalidCpf) => {
       const act = () => Cpf.create(invalidCpf);
-      expect(act).toThrow(
-        new DomainError(VALIDATION_MESSAGES.CPF_ALL_DIGITS_ARE_THE_SAME)
-      );
+      expect(act).toThrow(new Error("CPF cannot have all digits the same"));
     }
   );
 
@@ -56,9 +50,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if check digits are invalid (%s)",
     (invalidCpf) => {
       const act = () => Cpf.create(invalidCpf);
-      expect(act).toThrow(
-        new DomainError(VALIDATION_MESSAGES.CPF_INVALID_CHECK_DIGITS)
-      );
+      expect(act).toThrow(new Error("CPF with invalid check digits"));
     }
   );
 });

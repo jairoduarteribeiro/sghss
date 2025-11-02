@@ -1,5 +1,3 @@
-import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
-import { DomainError } from "@/domain/errors/domain-error";
 import { Email } from "@/domain/value-objects/email";
 import { describe, test, expect } from "bun:test";
 
@@ -42,7 +40,7 @@ describe("Email value object", () => {
   test("Should not create an Email with invalid length (255 chars)", () => {
     const longEmail = generateEmailWithLength(255);
     const act = () => Email.create(longEmail);
-    expect(act).toThrow(new DomainError(VALIDATION_MESSAGES.EMAIL_TOO_LONG));
+    expect(act).toThrow(new Error("Email must be at most 254 characters long"));
   });
 
   test.each([
@@ -67,9 +65,7 @@ describe("Email value object", () => {
     "Should not create an Email if format is invalid (%s)",
     (invalidFormat) => {
       const act = () => Email.create(invalidFormat);
-      expect(act).toThrow(
-        new DomainError(VALIDATION_MESSAGES.EMAIL_INVALID_FORMAT)
-      );
+      expect(act).toThrow(new Error("Email with invalid format"));
     }
   );
 });

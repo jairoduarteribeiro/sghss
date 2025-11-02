@@ -1,6 +1,3 @@
-import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
-import { DomainError } from "@/domain/errors/domain-error";
-
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 20;
 const ALLOWED_SPECIAL_CHARS = "!@#$%^&*._-";
@@ -24,7 +21,9 @@ export class Password {
 
   private static validate(plainText: string): void {
     if (!this.hasValidLength(plainText)) {
-      throw new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_LENGTH);
+      throw new Error(
+        `Password length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
+      );
     }
     this.checkComplexity(plainText);
   }
@@ -43,11 +42,11 @@ export class Password {
       else if (ch >= "a" && ch <= "z") hasLower = true;
       else if (ch >= "0" && ch <= "9") hasNumber = true;
       else if (ALLOWED_SPECIAL_CHARS.includes(ch)) hasSpecial = true;
-      else throw new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_CHARS);
+      else throw new Error("Password contains invalid characters");
     }
     if (!hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-      throw new DomainError(
-        VALIDATION_MESSAGES.PASSWORD_DOES_NOT_MEET_COMPLEXITY
+      throw new Error(
+        "Password must have at least 1 uppercase, 1 lowercase, 1 number and 1 special character"
       );
     }
   }

@@ -1,5 +1,4 @@
 import { Patient } from "@/domain/entities/patient";
-import { DomainError } from "@/domain/errors/domain-error";
 import { describe, test, expect } from "bun:test";
 
 const UUID7_REGEX =
@@ -45,6 +44,8 @@ describe("Patient entity", () => {
       email: "john.doe@example.com",
       password: "Password123!",
     };
-    expect(Patient.create(input)).rejects.toThrow(DomainError);
+    expect(Patient.create(input)).rejects.toThrow(
+      new Error("CPF cannot have all digits the same")
+    );
   });
 });

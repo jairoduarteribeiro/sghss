@@ -1,5 +1,3 @@
-import { VALIDATION_MESSAGES } from "@/domain/constants/validation-messages";
-import { DomainError } from "@/domain/errors/domain-error";
 import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect } from "bun:test";
 
@@ -21,7 +19,7 @@ describe("Password value object", () => {
     "Should not create a Password if length is invalid (%s)",
     async (invalidPassword) => {
       expect(Password.create(invalidPassword)).rejects.toThrow(
-        new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_LENGTH)
+        new Error("Password length must be between 8 and 20 characters")
       );
     }
   );
@@ -30,7 +28,9 @@ describe("Password value object", () => {
     "Should not create a Password if complexity is not met (%s)",
     async (invalidPassword) => {
       expect(Password.create(invalidPassword)).rejects.toThrow(
-        new DomainError(VALIDATION_MESSAGES.PASSWORD_DOES_NOT_MEET_COMPLEXITY)
+        new Error(
+          "Password must have at least 1 uppercase, 1 lowercase, 1 number and 1 special character"
+        )
       );
     }
   );
@@ -38,7 +38,7 @@ describe("Password value object", () => {
   test("Should not create a Password if it contains invalid characters", async () => {
     const invalidPassword = "Password123€";
     expect(Password.create(invalidPassword)).rejects.toThrow(
-      new DomainError(VALIDATION_MESSAGES.PASSWORD_INVALID_CHARS)
+      new Error("Password contains invalid characters")
     );
   });
 });
