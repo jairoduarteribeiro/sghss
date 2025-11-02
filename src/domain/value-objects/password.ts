@@ -5,13 +5,13 @@ const ALLOWED_SPECIAL_CHARS = "!@#$%^&*._-";
 export class Password {
   private constructor(public readonly hash: string) {}
 
-  public static async create(plainText: string): Promise<Password> {
+  public static async from(plainText: string): Promise<Password> {
     this.validate(plainText);
     const hash = await Bun.password.hash(plainText);
     return new Password(hash);
   }
 
-  public static hydrate(hash: string): Password {
+  public static fromHash(hash: string): Password {
     return new Password(hash);
   }
 

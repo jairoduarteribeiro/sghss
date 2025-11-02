@@ -19,7 +19,7 @@ describe("Email value object", () => {
   ])(
     "Should create an Email if a valid value (%s) is provided",
     (validEmail) => {
-      const email = Email.create(validEmail);
+      const email = Email.from(validEmail);
       expect(email.value).toBe(validEmail);
     }
   );
@@ -27,19 +27,19 @@ describe("Email value object", () => {
   test("Should create a normalized (lowercase and trimmed) Email", () => {
     const unnormalizedEmail = "  Test@Example.COM  ";
     const expectedNormalizedEmail = "test@example.com";
-    const email = Email.create(unnormalizedEmail);
+    const email = Email.from(unnormalizedEmail);
     expect(email.value).toBe(expectedNormalizedEmail);
   });
 
   test("Should create an Email with max valid length (254 chars)", () => {
     const longEmail = generateEmailWithLength(254);
-    const email = Email.create(longEmail);
+    const email = Email.from(longEmail);
     expect(email.value).toBe(longEmail);
   });
 
   test("Should not create an Email with invalid length (255 chars)", () => {
     const longEmail = generateEmailWithLength(255);
-    const act = () => Email.create(longEmail);
+    const act = () => Email.from(longEmail);
     expect(act).toThrow(new Error("Email must be at most 254 characters long"));
   });
 
@@ -64,7 +64,7 @@ describe("Email value object", () => {
   ])(
     "Should not create an Email if format is invalid (%s)",
     (invalidFormat) => {
-      const act = () => Email.create(invalidFormat);
+      const act = () => Email.from(invalidFormat);
       expect(act).toThrow(new Error("Email with invalid format"));
     }
   );

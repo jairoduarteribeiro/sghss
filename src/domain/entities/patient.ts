@@ -19,11 +19,11 @@ export class Patient {
     password: string;
   }): Promise<Patient> {
     return new Patient(
-      Uuid.create(),
+      Uuid.generate(),
       input.name,
-      Cpf.create(input.cpf),
-      Email.create(input.email),
-      await Password.create(input.password)
+      Cpf.from(input.cpf),
+      Email.from(input.email),
+      await Password.from(input.password)
     );
   }
 
@@ -35,11 +35,11 @@ export class Patient {
     passwordHash: string;
   }): Patient {
     return new Patient(
-      Uuid.hydrate(input.id),
+      Uuid.fromString(input.id),
       input.name,
-      Cpf.create(input.cpf),
-      Email.create(input.email),
-      Password.hydrate(input.passwordHash)
+      Cpf.from(input.cpf),
+      Email.from(input.email),
+      Password.fromHash(input.passwordHash)
     );
   }
 

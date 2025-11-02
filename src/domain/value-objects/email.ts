@@ -5,7 +5,7 @@ const MAX_EMAIL_SIZE = 254;
 export class Email {
   private constructor(public readonly value: string) {}
 
-  public static create(email: string): Email {
+  public static from(email: string): Email {
     const normalizedEmail = this.normalize(email);
     this.validate(normalizedEmail);
     return new Email(normalizedEmail);

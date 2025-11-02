@@ -5,7 +5,7 @@ describe("Cpf value object", () => {
   test.each(["70000000400", "12984180038"])(
     "Should create a Cpf if a valid value (%s) is provided",
     (validCpf) => {
-      const cpf = Cpf.create(validCpf);
+      const cpf = Cpf.from(validCpf);
       expect(cpf.value).toBe(validCpf);
     }
   );
@@ -14,7 +14,7 @@ describe("Cpf value object", () => {
     "Should create a Cpf by removing symbols (%s)",
     (formattedCpf) => {
       const unformattedCpf = formattedCpf.replace(/\D/g, "");
-      const cpf = Cpf.create(formattedCpf);
+      const cpf = Cpf.from(formattedCpf);
       expect(cpf.value).toBe(unformattedCpf);
     }
   );
@@ -22,7 +22,7 @@ describe("Cpf value object", () => {
   test.each(["123.456.78900", "123456789-00", "abc.def.ghi-jk"])(
     "Should not create a Cpf if a invalid value (%s) is provided",
     (invalidCpf) => {
-      const act = () => Cpf.create(invalidCpf);
+      const act = () => Cpf.from(invalidCpf);
       expect(act).toThrow(new Error("CPF with invalid format"));
     }
   );
@@ -41,7 +41,7 @@ describe("Cpf value object", () => {
   ])(
     "Should not create a Cpf if all digits are the same (%s)",
     (invalidCpf) => {
-      const act = () => Cpf.create(invalidCpf);
+      const act = () => Cpf.from(invalidCpf);
       expect(act).toThrow(new Error("CPF cannot have all digits the same"));
     }
   );
@@ -49,7 +49,7 @@ describe("Cpf value object", () => {
   test.each(["70000000401", "70000000410", "12984180039", "12984180048"])(
     "Should not create a Cpf if check digits are invalid (%s)",
     (invalidCpf) => {
-      const act = () => Cpf.create(invalidCpf);
+      const act = () => Cpf.from(invalidCpf);
       expect(act).toThrow(new Error("CPF with invalid check digits"));
     }
   );

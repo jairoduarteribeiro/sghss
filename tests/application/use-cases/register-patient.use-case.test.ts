@@ -49,7 +49,7 @@ describe("RegisterPatient Use Case", () => {
     expect(output.email).toBe(input.email);
     expect(output.cpf).toBe(input.cpf);
     const savedPatient = await patientRepository.findByEmail(
-      Email.create(input.email)
+      Email.from(input.email)
     );
     expect(savedPatient).toBeDefined();
     expect(savedPatient?.id).toBe(output.id);
