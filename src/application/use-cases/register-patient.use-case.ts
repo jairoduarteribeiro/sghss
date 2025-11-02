@@ -1,4 +1,7 @@
-import type { IWritePatientRepository } from "@/application/repositories/patient.repository";
+import type {
+  IReadPatientRepository,
+  IWritePatientRepository,
+} from "@/application/repositories/patient.repository";
 import { Patient } from "@/domain/entities/patient";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
@@ -20,16 +23,21 @@ type RegisterPatientOutput = {
 
 export class RegisterPatientUseCase {
   constructor(
+    private readonly readPatientRepository: IReadPatientRepository,
     private readonly writePatientRepository: IWritePatientRepository
   ) {}
 
   public async execute(
     input: RegisterPatientInput
   ): Promise<RegisterPatientOutput> {
+    const email = Email.from(input.email);
+    if (await this.emailExists(email)) {
+      throw new Error("Email already in use");
+    }
     const patient = Patient.from(
       input.name,
       Cpf.from(input.cpf),
-      Email.from(input.email),
+      email,
       await Password.from(input.password)
     );
     await this.writePatientRepository.save(patient);
@@ -39,5 +47,10 @@ export class RegisterPatientUseCase {
       cpf: patient.cpf,
       email: patient.email,
     };
+  }
+
+  private async emailExists(email: Email): Promise<boolean> {
+    const patient = await this.readPatientRepository.findByEmail(email);
+    return patient !== null;
   }
 }
