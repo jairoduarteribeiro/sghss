@@ -12,35 +12,13 @@ export class Patient {
     private readonly _password: Password
   ) {}
 
-  public static async create(input: {
-    name: string;
-    cpf: string;
-    email: string;
-    password: string;
-  }): Promise<Patient> {
-    return new Patient(
-      Uuid.generate(),
-      input.name,
-      Cpf.from(input.cpf),
-      Email.from(input.email),
-      await Password.from(input.password)
-    );
-  }
-
-  public static hydrate(input: {
-    id: string;
-    name: string;
-    cpf: string;
-    email: string;
-    passwordHash: string;
-  }): Patient {
-    return new Patient(
-      Uuid.fromString(input.id),
-      input.name,
-      Cpf.from(input.cpf),
-      Email.from(input.email),
-      Password.fromHash(input.passwordHash)
-    );
+  public static from(
+    name: string,
+    cpf: Cpf,
+    email: Email,
+    password: Password
+  ): Patient {
+    return new Patient(Uuid.generate(), name, cpf, email, password);
   }
 
   get id(): string {
