@@ -23,7 +23,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if a invalid value (%s) is provided",
     (invalidCpf) => {
       const act = () => Cpf.from(invalidCpf);
-      expect(act).toThrow(new Error("CPF with invalid format"));
+      expect(act).toThrowError("CPF with invalid format");
     }
   );
 
@@ -42,7 +42,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if all digits are the same (%s)",
     (invalidCpf) => {
       const act = () => Cpf.from(invalidCpf);
-      expect(act).toThrow(new Error("CPF cannot have all digits the same"));
+      expect(act).toThrowError("CPF cannot have all digits the same");
     }
   );
 
@@ -50,7 +50,7 @@ describe("Cpf value object", () => {
     "Should not create a Cpf if check digits are invalid (%s)",
     (invalidCpf) => {
       const act = () => Cpf.from(invalidCpf);
-      expect(act).toThrow(new Error("CPF with invalid check digits"));
+      expect(act).toThrowError("CPF with invalid check digits");
     }
   );
 });

@@ -18,8 +18,8 @@ describe("Password value object", () => {
   test.each(["Short1!", "ThisIsWayTooLongPass1!"])(
     "Should not create a Password if length is invalid (%s)",
     async (invalidPassword) => {
-      expect(Password.from(invalidPassword)).rejects.toThrow(
-        new Error("Password length must be between 8 and 20 characters")
+      expect(Password.from(invalidPassword)).rejects.toThrowError(
+        "Password length must be between 8 and 20 characters"
       );
     }
   );
@@ -27,18 +27,16 @@ describe("Password value object", () => {
   test.each(["password123!", "PASSWORD123!", "PasswordAbc!", "Password123"])(
     "Should not create a Password if complexity is not met (%s)",
     async (invalidPassword) => {
-      expect(Password.from(invalidPassword)).rejects.toThrow(
-        new Error(
-          "Password must have at least 1 uppercase, 1 lowercase, 1 number and 1 special character"
-        )
+      expect(Password.from(invalidPassword)).rejects.toThrowError(
+        "Password must have at least 1 uppercase, 1 lowercase, 1 number and 1 special character"
       );
     }
   );
 
   test("Should not create a Password if it contains invalid characters", async () => {
     const invalidPassword = "Password123€";
-    expect(Password.from(invalidPassword)).rejects.toThrow(
-      new Error("Password contains invalid characters")
+    expect(Password.from(invalidPassword)).rejects.toThrowError(
+      "Password contains invalid characters"
     );
   });
 });

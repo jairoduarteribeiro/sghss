@@ -40,7 +40,7 @@ describe("Email value object", () => {
   test("Should not create an Email with invalid length (255 chars)", () => {
     const longEmail = generateEmailWithLength(255);
     const act = () => Email.from(longEmail);
-    expect(act).toThrow(new Error("Email must be at most 254 characters long"));
+    expect(act).toThrowError("Email must be at most 254 characters long");
   });
 
   test.each([
@@ -65,7 +65,7 @@ describe("Email value object", () => {
     "Should not create an Email if format is invalid (%s)",
     (invalidFormat) => {
       const act = () => Email.from(invalidFormat);
-      expect(act).toThrow(new Error("Email with invalid format"));
+      expect(act).toThrowError("Email with invalid format");
     }
   );
 });
