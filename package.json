@@ -8,5 +8,9 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "inversify": "^7.10.4",
+    "reflect-metadata": "^0.2.2"
   }
 }

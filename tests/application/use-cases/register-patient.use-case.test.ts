@@ -1,43 +1,25 @@
-import type {
-  IReadPatientRepository,
-  IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
+import { testContainer } from "tests/config/inversify.container";
+import { SYMBOLS } from "@/inversify.symbols";
 import { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
-import type { Patient } from "@/domain/entities/patient";
-import type { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { describe, test, expect, beforeEach } from "bun:test";
+import { InMemoryPatientRepository } from "@tests/fakes/in-memory-patient.repository";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-
-class InMemoryPatientRepository
-  implements IReadPatientRepository, IWritePatientRepository
-{
-  private patients: Patient[] = [];
-
-  public async findByCpf(cpf: Cpf): Promise<Patient | null> {
-    return this.patients.find((patient) => patient.cpf === cpf.value) || null;
-  }
-
-  public async findByEmail(email: Email): Promise<Patient | null> {
-    return (
-      this.patients.find((patient) => patient.email === email.value) || null
-    );
-  }
-
-  public async save(patient: Patient): Promise<void> {
-    this.patients.push(patient);
-  }
-}
 
 describe("RegisterPatient Use Case", () => {
   let patientRepository: InMemoryPatientRepository;
   let useCase: RegisterPatientUseCase;
 
   beforeEach(() => {
-    patientRepository = new InMemoryPatientRepository();
-    useCase = new RegisterPatientUseCase(patientRepository, patientRepository);
+    useCase = testContainer.get<RegisterPatientUseCase>(
+      SYMBOLS.RegisterPatientUseCase
+    );
+    patientRepository = testContainer.get<InMemoryPatientRepository>(
+      InMemoryPatientRepository
+    );
+    patientRepository.clear();
   });
 
   test("Should register a new patient successfully", async () => {

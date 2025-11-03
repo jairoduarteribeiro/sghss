@@ -6,6 +6,8 @@ import { Patient } from "@/domain/entities/patient";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
+import { SYMBOLS } from "@/inversify.symbols";
+import { inject, injectable } from "inversify";
 
 type RegisterPatientInput = {
   name: string;
@@ -21,9 +23,12 @@ type RegisterPatientOutput = {
   email: string;
 };
 
+@injectable()
 export class RegisterPatientUseCase {
   constructor(
+    @inject(SYMBOLS.IReadPatientRepository)
     private readonly readPatientRepository: IReadPatientRepository,
+    @inject(SYMBOLS.IWritePatientRepository)
     private readonly writePatientRepository: IWritePatientRepository
   ) {}
 
