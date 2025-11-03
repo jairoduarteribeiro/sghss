@@ -30,13 +30,17 @@ export class RegisterPatientUseCase {
   public async execute(
     input: RegisterPatientInput
   ): Promise<RegisterPatientOutput> {
+    const cpf = Cpf.from(input.cpf);
+    if (await this.cpfExists(cpf)) {
+      throw new Error("CPF already in use");
+    }
     const email = Email.from(input.email);
     if (await this.emailExists(email)) {
       throw new Error("Email already in use");
     }
     const patient = Patient.from(
       input.name,
-      Cpf.from(input.cpf),
+      cpf,
       email,
       await Password.from(input.password)
     );
@@ -51,6 +55,11 @@ export class RegisterPatientUseCase {
 
   private async emailExists(email: Email): Promise<boolean> {
     const patient = await this.readPatientRepository.findByEmail(email);
+    return patient !== null;
+  }
+
+  private async cpfExists(cpf: Cpf): Promise<boolean> {
+    const patient = await this.readPatientRepository.findByCpf(cpf);
     return patient !== null;
   }
 }
