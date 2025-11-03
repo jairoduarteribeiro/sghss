@@ -1,6 +1,8 @@
 {
   "name": "SGHSS Dev Container",
-  "image": "oven/bun:1",
+  "dockerComposeFile": "compose.yml",
+  "service": "web",
+  "workspaceFolder": "/workspaces/sghss",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true

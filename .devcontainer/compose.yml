@@ -1,0 +1,32 @@
+services:
+  web:
+    image: oven/bun:1
+    container_name: sghss-web
+    working_dir: /workspaces/sghss
+    volumes:
+      - ..:/workspaces/sghss:cached
+    environment:
+      DATABASE_URL: postgres://postgres:@Password123@db:5432/sghss
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sleep infinity
+
+  db:
+    image: postgres:18.0-alpine
+    container_name: sghss-db
+    environment:
+      POSTGRES_DB: sghss
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "@Password123"
+    volumes:
+      - sghss-data:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sghss"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  sghss-data:
