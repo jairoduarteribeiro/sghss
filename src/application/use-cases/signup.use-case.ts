@@ -1,6 +1,9 @@
 import { inject, injectable } from "inversify";
-import type { IWriteUserRepository } from "../repositories/user.repository";
-import type { IWritePatientRepository } from "../repositories/patient.repository";
+import type {
+  IReadUserRepository,
+  IWriteUserRepository,
+} from "@/application/repositories/user.repository";
+import type { IWritePatientRepository } from "@/application/repositories/patient.repository";
 import { SYMBOLS } from "@/inversify.symbols";
 import { User } from "@/domain/entities/user";
 import { Email } from "@/domain/value-objects/email";
@@ -29,6 +32,8 @@ type SignupOutput = {
 @injectable()
 export class SignupUseCase {
   constructor(
+    @inject(SYMBOLS.IReadUserRepository)
+    private readonly readUserRepository: IReadUserRepository,
     @inject(SYMBOLS.IWriteUserRepository)
     private readonly writeUserRepository: IWriteUserRepository,
     @inject(SYMBOLS.IWritePatientRepository)
@@ -36,8 +41,12 @@ export class SignupUseCase {
   ) {}
 
   async execute(input: SignupInput): Promise<SignupOutput> {
+    const email = Email.from(input.email);
+    if (await this.emailExists(email)) {
+      throw new Error("Email already in use");
+    }
     const user = User.from(
-      Email.from(input.email),
+      email,
       await Password.from(input.password),
       "PATIENT"
     );
@@ -56,5 +65,10 @@ export class SignupUseCase {
       email: user.email,
       role: user.role,
     };
+  }
+
+  private async emailExists(email: Email): Promise<boolean> {
+    const existingUser = await this.readUserRepository.findByEmail(email);
+    return existingUser !== null;
   }
 }
