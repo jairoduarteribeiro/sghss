@@ -6,4 +6,9 @@ describe("Name Value Object", () => {
     const name = Name.from("John Doe");
     expect(name.value).toBe("John Doe");
   });
+
+  test("Should trim and normalize a Name", () => {
+    const name = Name.from("   John   Doe   ");
+    expect(name.value).toBe("John Doe");
+  });
 });
