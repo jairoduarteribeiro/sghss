@@ -54,4 +54,21 @@ describe("Signup Use Case", () => {
     expect(savedPatient?.cpf).toBe(output.cpf);
     expect(savedPatient?.userId).toBe(savedUser?.id);
   });
+
+  test("Should not allow signup with existing email", async () => {
+    const input1 = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    await useCase.execute(input1);
+    const input2 = {
+      name: "John Smith Doe",
+      cpf: "12984180038",
+      email: "john.doe@example.com",
+      password: "Password456!",
+    };
+    expect(useCase.execute(input2)).rejects.toThrow("Email already in use");
+  });
 });
