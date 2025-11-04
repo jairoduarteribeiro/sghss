@@ -5,6 +5,7 @@ import type {
 import { Patient } from "@/domain/entities/patient";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
+import { Name } from "@/domain/value-objects/name";
 import { Password } from "@/domain/value-objects/password";
 import { SYMBOLS } from "@/inversify.symbols";
 import { inject, injectable } from "inversify";
@@ -44,7 +45,7 @@ export class RegisterPatientUseCase {
       throw new Error("Email already in use");
     }
     const patient = Patient.from(
-      input.name,
+      Name.from(input.name),
       cpf,
       email,
       await Password.from(input.password)

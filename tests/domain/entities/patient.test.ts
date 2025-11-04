@@ -1,6 +1,7 @@
 import { Patient } from "@/domain/entities/patient";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
+import { Name } from "@/domain/value-objects/name";
 import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect } from "bun:test";
 
@@ -10,7 +11,7 @@ const UUID7_REGEX =
 describe("Patient entity", () => {
   test("Should create a Patient successfully", async () => {
     const patient = Patient.from(
-      "John Doe",
+      Name.from("John Doe"),
       Cpf.from("70000000400"),
       Email.from("john.doe@example.com"),
       await Password.from("Password123!")

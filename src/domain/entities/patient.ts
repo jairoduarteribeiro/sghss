@@ -2,18 +2,19 @@ import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
 import { Uuid } from "@/domain/value-objects/uuid";
+import { Name } from "@/domain/value-objects/name";
 
 export class Patient {
   private constructor(
     private readonly _id: Uuid,
-    private readonly _name: string,
+    private readonly _name: Name,
     private readonly _cpf: Cpf,
     private readonly _email: Email,
     private readonly _password: Password
   ) {}
 
   public static from(
-    name: string,
+    name: Name,
     cpf: Cpf,
     email: Email,
     password: Password
@@ -26,7 +27,7 @@ export class Patient {
   }
 
   get name(): string {
-    return this._name;
+    return this._name.value;
   }
 
   get cpf(): string {
