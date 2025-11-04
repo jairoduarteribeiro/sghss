@@ -3,7 +3,10 @@ import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
-import type { IWritePatientRepository } from "@/application/repositories/patient.repository";
+import type {
+  IReadPatientRepository,
+  IWritePatientRepository,
+} from "@/application/repositories/patient.repository";
 import { SYMBOLS } from "@/inversify.symbols";
 import { User } from "@/domain/entities/user";
 import { Email } from "@/domain/value-objects/email";
@@ -36,11 +39,17 @@ export class SignupUseCase {
     private readonly readUserRepository: IReadUserRepository,
     @inject(SYMBOLS.IWriteUserRepository)
     private readonly writeUserRepository: IWriteUserRepository,
+    @inject(SYMBOLS.IReadPatientRepository)
+    private readonly readPatientRepository: IReadPatientRepository,
     @inject(SYMBOLS.IWritePatientRepository)
     private readonly writePatientRepository: IWritePatientRepository
   ) {}
 
   async execute(input: SignupInput): Promise<SignupOutput> {
+    const cpf = Cpf.from(input.cpf);
+    if (await this.cpfExists(cpf)) {
+      throw new Error("CPF already in use");
+    }
     const email = Email.from(input.email);
     if (await this.emailExists(email)) {
       throw new Error("Email already in use");
@@ -52,7 +61,7 @@ export class SignupUseCase {
     );
     const patient = Patient.from(
       Name.from(input.name),
-      Cpf.from(input.cpf),
+      cpf,
       Uuid.fromString(user.id)
     );
     await this.writeUserRepository.save(user);
@@ -70,5 +79,10 @@ export class SignupUseCase {
   private async emailExists(email: Email): Promise<boolean> {
     const existingUser = await this.readUserRepository.findByEmail(email);
     return existingUser !== null;
+  }
+
+  private async cpfExists(cpf: Cpf): Promise<boolean> {
+    const existingPatient = await this.readPatientRepository.findByCpf(cpf);
+    return existingPatient !== null;
   }
 }
