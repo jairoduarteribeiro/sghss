@@ -71,4 +71,21 @@ describe("Signup Use Case", () => {
     };
     expect(useCase.execute(input2)).rejects.toThrow("Email already in use");
   });
+
+  test("Should not allow signup with existing Cpf", async () => {
+    const input1 = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    await useCase.execute(input1);
+    const input2 = {
+      name: "John Smith Doe",
+      cpf: "70000000400",
+      email: "john.smith.doe@example.com",
+      password: "Password123!",
+    };
+    expect(useCase.execute(input2)).rejects.toThrow("CPF already in use");
+  });
 });
