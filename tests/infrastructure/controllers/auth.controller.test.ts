@@ -137,11 +137,21 @@ describe("Auth Controller", () => {
       password: signupInput.password,
     };
     const loginResponse = await request.post("/auth/login").send(loginInput);
-    expect(loginResponse).toBeDefined();
     expect(loginResponse.status).toBe(HttpStatus.OK);
     expect(loginResponse.body).toEqual({
       userId: signupResponse.body.userId,
       token: expect.stringMatching(JWT_REGEX),
     });
+  });
+
+  test("POST /auth/login should return 401 with non-existing email", async () => {
+    const loginInput = {
+      email: "non.existing@example.com",
+      password: "Password123!",
+    };
+    const loginResponse = await request.post("/auth/login").send(loginInput);
+    expect(loginResponse).toBeDefined();
+    expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(loginResponse.body.message).toBe("User not found");
   });
 });
