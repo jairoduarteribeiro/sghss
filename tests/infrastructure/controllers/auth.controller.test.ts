@@ -8,6 +8,7 @@ import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memor
 import { HttpStatus } from "@/infrastructure/web/http-status.constants";
 import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { SYMBOLS } from "@/inversify.symbols";
+import type { LoginUseCase } from "@/application/use-cases/login.use-case";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -171,5 +172,29 @@ describe("Auth Controller", () => {
     expect(loginResponse).toBeDefined();
     expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(loginResponse.body.message).toBe("Invalid password");
+  });
+
+  test("POST /auth/login should return 500 on unexpected errors", async () => {
+    const mockUseCase: Partial<LoginUseCase> = {
+      execute: () => {
+        throw new Error("Unexpected error");
+      },
+    };
+    testContainer.snapshot();
+    (
+      await testContainer.rebind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
+    ).toConstantValue(mockUseCase);
+    const mockedApp = createApp(testContainer);
+    const mockedRequest = supertest(mockedApp);
+    const loginInput = {
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    const loginResponse = await mockedRequest
+      .post("/auth/login")
+      .send(loginInput);
+    expect(loginResponse.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(loginResponse.body.message).toBe("Internal server error");
+    testContainer.restore();
   });
 });
