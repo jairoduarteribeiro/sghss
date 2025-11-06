@@ -1,5 +1,5 @@
 import { createApp } from "@/infrastructure/web/http";
-import { describe, test, expect, afterEach, beforeAll } from "bun:test";
+import { describe, test, expect, afterEach, beforeAll, spyOn } from "bun:test";
 import type { Express } from "express";
 import supertest from "supertest";
 import { testContainer } from "@tests/config/inversify.container";
@@ -35,6 +35,8 @@ describe("Auth Controller", () => {
   });
 
   test("POST /auth/signup should return 201 with valid input", async () => {
+    const userRepoSaveSpy = spyOn(userRepository, "save");
+    const patientRepoSaveSpy = spyOn(patientRepository, "save");
     const input = {
       name: "John Doe",
       cpf: "70000000400",
@@ -51,6 +53,8 @@ describe("Auth Controller", () => {
       email: input.email,
       role: "PATIENT",
     });
+    expect(userRepoSaveSpy).toHaveBeenCalledTimes(1);
+    expect(patientRepoSaveSpy).toHaveBeenCalledTimes(1);
   });
 
   test("POST /auth/signup should return 422 with invalid input", async () => {
