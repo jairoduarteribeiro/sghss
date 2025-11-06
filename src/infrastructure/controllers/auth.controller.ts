@@ -6,6 +6,7 @@ import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { HttpStatus } from "../web/http-status.constants";
 import { ValidationError } from "@/domain/errors/validation.error";
 import { ConflictError } from "@/application/errors/conflict.error";
+import type { LoginUseCase } from "@/application/use-cases/login.use-case";
 
 const signupSchema = z.object({
   name: z.string(),
@@ -18,11 +19,14 @@ const signupSchema = z.object({
 export class AuthController {
   constructor(
     @inject(SYMBOLS.SignupUseCase)
-    private readonly signupUseCase: SignupUseCase
+    private readonly signupUseCase: SignupUseCase,
+    @inject(SYMBOLS.LoginUseCase)
+    private readonly loginUseCase: LoginUseCase
   ) {}
   router(): Router {
     const router = Router();
     router.post("/signup", this.signup.bind(this));
+    router.post("/login", this.login.bind(this));
     return router;
   }
 
@@ -49,5 +53,11 @@ export class AuthController {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Internal server error" });
     }
+  }
+
+  private async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+    const output = await this.loginUseCase.execute({ email, password });
+    res.status(HttpStatus.OK).json(output);
   }
 }
