@@ -145,6 +145,16 @@ describe("Auth Controller", () => {
     });
   });
 
+  test("POST /auth/login should return 422 with invalid input", async () => {
+    const input = {
+      email: "not-an-email",
+      password: "Password123!",
+    };
+    const response = await request.post("/auth/login").send(input);
+    expect(response.status).toBe(HttpStatus.UNPROCESSABLE_ENTITY);
+    expect(response.body.message).toBe("Invalid request data");
+  });
+
   test("POST /auth/login should return 401 with non-existing email", async () => {
     const loginInput = {
       email: "non.existing@example.com",
