@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Container } from "inversify";
 import { SYMBOLS } from "@/inversify.symbols";
 import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
