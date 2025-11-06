@@ -7,6 +7,7 @@ import { HttpStatus } from "../web/http-status.constants";
 import { ValidationError } from "@/domain/errors/validation.error";
 import { ConflictError } from "@/application/errors/conflict.error";
 import type { LoginUseCase } from "@/application/use-cases/login.use-case";
+import { InvalidCredentialsError } from "@/application/errors/invalid-credentials.error";
 
 const signupSchema = z.object({
   name: z.string(),
@@ -56,8 +57,19 @@ export class AuthController {
   }
 
   private async login(req: Request, res: Response) {
-    const { email, password } = req.body;
-    const output = await this.loginUseCase.execute({ email, password });
-    res.status(HttpStatus.OK).json(output);
+    try {
+      const { email, password } = req.body;
+      const output = await this.loginUseCase.execute({ email, password });
+      res.status(HttpStatus.OK).json(output);
+    } catch (error) {
+      if (error instanceof InvalidCredentialsError) {
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: error.message });
+      }
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Internal server error" });
+    }
   }
 }
