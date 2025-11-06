@@ -10,15 +10,15 @@ export class InMemoryUserRepository
 {
   private users: User[] = [];
 
-  public async findByEmail(email: Email): Promise<User | null> {
+  async findByEmail(email: Email): Promise<User | null> {
     return this.users.find((user) => user.email === email.value) || null;
   }
 
-  public async save(user: User): Promise<void> {
+  async save(user: User): Promise<void> {
     this.users.push(user);
   }
 
-  public clear(): void {
+  clear(): void {
     this.users = [];
   }
 }

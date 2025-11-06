@@ -10,7 +10,7 @@ export class User {
     private readonly _role: string
   ) {}
 
-  public static from(
+  static from(
     email: Email,
     password: Password,
     role: string = "PATIENT"
@@ -34,7 +34,7 @@ export class User {
     return this._role;
   }
 
-  public async verifyPassword(plainText: string): Promise<boolean> {
+  async verifyPassword(plainText: string): Promise<boolean> {
     return await this._password.verify(plainText);
   }
 }

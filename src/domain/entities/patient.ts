@@ -10,7 +10,7 @@ export class Patient {
     private readonly _userId: Uuid
   ) {}
 
-  public static from(name: Name, cpf: Cpf, userId: Uuid): Patient {
+  static from(name: Name, cpf: Cpf, userId: Uuid): Patient {
     return new Patient(Uuid.generate(), name, cpf, userId);
   }
 

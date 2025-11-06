@@ -4,7 +4,7 @@ const MIN_LENGTH = 2;
 const MAX_LENGTH = 255;
 
 export class Name {
-  private constructor(public readonly value: string) {}
+  private constructor(readonly value: string) {}
 
   static from(name: string): Name {
     const normalizedName = this.normalize(name);

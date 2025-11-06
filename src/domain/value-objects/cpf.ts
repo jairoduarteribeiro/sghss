@@ -3,9 +3,9 @@ import { ValidationError } from "@/domain/errors/validation.error";
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 
 export class Cpf {
-  private constructor(public readonly value: string) {}
+  private constructor(readonly value: string) {}
 
-  public static from(cpf: string): Cpf {
+  static from(cpf: string): Cpf {
     this.validate(cpf);
     return new Cpf(this.clean(cpf));
   }

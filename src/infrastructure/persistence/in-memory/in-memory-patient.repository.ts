@@ -12,15 +12,15 @@ export class InMemoryPatientRepository
 {
   private patients: Patient[] = [];
 
-  public async findByCpf(cpf: Cpf): Promise<Patient | null> {
+  async findByCpf(cpf: Cpf): Promise<Patient | null> {
     return this.patients.find((patient) => patient.cpf === cpf.value) || null;
   }
 
-  public async save(patient: Patient): Promise<void> {
+  async save(patient: Patient): Promise<void> {
     this.patients.push(patient);
   }
 
-  public clear(): void {
+  clear(): void {
     this.patients = [];
   }
 }
