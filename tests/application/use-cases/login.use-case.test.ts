@@ -51,4 +51,12 @@ describe("Login Use Case", async () => {
     expect(output.userId).toBe(user.id);
     expect(output.token).toMatch(JWT_REGEX);
   });
+
+  test("Should throw an error when logging in with non-existing email", async () => {
+    const input = {
+      email: "non.existing@example.com",
+      password: "Password123!",
+    };
+    await expect(useCase.execute(input)).rejects.toThrowError("User not found");
+  });
 });
