@@ -30,6 +30,10 @@ export class LoginUseCase {
     if (!user) {
       throw new InvalidCredentialsError("User not found");
     }
+    const isPasswordValid = await user.verifyPassword(input.password);
+    if (!isPasswordValid) {
+      throw new InvalidCredentialsError("Invalid password");
+    }
     const token = this.tokenGenerator.generate({
       userId: user.id,
       role: user.role,
