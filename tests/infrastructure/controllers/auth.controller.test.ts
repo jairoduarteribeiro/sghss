@@ -154,4 +154,22 @@ describe("Auth Controller", () => {
     expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(loginResponse.body.message).toBe("User not found");
   });
+
+  test("POST /auth/login should return 401 with incorrect password", async () => {
+    const signupInput = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    await request.post("/auth/signup").send(signupInput);
+    const loginInput = {
+      email: signupInput.email,
+      password: "WrongPassword!",
+    };
+    const loginResponse = await request.post("/auth/login").send(loginInput);
+    expect(loginResponse).toBeDefined();
+    expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(loginResponse.body.message).toBe("Invalid password");
+  });
 });
