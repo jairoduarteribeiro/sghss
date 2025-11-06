@@ -11,7 +11,12 @@ import type {
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
 import { SignupUseCase } from "@/application/use-cases/signup.use-case";
+import { LoginUseCase } from "@/application/use-cases/login.use-case";
 import { AuthController } from "@/infrastructure/controllers/auth.controller";
+import {
+  FakeAuthTokenGenerator,
+  type IAuthTokenGenerator,
+} from "@/application/services/auth-token-generator";
 
 const testContainer = new Container();
 
@@ -35,8 +40,15 @@ testContainer
 
 // Use Case bindings
 testContainer.bind<SignupUseCase>(SYMBOLS.SignupUseCase).to(SignupUseCase);
+testContainer.bind<LoginUseCase>(SYMBOLS.LoginUseCase).to(LoginUseCase);
 
 // Controller bindings
 testContainer.bind<AuthController>(SYMBOLS.AuthController).to(AuthController);
+
+// Service bindings
+testContainer
+  .bind<IAuthTokenGenerator>(SYMBOLS.IAuthTokenGenerator)
+  .to(FakeAuthTokenGenerator)
+  .inSingletonScope();
 
 export { testContainer };
