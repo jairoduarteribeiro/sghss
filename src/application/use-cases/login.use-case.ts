@@ -3,6 +3,7 @@ import type { IReadUserRepository } from "../repositories/user.repository";
 import { SYMBOLS } from "@/inversify.symbols";
 import type { IAuthTokenGenerator } from "../services/auth-token-generator";
 import { Email } from "@/domain/value-objects/email";
+import { InvalidCredentialsError } from "../errors/invalid-credentials.error";
 
 type LoginInput = {
   email: string;
@@ -27,7 +28,7 @@ export class LoginUseCase {
     const email = Email.from(input.email);
     const user = await this.readUserRepository.findByEmail(email);
     if (!user) {
-      throw new Error();
+      throw new InvalidCredentialsError("User not found");
     }
     const token = this.tokenGenerator.generate({
       userId: user.id,
