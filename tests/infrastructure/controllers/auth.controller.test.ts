@@ -1,5 +1,5 @@
 import { createApp } from "@/infrastructure/web/http";
-import { describe, beforeEach, test, expect, afterEach } from "bun:test";
+import { describe, test, expect, afterEach, beforeAll } from "bun:test";
 import type { Express } from "express";
 import supertest from "supertest";
 import { testContainer } from "@tests/config/inversify.container";
@@ -18,7 +18,7 @@ describe("Auth Controller", () => {
   let userRepository: InMemoryUserRepository;
   let patientRepository: InMemoryPatientRepository;
 
-  beforeEach(() => {
+  beforeAll(() => {
     userRepository = testContainer.get<InMemoryUserRepository>(
       InMemoryUserRepository
     );

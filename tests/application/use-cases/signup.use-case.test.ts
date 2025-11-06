@@ -5,7 +5,7 @@ import { SYMBOLS } from "@/inversify.symbols";
 import { testContainer } from "@tests/config/inversify.container";
 import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
 import { InMemoryUserRepository } from "@/infrastructure/persistence/in-memory/in-memory-user.repository";
-import { describe, test, expect, beforeEach } from "bun:test";
+import { describe, test, expect, afterEach, beforeAll } from "bun:test";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -15,7 +15,7 @@ describe("Signup Use Case", () => {
   let userRepository: InMemoryUserRepository;
   let patientRepository: InMemoryPatientRepository;
 
-  beforeEach(() => {
+  beforeAll(() => {
     useCase = testContainer.get<SignupUseCase>(SYMBOLS.SignupUseCase);
     userRepository = testContainer.get<InMemoryUserRepository>(
       InMemoryUserRepository
@@ -23,6 +23,9 @@ describe("Signup Use Case", () => {
     patientRepository = testContainer.get<InMemoryPatientRepository>(
       InMemoryPatientRepository
     );
+  });
+
+  afterEach(() => {
     userRepository.clear();
     patientRepository.clear();
   });
