@@ -5,4 +5,4 @@ import { productionContainer } from "@/config/inversify.container";
 const port = 3000;
 const app = createApp(productionContainer);
 
-app.listen(port);
+app.listen(port, () => console.log(`Server listening on port ${port}...`));

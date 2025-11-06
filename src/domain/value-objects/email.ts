@@ -1,3 +1,5 @@
+import { ValidationError } from "@/domain/errors/validation.error";
+
 const EMAIL_REGEX =
   /^[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)*@[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)+$/;
 const MAX_EMAIL_SIZE = 254;
@@ -13,10 +15,10 @@ export class Email {
 
   private static validate(email: string): void {
     if (email.length > MAX_EMAIL_SIZE) {
-      throw new Error("Email must be at most 254 characters long");
+      throw new ValidationError("Email must be at most 254 characters long");
     }
     if (!this.hasValidFormat(email)) {
-      throw new Error("Email with invalid format");
+      throw new ValidationError("Email with invalid format");
     }
   }
 

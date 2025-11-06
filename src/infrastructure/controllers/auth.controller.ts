@@ -1,8 +1,11 @@
 import { inject, injectable } from "inversify";
 import { Router, type Request, type Response } from "express";
-import { z } from "zod";
+import { ZodError, z } from "zod";
 import { SYMBOLS } from "@/inversify.symbols";
 import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
+import { HttpStatus } from "../web/http-status.constants";
+import { ValidationError } from "@/domain/errors/validation.error";
+import { ConflictError } from "@/application/errors/conflict.error";
 
 const signupSchema = z.object({
   name: z.string(),
@@ -24,8 +27,28 @@ export class AuthController {
   }
 
   private async signup(req: Request, res: Response) {
-    const body = signupSchema.parse(req.body);
-    const output = await this.signupUseCase.execute(body);
-    res.status(201).json(output);
+    try {
+      const body = signupSchema.parse(req.body);
+      const output = await this.signupUseCase.execute(body);
+      res.status(HttpStatus.CREATED).json(output);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res
+          .status(HttpStatus.UNPROCESSABLE_ENTITY)
+          .json({ message: "Invalid request data", issues: error.issues });
+      }
+      if (error instanceof ValidationError) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ message: error.message });
+      }
+      if (error instanceof ConflictError) {
+        return res.status(HttpStatus.CONFLICT).json({ message: error.message });
+      }
+      console.error(error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Internal server error" });
+    }
   }
 }

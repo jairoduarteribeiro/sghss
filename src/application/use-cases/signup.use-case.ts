@@ -15,6 +15,7 @@ import { Patient } from "@/domain/entities/patient";
 import { Name } from "@/domain/value-objects/name";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Uuid } from "@/domain/value-objects/uuid";
+import { ConflictError } from "@/application/errors/conflict.error";
 
 type SignupInput = {
   name: string;
@@ -48,11 +49,11 @@ export class SignupUseCase {
   async execute(input: SignupInput): Promise<SignupOutput> {
     const cpf = Cpf.from(input.cpf);
     if (await this.cpfExists(cpf)) {
-      throw new Error("CPF already in use");
+      throw new ConflictError("CPF already in use");
     }
     const email = Email.from(input.email);
     if (await this.emailExists(email)) {
-      throw new Error("Email already in use");
+      throw new ConflictError("Email already in use");
     }
     const user = User.from(
       email,

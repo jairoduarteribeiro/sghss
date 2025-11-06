@@ -1,3 +1,5 @@
+import { ValidationError } from "@/domain/errors/validation.error";
+
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 
 export class Cpf {
@@ -10,17 +12,17 @@ export class Cpf {
 
   private static validate(cpf: string): void {
     if (!this.hasValidFormat(cpf)) {
-      throw new Error("CPF with invalid format");
+      throw new ValidationError("CPF with invalid format");
     }
     const cleanedCpf = this.clean(cpf);
     if (this.hasAllDigitsTheSame(cleanedCpf)) {
-      throw new Error("CPF cannot have all digits the same");
+      throw new ValidationError("CPF cannot have all digits the same");
     }
     const firstDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 9));
     const secondDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 10));
     const checkDigits = this.extractCheckDigits(cleanedCpf);
     if (checkDigits !== `${firstDigit}${secondDigit}`) {
-      throw new Error("CPF with invalid check digits");
+      throw new ValidationError("CPF with invalid check digits");
     }
   }
 
