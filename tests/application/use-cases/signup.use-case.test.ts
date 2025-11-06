@@ -3,8 +3,8 @@ import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { SYMBOLS } from "@/inversify.symbols";
 import { testContainer } from "@tests/config/inversify.container";
-import { InMemoryPatientRepository } from "@tests/fakes/in-memory-patient.repository";
-import { InMemoryUserRepository } from "@tests/fakes/in-memory-user.repository";
+import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
+import { InMemoryUserRepository } from "@/infrastructure/persistence/in-memory/in-memory-user.repository";
 import { describe, test, expect, beforeEach } from "bun:test";
 
 const UUID7_REGEX =

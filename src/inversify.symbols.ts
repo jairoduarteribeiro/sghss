@@ -6,4 +6,6 @@ export const SYMBOLS = {
   IWriteUserRepository: Symbol.for("IWriteUserRepository"),
   // Use Cases
   SignupUseCase: Symbol.for("SignupUseCase"),
+  // Controller
+  AuthController: Symbol.for("AuthController"),
 };
