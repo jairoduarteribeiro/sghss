@@ -1,4 +1,5 @@
 import { injectable } from "inversify";
+import jwt from "jsonwebtoken";
 
 type AuthTokenPayload = {
   userId: string;
@@ -6,12 +7,16 @@ type AuthTokenPayload = {
 };
 
 export interface IAuthTokenGenerator {
-  generate(payload: AuthTokenPayload): Promise<string>;
+  generate(payload: AuthTokenPayload): string;
 }
 
 @injectable()
-export class FakeAuthTokenGenerator implements IAuthTokenGenerator {
-  async generate(payload: AuthTokenPayload): Promise<string> {
-    return `fake-token-for.${payload.userId}.${payload.role}`;
+export class JwtTokenGenerator implements IAuthTokenGenerator {
+  generate(payload: AuthTokenPayload): string {
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined in environment variables");
+    }
+    const secret = process.env.JWT_SECRET;
+    return jwt.sign(payload, secret, { expiresIn: "1h" });
   }
 }

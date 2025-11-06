@@ -29,7 +29,7 @@ export class LoginUseCase {
     if (!user) {
       throw new Error();
     }
-    const token = await this.tokenGenerator.generate({
+    const token = this.tokenGenerator.generate({
       userId: user.id,
       role: user.role,
     });

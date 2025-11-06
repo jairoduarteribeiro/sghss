@@ -14,7 +14,7 @@ import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { LoginUseCase } from "@/application/use-cases/login.use-case";
 import { AuthController } from "@/infrastructure/controllers/auth.controller";
 import {
-  FakeAuthTokenGenerator,
+  JwtTokenGenerator,
   type IAuthTokenGenerator,
 } from "@/application/services/auth-token-generator";
 
@@ -48,7 +48,7 @@ testContainer.bind<AuthController>(SYMBOLS.AuthController).to(AuthController);
 // Service bindings
 testContainer
   .bind<IAuthTokenGenerator>(SYMBOLS.IAuthTokenGenerator)
-  .to(FakeAuthTokenGenerator)
+  .to(JwtTokenGenerator)
   .inSingletonScope();
 
 export { testContainer };
