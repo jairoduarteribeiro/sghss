@@ -11,6 +11,7 @@ import { SYMBOLS } from "@/inversify.symbols";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
 describe("Auth Controller", () => {
   let app: Express;
@@ -121,5 +122,26 @@ describe("Auth Controller", () => {
     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(response.body.message).toBe("Internal server error");
     testContainer.restore();
+  });
+
+  test("POST /auth/login should return 200 with valid credentials", async () => {
+    const signupInput = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    const signupResponse = await request.post("/auth/signup").send(signupInput);
+    const loginInput = {
+      email: signupInput.email,
+      password: signupInput.password,
+    };
+    const loginResponse = await request.post("/auth/login").send(loginInput);
+    expect(loginResponse).toBeDefined();
+    expect(loginResponse.status).toBe(HttpStatus.OK);
+    expect(loginResponse.body).toEqual({
+      userId: signupResponse.body.userId,
+      token: expect.stringMatching(JWT_REGEX),
+    });
   });
 });
