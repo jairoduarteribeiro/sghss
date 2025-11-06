@@ -59,4 +59,14 @@ describe("Login Use Case", async () => {
     };
     await expect(useCase.execute(input)).rejects.toThrowError("User not found");
   });
+
+  test("Should throw an error when logging in with incorrect password", async () => {
+    const input = {
+      email: userEmail,
+      password: "IncorrectPassword!",
+    };
+    await expect(useCase.execute(input)).rejects.toThrowError(
+      "Invalid password"
+    );
+  });
 });
