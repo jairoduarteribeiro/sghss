@@ -45,7 +45,6 @@ export class AuthController {
       if (error instanceof ConflictError) {
         return res.status(HttpStatus.CONFLICT).json({ message: error.message });
       }
-      console.error(error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: "Internal server error" });

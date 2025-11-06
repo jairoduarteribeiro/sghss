@@ -11,6 +11,7 @@ import type {
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
 import { SignupUseCase } from "@/application/use-cases/signup.use-case";
+import { AuthController } from "@/infrastructure/controllers/auth.controller";
 
 const testContainer = new Container();
 
@@ -34,5 +35,8 @@ testContainer
 
 // Use Case bindings
 testContainer.bind<SignupUseCase>(SYMBOLS.SignupUseCase).to(SignupUseCase);
+
+// Controller bindings
+testContainer.bind<AuthController>(SYMBOLS.AuthController).to(AuthController);
 
 export { testContainer };
