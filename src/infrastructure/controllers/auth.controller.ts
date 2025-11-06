@@ -16,6 +16,11 @@ const signupSchema = z.object({
   password: z.string(),
 });
 
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string(),
+});
+
 @injectable()
 export class AuthController {
   constructor(
@@ -58,10 +63,15 @@ export class AuthController {
 
   private async login(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-      const output = await this.loginUseCase.execute({ email, password });
+      const body = loginSchema.parse(req.body);
+      const output = await this.loginUseCase.execute(body);
       res.status(HttpStatus.OK).json(output);
     } catch (error) {
+      if (error instanceof ZodError) {
+        return res
+          .status(HttpStatus.UNPROCESSABLE_ENTITY)
+          .json({ message: "Invalid request data", issues: error.issues });
+      }
       if (error instanceof InvalidCredentialsError) {
         return res
           .status(HttpStatus.UNAUTHORIZED)
