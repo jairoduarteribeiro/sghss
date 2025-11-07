@@ -1,11 +1,11 @@
 import { User } from "@/domain/entities/user";
 import { Email } from "@/domain/value-objects/email";
-import { type DbClient } from "../drizzle-client";
+import { type DbClient } from "@/infrastructure/persistence/drizzle/drizzle-client";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
-import { users } from "../schema/users";
+import { users } from "@/infrastructure/persistence/drizzle/schema/users";
 import { eq } from "drizzle-orm";
 import { Password } from "@/domain/value-objects/password";
 import { inject, injectable } from "inversify";

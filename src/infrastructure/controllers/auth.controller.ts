@@ -3,7 +3,7 @@ import { Router, type Request, type Response } from "express";
 import { ZodError, z } from "zod";
 import { SYMBOLS } from "@/inversify.symbols";
 import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
-import { HttpStatus } from "../web/http-status.constants";
+import { HttpStatus } from "@/infrastructure/web/http-status.constants";
 import { ValidationError } from "@/domain/errors/validation.error";
 import { ConflictError } from "@/application/errors/conflict.error";
 import type { LoginUseCase } from "@/application/use-cases/login.use-case";
