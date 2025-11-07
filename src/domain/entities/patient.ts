@@ -14,6 +14,10 @@ export class Patient {
     return new Patient(Uuid.generate(), name, cpf, userId);
   }
 
+  static restore(id: Uuid, name: Name, cpf: Cpf, userId: Uuid): Patient {
+    return new Patient(id, name, cpf, userId);
+  }
+
   get id(): string {
     return this._id.value;
   }

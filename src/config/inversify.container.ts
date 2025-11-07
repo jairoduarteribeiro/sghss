@@ -15,10 +15,13 @@ import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { AuthController } from "@/infrastructure/controllers/auth.controller";
 import { db } from "@/infrastructure/persistence/drizzle/drizzle-client";
 import {
+  DrizzleReadPatientRepository,
+  DrizzleWritePatientRepository,
+} from "@/infrastructure/persistence/drizzle/repositories/drizzle-patient.repository";
+import {
   DrizzleReadUserRepository,
   DrizzleWriteUserRepository,
 } from "@/infrastructure/persistence/drizzle/repositories/drizzle-user.repository";
-import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
 import { SYMBOLS } from "@/inversify.symbols";
 import { Container } from "inversify";
 
@@ -28,7 +31,14 @@ const productionContainer = new Container();
 productionContainer.bind(SYMBOLS.DatabaseClient).toConstantValue(db);
 
 // Repository bindings
-productionContainer.bind(InMemoryPatientRepository).toSelf().inSingletonScope();
+productionContainer
+  .bind(DrizzleReadPatientRepository)
+  .toSelf()
+  .inSingletonScope();
+productionContainer
+  .bind(DrizzleWritePatientRepository)
+  .toSelf()
+  .inSingletonScope();
 productionContainer.bind(DrizzleReadUserRepository).toSelf().inSingletonScope();
 productionContainer
   .bind(DrizzleWriteUserRepository)
@@ -38,10 +48,10 @@ productionContainer
 // Interface bindings
 productionContainer
   .bind<IReadPatientRepository>(SYMBOLS.IReadPatientRepository)
-  .toService(InMemoryPatientRepository);
+  .toService(DrizzleReadPatientRepository);
 productionContainer
   .bind<IWritePatientRepository>(SYMBOLS.IWritePatientRepository)
-  .toService(InMemoryPatientRepository);
+  .toService(DrizzleWritePatientRepository);
 productionContainer
   .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
   .toService(DrizzleReadUserRepository);
