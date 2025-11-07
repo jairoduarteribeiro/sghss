@@ -37,6 +37,7 @@ export class DrizzleWriteUserRepository implements IWriteUserRepository {
 
   async save(user: User): Promise<void> {
     await this.db.insert(users).values({
+      id: user.id,
       email: user.email,
       passwordHash: user.passwordHash,
       role: user.role,
