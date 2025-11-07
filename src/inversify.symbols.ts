@@ -1,4 +1,6 @@
 export const SYMBOLS = {
+  // Database connection
+  DatabaseClient: Symbol.for("DatabaseClient"),
   // Repositories
   IReadPatientRepository: Symbol.for("IReadPatientRepository"),
   IWritePatientRepository: Symbol.for("IWritePatientRepository"),

@@ -2,7 +2,7 @@ import { ValidationError } from "@/domain/errors/validation.error";
 
 const EMAIL_REGEX =
   /^[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)*@[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)+$/;
-const MAX_EMAIL_SIZE = 254;
+export const MAX_EMAIL_SIZE = 254;
 
 export class Email {
   private constructor(readonly value: string) {}

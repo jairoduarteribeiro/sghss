@@ -18,6 +18,15 @@ export class User {
     return new User(Uuid.generate(), email, password, role);
   }
 
+  static restore(
+    id: Uuid,
+    email: Email,
+    password: Password,
+    role: string
+  ): User {
+    return new User(id, email, password, role);
+  }
+
   get id(): string {
     return this._id.value;
   }
