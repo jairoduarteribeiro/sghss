@@ -11,6 +11,7 @@ import {
   type IAuthTokenGenerator,
 } from "@/application/services/auth-token-generator";
 import { LoginUseCase } from "@/application/use-cases/login.use-case";
+import { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
 import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { AuthController } from "@/infrastructure/controllers/auth.controller";
 import { db } from "@/infrastructure/persistence/drizzle/drizzle-client";
@@ -58,6 +59,10 @@ container
 container
   .bind<LoginUseCase>(SYMBOLS.LoginUseCase)
   .to(LoginUseCase)
+  .inTransientScope();
+container
+  .bind<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase)
+  .to(RegisterPatientUseCase)
   .inTransientScope();
 
 // Controller bindings

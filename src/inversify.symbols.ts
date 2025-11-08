@@ -9,6 +9,7 @@ export const SYMBOLS = {
   // Use Cases
   SignupUseCase: Symbol.for("SignupUseCase"),
   LoginUseCase: Symbol.for("LoginUseCase"),
+  RegisterPatientUseCase: Symbol.for("RegisterPatientUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
   // Services
