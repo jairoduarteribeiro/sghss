@@ -42,4 +42,8 @@ export class DrizzleWritePatientRepository implements IWritePatientRepository {
       userId: patient.userId,
     });
   }
+
+  async clear(): Promise<void> {
+    await this.db.delete(patients);
+  }
 }

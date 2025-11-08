@@ -7,4 +7,5 @@ export interface IReadUserRepository {
 
 export interface IWriteUserRepository {
   save(user: User): Promise<void>;
+  clear(): Promise<void>;
 }

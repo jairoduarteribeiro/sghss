@@ -43,4 +43,8 @@ export class DrizzleWriteUserRepository implements IWriteUserRepository {
       role: user.role,
     });
   }
+
+  async clear(): Promise<void> {
+    await this.db.delete(users);
+  }
 }

@@ -7,4 +7,5 @@ export interface IReadPatientRepository {
 
 export interface IWritePatientRepository {
   save(patient: Patient): Promise<void>;
+  clear(): Promise<void>;
 }

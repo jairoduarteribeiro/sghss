@@ -25,60 +25,51 @@ import {
 import { SYMBOLS } from "@/inversify.symbols";
 import { Container } from "inversify";
 
-const productionContainer = new Container();
+const container = new Container();
 
 // Database bindings
-productionContainer.bind(SYMBOLS.DatabaseClient).toConstantValue(db);
+container.bind(SYMBOLS.DatabaseClient).toConstantValue(db);
 
 // Repository bindings
-productionContainer
-  .bind(DrizzleReadPatientRepository)
-  .toSelf()
-  .inSingletonScope();
-productionContainer
-  .bind(DrizzleWritePatientRepository)
-  .toSelf()
-  .inSingletonScope();
-productionContainer.bind(DrizzleReadUserRepository).toSelf().inSingletonScope();
-productionContainer
-  .bind(DrizzleWriteUserRepository)
-  .toSelf()
-  .inSingletonScope();
+container.bind(DrizzleReadPatientRepository).toSelf().inSingletonScope();
+container.bind(DrizzleWritePatientRepository).toSelf().inSingletonScope();
+container.bind(DrizzleReadUserRepository).toSelf().inSingletonScope();
+container.bind(DrizzleWriteUserRepository).toSelf().inSingletonScope();
 
 // Interface bindings
-productionContainer
+container
   .bind<IReadPatientRepository>(SYMBOLS.IReadPatientRepository)
   .toService(DrizzleReadPatientRepository);
-productionContainer
+container
   .bind<IWritePatientRepository>(SYMBOLS.IWritePatientRepository)
   .toService(DrizzleWritePatientRepository);
-productionContainer
+container
   .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
   .toService(DrizzleReadUserRepository);
-productionContainer
+container
   .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
   .toService(DrizzleWriteUserRepository);
 
 // Use Case bindings
-productionContainer
+container
   .bind<SignupUseCase>(SYMBOLS.SignupUseCase)
   .to(SignupUseCase)
   .inTransientScope();
-productionContainer
+container
   .bind<LoginUseCase>(SYMBOLS.LoginUseCase)
   .to(LoginUseCase)
   .inTransientScope();
 
 // Controller bindings
-productionContainer
+container
   .bind<AuthController>(SYMBOLS.AuthController)
   .to(AuthController)
   .inTransientScope();
 
 // Service bindings
-productionContainer
+container
   .bind<IAuthTokenGenerator>(SYMBOLS.IAuthTokenGenerator)
   .to(JwtTokenGenerator)
   .inSingletonScope();
 
-export { productionContainer };
+export { container };

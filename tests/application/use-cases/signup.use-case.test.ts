@@ -2,32 +2,46 @@ import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { SYMBOLS } from "@/inversify.symbols";
-import { testContainer } from "@tests/config/inversify.container";
-import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
-import { InMemoryUserRepository } from "@/infrastructure/persistence/in-memory/in-memory-user.repository";
+import { container } from "@/config/inversify.container";
 import { describe, test, expect, afterEach, beforeAll } from "bun:test";
+import type {
+  IReadUserRepository,
+  IWriteUserRepository,
+} from "@/application/repositories/user.repository";
+import type {
+  IReadPatientRepository,
+  IWritePatientRepository,
+} from "@/application/repositories/patient.repository";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 describe("Signup Use Case", () => {
   let useCase: SignupUseCase;
-  let userRepository: InMemoryUserRepository;
-  let patientRepository: InMemoryPatientRepository;
+  let readUserRepository: IReadUserRepository;
+  let writeUserRepository: IWriteUserRepository;
+  let readPatientRepository: IReadPatientRepository;
+  let writePatientRepository: IWritePatientRepository;
 
   beforeAll(() => {
-    useCase = testContainer.get<SignupUseCase>(SYMBOLS.SignupUseCase);
-    userRepository = testContainer.get<InMemoryUserRepository>(
-      InMemoryUserRepository
+    useCase = container.get<SignupUseCase>(SYMBOLS.SignupUseCase);
+    readUserRepository = container.get<IReadUserRepository>(
+      SYMBOLS.IReadUserRepository
     );
-    patientRepository = testContainer.get<InMemoryPatientRepository>(
-      InMemoryPatientRepository
+    writeUserRepository = container.get<IWriteUserRepository>(
+      SYMBOLS.IWriteUserRepository
+    );
+    readPatientRepository = container.get<IReadPatientRepository>(
+      SYMBOLS.IReadPatientRepository
+    );
+    writePatientRepository = container.get<IWritePatientRepository>(
+      SYMBOLS.IWritePatientRepository
     );
   });
 
   afterEach(() => {
-    userRepository.clear();
-    patientRepository.clear();
+    writeUserRepository.clear();
+    writePatientRepository.clear();
   });
 
   test("Should sign up a Patient successfully", async () => {
@@ -45,12 +59,16 @@ describe("Signup Use Case", () => {
     expect(output.email).toBe(input.email);
     expect(output.cpf).toBe(input.cpf);
     expect(output.role).toBe("PATIENT");
-    const savedUser = await userRepository.findByEmail(Email.from(input.email));
+    const savedUser = await readUserRepository.findByEmail(
+      Email.from(input.email)
+    );
     expect(savedUser).toBeDefined();
     expect(savedUser?.id).toBe(output.userId);
     expect(savedUser?.email).toBe(output.email);
     expect(savedUser?.role).toBe("PATIENT");
-    const savedPatient = await patientRepository.findByCpf(Cpf.from(input.cpf));
+    const savedPatient = await readPatientRepository.findByCpf(
+      Cpf.from(input.cpf)
+    );
     expect(savedPatient).toBeDefined();
     expect(savedPatient?.id).toBe(output.patientId);
     expect(savedPatient?.name).toBe(output.name);

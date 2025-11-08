@@ -2,13 +2,19 @@ import { createApp } from "@/infrastructure/web/http";
 import { describe, test, expect, afterEach, beforeAll, spyOn } from "bun:test";
 import type { Express } from "express";
 import supertest from "supertest";
-import { testContainer } from "@tests/config/inversify.container";
-import { InMemoryUserRepository } from "@/infrastructure/persistence/in-memory/in-memory-user.repository";
-import { InMemoryPatientRepository } from "@/infrastructure/persistence/in-memory/in-memory-patient.repository";
+import { container } from "@/config/inversify.container";
 import { HttpStatus } from "@/infrastructure/web/http-status.constants";
 import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { SYMBOLS } from "@/inversify.symbols";
 import type { LoginUseCase } from "@/application/use-cases/login.use-case";
+import type {
+  IReadPatientRepository,
+  IWritePatientRepository,
+} from "@/application/repositories/patient.repository";
+import type {
+  IReadUserRepository,
+  IWriteUserRepository,
+} from "@/application/repositories/user.repository";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -17,28 +23,36 @@ const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 describe("Auth Controller", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
-  let userRepository: InMemoryUserRepository;
-  let patientRepository: InMemoryPatientRepository;
+  let readUserRepository: IReadUserRepository;
+  let writeUserRepository: IWriteUserRepository;
+  let readPatientRepository: IReadPatientRepository;
+  let writePatientRepository: IWritePatientRepository;
 
   beforeAll(() => {
-    userRepository = testContainer.get<InMemoryUserRepository>(
-      InMemoryUserRepository
+    readUserRepository = container.get<IReadUserRepository>(
+      SYMBOLS.IReadUserRepository
     );
-    patientRepository = testContainer.get<InMemoryPatientRepository>(
-      InMemoryPatientRepository
+    writeUserRepository = container.get<IWriteUserRepository>(
+      SYMBOLS.IWriteUserRepository
     );
-    app = createApp(testContainer);
+    readPatientRepository = container.get<IReadPatientRepository>(
+      SYMBOLS.IReadPatientRepository
+    );
+    writePatientRepository = container.get<IWritePatientRepository>(
+      SYMBOLS.IWritePatientRepository
+    );
+    app = createApp(container);
     request = supertest(app);
   });
 
   afterEach(() => {
-    userRepository.clear();
-    patientRepository.clear();
+    writeUserRepository.clear();
+    writePatientRepository.clear();
   });
 
   test("POST /auth/signup should return 201 with valid input", async () => {
-    const userRepoSaveSpy = spyOn(userRepository, "save");
-    const patientRepoSaveSpy = spyOn(patientRepository, "save");
+    const userRepoSaveSpy = spyOn(writeUserRepository, "save");
+    const patientRepoSaveSpy = spyOn(writePatientRepository, "save");
     const input = {
       name: "John Doe",
       cpf: "70000000400",
@@ -107,11 +121,11 @@ describe("Auth Controller", () => {
         throw new Error("Unexpected error");
       },
     };
-    testContainer.snapshot();
+    container.snapshot();
     (
-      await testContainer.rebind<Partial<SignupUseCase>>(SYMBOLS.SignupUseCase)
+      await container.rebind<Partial<SignupUseCase>>(SYMBOLS.SignupUseCase)
     ).toConstantValue(mockUseCase);
-    const mockedApp = createApp(testContainer);
+    const mockedApp = createApp(container);
     const mockedRequest = supertest(mockedApp);
     const input = {
       name: "John Doe",
@@ -122,7 +136,7 @@ describe("Auth Controller", () => {
     const response = await mockedRequest.post("/auth/signup").send(input);
     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(response.body.message).toBe("Internal server error");
-    testContainer.restore();
+    container.restore();
   });
 
   test("POST /auth/login should return 200 with valid credentials", async () => {
@@ -190,11 +204,11 @@ describe("Auth Controller", () => {
         throw new Error("Unexpected error");
       },
     };
-    testContainer.snapshot();
+    container.snapshot();
     (
-      await testContainer.rebind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
+      await container.rebind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
     ).toConstantValue(mockUseCase);
-    const mockedApp = createApp(testContainer);
+    const mockedApp = createApp(container);
     const mockedRequest = supertest(mockedApp);
     const loginInput = {
       email: "john.doe@example.com",
@@ -205,6 +219,6 @@ describe("Auth Controller", () => {
       .send(loginInput);
     expect(loginResponse.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(loginResponse.body.message).toBe("Internal server error");
-    testContainer.restore();
+    container.restore();
   });
 });

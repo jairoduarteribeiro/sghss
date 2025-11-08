@@ -2,9 +2,8 @@ import type { LoginUseCase } from "@/application/use-cases/login.use-case";
 import { User } from "@/domain/entities/user";
 import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
-import type { InMemoryUserRepository } from "@/infrastructure/persistence/in-memory/in-memory-user.repository";
 import { SYMBOLS } from "@/inversify.symbols";
-import { testContainer } from "@tests/config/inversify.container";
+import { container } from "@/config/inversify.container";
 import {
   describe,
   test,
@@ -13,12 +12,13 @@ import {
   beforeAll,
   afterEach,
 } from "bun:test";
+import type { IWriteUserRepository } from "@/application/repositories/user.repository";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
 describe("Login Use Case", async () => {
   let useCase: LoginUseCase;
-  let userRepository: InMemoryUserRepository;
+  let writeUserRepository: IWriteUserRepository;
   const userEmail = "john.doe@example.com";
   const userPassword = "Password123!";
   const user = User.from(
@@ -27,18 +27,18 @@ describe("Login Use Case", async () => {
   );
 
   beforeAll(() => {
-    userRepository = testContainer.get<InMemoryUserRepository>(
-      SYMBOLS.IReadUserRepository
+    writeUserRepository = container.get<IWriteUserRepository>(
+      SYMBOLS.IWriteUserRepository
     );
-    useCase = testContainer.get<LoginUseCase>(SYMBOLS.LoginUseCase);
+    useCase = container.get<LoginUseCase>(SYMBOLS.LoginUseCase);
   });
 
   beforeEach(async () => {
-    await userRepository.save(user);
+    await writeUserRepository.save(user);
   });
 
   afterEach(() => {
-    userRepository.clear();
+    writeUserRepository.clear();
   });
 
   test("Should login successfully with correct credentials", async () => {
