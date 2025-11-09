@@ -1,16 +1,16 @@
+import { inject, injectable } from "inversify";
+import { eq } from "drizzle-orm";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
-import { Patient } from "@/domain/entities/patient";
-import { Cpf } from "@/domain/value-objects/cpf";
-import { type DbClient } from "@/infrastructure/persistence/drizzle/drizzle-client";
-import { SYMBOLS } from "@/inversify.symbols";
-import { inject, injectable } from "inversify";
-import { patients } from "@/infrastructure/persistence/drizzle/schema/patients";
-import { eq } from "drizzle-orm";
-import { Uuid } from "@/domain/value-objects/uuid";
-import { Name } from "@/domain/value-objects/name";
+} from "../../../../application/repositories/patient.repository";
+import { Patient } from "../../../../domain/entities/patient";
+import { Cpf } from "../../../../domain/value-objects/cpf";
+import { Uuid } from "../../../../domain/value-objects/uuid";
+import { Name } from "../../../../domain/value-objects/name";
+import { SYMBOLS } from "../../../../inversify.symbols";
+import type { DbClient } from "../drizzle-client";
+import { patients } from "../schema";
 
 @injectable()
 export class DrizzleReadPatientRepository implements IReadPatientRepository {

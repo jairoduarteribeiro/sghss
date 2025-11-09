@@ -1,4 +1,4 @@
-import { ValidationError } from "@/domain/errors/validation.error";
+import { ValidationError } from "../errors/validation.error";
 
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 

@@ -1,23 +1,23 @@
-import { createApp } from "@/infrastructure/web/http";
-import { describe, test, expect, afterEach, beforeAll, spyOn } from "bun:test";
+import { describe, test, expect, afterEach, beforeAll } from "bun:test";
 import type { Express } from "express";
 import supertest from "supertest";
-import { container } from "@/config/inversify.container";
-import { HttpStatus } from "@/infrastructure/web/http-status.constants";
-import { SYMBOLS } from "@/inversify.symbols";
-import type { LoginUseCase } from "@/application/use-cases/login.use-case";
+import { Container } from "inversify";
+import type { IUnitOfWork } from "../../../src/application/ports/unit-of-work";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
+} from "../../../src/application/repositories/patient.repository";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "@/application/repositories/user.repository";
-import { Cpf } from "@/domain/value-objects/cpf";
-import { Email } from "@/domain/value-objects/email";
-import type { IUnitOfWork } from "@/application/ports/unit-of-work";
-import { Container } from "inversify";
+} from "../../../src/application/repositories/user.repository";
+import type { LoginUseCase } from "../../../src/application/use-cases/login.use-case";
+import { container } from "../../../src/config/inversify.container";
+import { Cpf } from "../../../src/domain/value-objects/cpf";
+import { Email } from "../../../src/domain/value-objects/email";
+import { createApp } from "../../../src/infrastructure/web/http";
+import { HttpStatus } from "../../../src/infrastructure/web/http-status.constants";
+import { SYMBOLS } from "../../../src/inversify.symbols";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;

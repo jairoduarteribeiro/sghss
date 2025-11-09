@@ -1,24 +1,16 @@
+import { describe, test, expect, afterEach, mock, beforeAll } from "bun:test";
+import { Container } from "inversify";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
-import type { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
-import { container } from "@/config/inversify.container";
-import { Patient } from "@/domain/entities/patient";
-import { Cpf } from "@/domain/value-objects/cpf";
-import { Uuid } from "@/domain/value-objects/uuid";
-import { Name } from "@/domain/value-objects/name";
-import { SYMBOLS } from "@/inversify.symbols";
-import {
-  describe,
-  test,
-  expect,
-  afterEach,
-  mock,
-  afterAll,
-  beforeAll,
-} from "bun:test";
-import { Container } from "inversify";
+} from "../../../src/application/repositories/patient.repository";
+import type { RegisterPatientUseCase } from "../../../src/application/use-cases/register-patient.use-case";
+import { container } from "../../../src/config/inversify.container";
+import { Patient } from "../../../src/domain/entities/patient";
+import { Cpf } from "../../../src/domain/value-objects/cpf";
+import { Uuid } from "../../../src/domain/value-objects/uuid";
+import { Name } from "../../../src/domain/value-objects/name";
+import { SYMBOLS } from "../../../src/inversify.symbols";
 
 describe("Register Patient Use Case", async () => {
   let testContainer: Container;

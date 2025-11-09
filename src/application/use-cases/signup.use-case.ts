@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
+import { User } from "../../domain/entities/user";
+import { Email } from "../../domain/value-objects/email";
+import { Password } from "../../domain/value-objects/password";
+import { SYMBOLS } from "../../inversify.symbols";
+import { ConflictError } from "../errors/conflict.error";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "@/application/repositories/user.repository";
-import { SYMBOLS } from "@/inversify.symbols";
-import { User } from "@/domain/entities/user";
-import { Email } from "@/domain/value-objects/email";
-import { Password } from "@/domain/value-objects/password";
-import { ConflictError } from "@/application/errors/conflict.error";
+} from "../repositories/user.repository";
 
 type SignupInput = {
   email: string;

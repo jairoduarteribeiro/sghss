@@ -1,15 +1,15 @@
 import { inject, injectable } from "inversify";
 import { Router, type Request, type Response } from "express";
 import { ZodError, z } from "zod";
-import { SYMBOLS } from "@/inversify.symbols";
-import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
-import { HttpStatus } from "@/infrastructure/web/http-status.constants";
-import { ValidationError } from "@/domain/errors/validation.error";
-import { ConflictError } from "@/application/errors/conflict.error";
-import type { LoginUseCase } from "@/application/use-cases/login.use-case";
-import { InvalidCredentialsError } from "@/application/errors/invalid-credentials.error";
-import type { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
-import type { IUnitOfWork } from "@/application/ports/unit-of-work";
+import { ConflictError } from "../../application/errors/conflict.error";
+import { InvalidCredentialsError } from "../../application/errors/invalid-credentials.error";
+import type { IUnitOfWork } from "../../application/ports/unit-of-work";
+import type { LoginUseCase } from "../../application/use-cases/login.use-case";
+import type { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
+import type { SignupUseCase } from "../../application/use-cases/signup.use-case";
+import { ValidationError } from "../../domain/errors/validation.error";
+import { SYMBOLS } from "../../inversify.symbols";
+import { HttpStatus } from "../web/http-status.constants";
 
 const signupSchema = z.object({
   name: z.string(),

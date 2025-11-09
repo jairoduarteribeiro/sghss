@@ -1,6 +1,6 @@
-import type { Email } from "@/domain/value-objects/email";
-import type { Password } from "@/domain/value-objects/password";
-import { Uuid } from "@/domain/value-objects/uuid";
+import type { Email } from "../value-objects/email";
+import type { Password } from "../value-objects/password";
+import { Uuid } from "../value-objects/uuid";
 
 export class User {
   private constructor(

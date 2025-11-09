@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import type { Container } from "inversify";
-import type { AuthController } from "@/infrastructure/controllers/auth.controller";
-import { SYMBOLS } from "@/inversify.symbols";
+import { SYMBOLS } from "../../inversify.symbols";
+import type { AuthController } from "../controllers/auth.controller";
 
 export const createApp = (container: Container): Express => {
   const app = express();

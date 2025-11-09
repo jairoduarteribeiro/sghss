@@ -1,5 +1,5 @@
-import { Name } from "@/domain/value-objects/name";
 import { describe, test, expect } from "bun:test";
+import { Name } from "../../../src/domain/value-objects/name";
 
 describe("Name Value Object", () => {
   test("Should create a valid Name", () => {

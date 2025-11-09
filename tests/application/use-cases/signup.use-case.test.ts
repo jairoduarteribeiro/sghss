@@ -1,15 +1,15 @@
-import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
-import { Email } from "@/domain/value-objects/email";
-import { SYMBOLS } from "@/inversify.symbols";
-import { container } from "@/config/inversify.container";
 import { describe, test, expect, beforeAll, mock, afterEach } from "bun:test";
+import { Container } from "inversify";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "@/application/repositories/user.repository";
-import { Container } from "inversify";
-import { User } from "@/domain/entities/user";
-import { Password } from "@/domain/value-objects/password";
+} from "../../../src/application/repositories/user.repository";
+import type { SignupUseCase } from "../../../src/application/use-cases/signup.use-case";
+import { container } from "../../../src/config/inversify.container";
+import { User } from "../../../src/domain/entities/user";
+import { Email } from "../../../src/domain/value-objects/email";
+import { Password } from "../../../src/domain/value-objects/password";
+import { SYMBOLS } from "../../../src/inversify.symbols";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;

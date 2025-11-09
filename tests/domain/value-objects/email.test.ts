@@ -1,5 +1,5 @@
-import { Email } from "@/domain/value-objects/email";
 import { describe, test, expect } from "bun:test";
+import { Email } from "../../../src/domain/value-objects/email";
 
 const generateEmailWithLength = (totalLength: number): string => {
   const domain = "@example.com";

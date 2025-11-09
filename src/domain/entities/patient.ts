@@ -1,6 +1,6 @@
-import { Cpf } from "@/domain/value-objects/cpf";
-import { Uuid } from "@/domain/value-objects/uuid";
-import { Name } from "@/domain/value-objects/name";
+import type { Name } from "../value-objects/name";
+import type { Cpf } from "../value-objects/cpf";
+import { Uuid } from "../value-objects/uuid";
 
 export class Patient {
   private constructor(

@@ -1,5 +1,5 @@
-import { Password } from "@/domain/value-objects/password";
 import { describe, test, expect } from "bun:test";
+import { Password } from "../../../src/domain/value-objects/password";
 
 describe("Password value object", () => {
   test.each(["Pass123!", "LongPass!1234567890"])(

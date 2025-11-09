@@ -1,4 +1,4 @@
-import { ValidationError } from "@/domain/errors/validation.error";
+import { ValidationError } from "../errors/validation.error";
 
 const MIN_LENGTH = 2;
 const MAX_LENGTH = 255;

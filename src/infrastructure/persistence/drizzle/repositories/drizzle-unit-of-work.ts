@@ -1,6 +1,6 @@
-import type { IUnitOfWork } from "@/application/ports/unit-of-work";
-import { SYMBOLS } from "@/inversify.symbols";
 import { Container, inject, injectable } from "inversify";
+import type { IUnitOfWork } from "../../../../application/ports/unit-of-work";
+import { SYMBOLS } from "../../../../inversify.symbols";
 import type { DbClient } from "../drizzle-client";
 
 @injectable()

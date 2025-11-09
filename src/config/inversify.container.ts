@@ -1,35 +1,35 @@
-import type { IUnitOfWork } from "@/application/ports/unit-of-work";
+import { Container } from "inversify";
+import type { IUnitOfWork } from "../application/ports/unit-of-work";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
+} from "../application/repositories/patient.repository";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "@/application/repositories/user.repository";
+} from "../application/repositories/user.repository";
 import {
-  JwtTokenGenerator,
   type IAuthTokenGenerator,
-} from "@/application/services/auth-token-generator";
-import { LoginUseCase } from "@/application/use-cases/login.use-case";
-import { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
-import { SignupUseCase } from "@/application/use-cases/signup.use-case";
-import { AuthController } from "@/infrastructure/controllers/auth.controller";
+  JwtTokenGenerator,
+} from "../application/services/auth-token-generator";
+import { LoginUseCase } from "../application/use-cases/login.use-case";
+import { RegisterPatientUseCase } from "../application/use-cases/register-patient.use-case";
+import { SignupUseCase } from "../application/use-cases/signup.use-case";
+import { AuthController } from "../infrastructure/controllers/auth.controller";
 import {
-  db,
   type DbClient,
-} from "@/infrastructure/persistence/drizzle/drizzle-client";
+  db,
+} from "../infrastructure/persistence/drizzle/drizzle-client";
 import {
   DrizzleReadPatientRepository,
   DrizzleWritePatientRepository,
-} from "@/infrastructure/persistence/drizzle/repositories/drizzle-patient.repository";
-import { DrizzleUnitOfWork } from "@/infrastructure/persistence/drizzle/repositories/drizzle-unit-of-work";
+} from "../infrastructure/persistence/drizzle/repositories/drizzle-patient.repository";
+import { DrizzleUnitOfWork } from "../infrastructure/persistence/drizzle/repositories/drizzle-unit-of-work";
 import {
   DrizzleReadUserRepository,
   DrizzleWriteUserRepository,
-} from "@/infrastructure/persistence/drizzle/repositories/drizzle-user.repository";
-import { SYMBOLS } from "@/inversify.symbols";
-import { Container } from "inversify";
+} from "../infrastructure/persistence/drizzle/repositories/drizzle-user.repository";
+import { SYMBOLS } from "../inversify.symbols";
 
 const container = new Container();
 

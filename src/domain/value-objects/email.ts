@@ -1,4 +1,4 @@
-import { ValidationError } from "@/domain/errors/validation.error";
+import { ValidationError } from "../errors/validation.error";
 
 const EMAIL_REGEX =
   /^[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)*@[a-z][a-z0-9]+(\.[a-z][a-z0-9]+)+$/;

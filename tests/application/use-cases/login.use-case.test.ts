@@ -1,12 +1,12 @@
-import type { LoginUseCase } from "@/application/use-cases/login.use-case";
-import { User } from "@/domain/entities/user";
-import { Email } from "@/domain/value-objects/email";
-import { Password } from "@/domain/value-objects/password";
-import { SYMBOLS } from "@/inversify.symbols";
-import { container } from "@/config/inversify.container";
-import { describe, test, expect, beforeAll, mock, afterAll } from "bun:test";
-import type { IReadUserRepository } from "@/application/repositories/user.repository";
+import { describe, test, expect, beforeAll, mock } from "bun:test";
 import { Container } from "inversify";
+import type { IReadUserRepository } from "../../../src/application/repositories/user.repository";
+import type { LoginUseCase } from "../../../src/application/use-cases/login.use-case";
+import { container } from "../../../src/config/inversify.container";
+import { User } from "../../../src/domain/entities/user";
+import { Email } from "../../../src/domain/value-objects/email";
+import { Password } from "../../../src/domain/value-objects/password";
+import { SYMBOLS } from "../../../src/inversify.symbols";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 

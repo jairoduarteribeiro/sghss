@@ -1,5 +1,5 @@
-import { Cpf } from "@/domain/value-objects/cpf";
 import { describe, test, expect } from "bun:test";
+import { Cpf } from "../../../src/domain/value-objects/cpf";
 
 describe("Cpf value object", () => {
   test.each(["70000000400", "12984180038"])(
