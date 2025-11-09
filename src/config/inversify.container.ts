@@ -32,24 +32,22 @@ const container = new Container();
 container.bind(SYMBOLS.DatabaseClient).toConstantValue(db);
 
 // Repository bindings
-container.bind(DrizzleReadPatientRepository).toSelf().inSingletonScope();
-container.bind(DrizzleWritePatientRepository).toSelf().inSingletonScope();
-container.bind(DrizzleReadUserRepository).toSelf().inSingletonScope();
-container.bind(DrizzleWriteUserRepository).toSelf().inSingletonScope();
-
-// Interface bindings
 container
   .bind<IReadPatientRepository>(SYMBOLS.IReadPatientRepository)
-  .toService(DrizzleReadPatientRepository);
+  .to(DrizzleReadPatientRepository)
+  .inSingletonScope();
 container
   .bind<IWritePatientRepository>(SYMBOLS.IWritePatientRepository)
-  .toService(DrizzleWritePatientRepository);
+  .to(DrizzleWritePatientRepository)
+  .inSingletonScope();
 container
   .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
-  .toService(DrizzleReadUserRepository);
+  .to(DrizzleReadUserRepository)
+  .inSingletonScope();
 container
   .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
-  .toService(DrizzleWriteUserRepository);
+  .to(DrizzleWriteUserRepository)
+  .inSingletonScope();
 
 // Use Case bindings
 container
