@@ -8,6 +8,8 @@ import { ValidationError } from "@/domain/errors/validation.error";
 import { ConflictError } from "@/application/errors/conflict.error";
 import type { LoginUseCase } from "@/application/use-cases/login.use-case";
 import { InvalidCredentialsError } from "@/application/errors/invalid-credentials.error";
+import type { RegisterPatientUseCase } from "@/application/use-cases/register-patient.use-case";
+import type { IUnitOfWork } from "@/application/ports/unit-of-work";
 
 const signupSchema = z.object({
   name: z.string(),
@@ -24,8 +26,8 @@ const loginSchema = z.object({
 @injectable()
 export class AuthController {
   constructor(
-    @inject(SYMBOLS.SignupUseCase)
-    private readonly signupUseCase: SignupUseCase,
+    @inject(SYMBOLS.IUnitOfWork)
+    private readonly unitOfWork: IUnitOfWork,
     @inject(SYMBOLS.LoginUseCase)
     private readonly loginUseCase: LoginUseCase
   ) {}
@@ -38,8 +40,29 @@ export class AuthController {
 
   private async signup(req: Request, res: Response) {
     try {
-      const body = signupSchema.parse(req.body);
-      const output = await this.signupUseCase.execute(body);
+      const output = await this.unitOfWork.transaction(async (container) => {
+        const signupUseCase = container.get<SignupUseCase>(
+          SYMBOLS.SignupUseCase
+        );
+        const registerPatientUseCase = container.get<RegisterPatientUseCase>(
+          SYMBOLS.RegisterPatientUseCase
+        );
+        const body = signupSchema.parse(req.body);
+        const signupOutput = await signupUseCase.execute({
+          email: body.email,
+          password: body.password,
+          role: "PATIENT",
+        });
+        const patientOutput = await registerPatientUseCase.execute({
+          name: body.name,
+          cpf: body.cpf,
+          userId: signupOutput.userId,
+        });
+        return {
+          ...signupOutput,
+          ...patientOutput,
+        };
+      });
       res.status(HttpStatus.CREATED).json(output);
     } catch (error) {
       if (error instanceof ZodError) {

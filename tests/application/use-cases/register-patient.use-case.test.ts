@@ -18,9 +18,12 @@ import {
   afterAll,
   beforeAll,
 } from "bun:test";
+import { Container } from "inversify";
 
 describe("Register Patient Use Case", async () => {
+  let testContainer: Container;
   let useCase: RegisterPatientUseCase;
+
   const existingPatient = Patient.from(
     Name.from("John Doe"),
     Cpf.from("70000000400"),
@@ -37,28 +40,22 @@ describe("Register Patient Use Case", async () => {
   };
 
   beforeAll(async () => {
-    container.snapshot();
-    (
-      await container.rebind<IReadPatientRepository>(
-        SYMBOLS.IReadPatientRepository
-      )
-    ).toConstantValue(mockReadPatientRepository);
-    (
-      await container.rebind<IWritePatientRepository>(
-        SYMBOLS.IWritePatientRepository
-      )
-    ).toConstantValue(mockWritePatientRepository);
-    useCase = container.get<RegisterPatientUseCase>(
+    testContainer = new Container({ parent: container });
+    testContainer.unbind(SYMBOLS.IReadPatientRepository);
+    testContainer.unbind(SYMBOLS.IWritePatientRepository);
+    testContainer
+      .bind<IReadPatientRepository>(SYMBOLS.IReadPatientRepository)
+      .toConstantValue(mockReadPatientRepository);
+    testContainer
+      .bind<IWritePatientRepository>(SYMBOLS.IWritePatientRepository)
+      .toConstantValue(mockWritePatientRepository);
+    useCase = testContainer.get<RegisterPatientUseCase>(
       SYMBOLS.RegisterPatientUseCase
     );
   });
 
   afterEach(() => {
     mock.clearAllMocks();
-  });
-
-  afterAll(() => {
-    container.restore();
   });
 
   test("Should register a patient successfully", async () => {

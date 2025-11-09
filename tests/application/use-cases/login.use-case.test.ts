@@ -4,51 +4,43 @@ import { Email } from "@/domain/value-objects/email";
 import { Password } from "@/domain/value-objects/password";
 import { SYMBOLS } from "@/inversify.symbols";
 import { container } from "@/config/inversify.container";
-import {
-  describe,
-  test,
-  expect,
-  beforeEach,
-  beforeAll,
-  afterEach,
-} from "bun:test";
-import type { IWriteUserRepository } from "@/application/repositories/user.repository";
+import { describe, test, expect, beforeAll, mock, afterAll } from "bun:test";
+import type { IReadUserRepository } from "@/application/repositories/user.repository";
+import { Container } from "inversify";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
 describe("Login Use Case", async () => {
+  let testContainer: Container;
   let useCase: LoginUseCase;
-  let writeUserRepository: IWriteUserRepository;
-  const userEmail = "john.doe@example.com";
-  const userPassword = "Password123!";
-  const user = User.from(
-    Email.from(userEmail),
-    await Password.from(userPassword)
+
+  const existingUser = User.from(
+    Email.from("john.doe@example.com"),
+    await Password.from("Password123!")
   );
+  const mockReadUserRepository: IReadUserRepository = {
+    findByEmail: mock(async (email: Email) => {
+      return email.value === existingUser.email ? existingUser : null;
+    }),
+  };
 
-  beforeAll(() => {
-    writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository
-    );
-    useCase = container.get<LoginUseCase>(SYMBOLS.LoginUseCase);
-  });
-
-  beforeEach(async () => {
-    await writeUserRepository.save(user);
-  });
-
-  afterEach(() => {
-    writeUserRepository.clear();
+  beforeAll(async () => {
+    testContainer = new Container({ parent: container });
+    await testContainer.unbind(SYMBOLS.IReadUserRepository);
+    testContainer
+      .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
+      .toConstantValue(mockReadUserRepository);
+    useCase = testContainer.get<LoginUseCase>(SYMBOLS.LoginUseCase);
   });
 
   test("Should login successfully with correct credentials", async () => {
     const input = {
-      email: userEmail,
-      password: userPassword,
+      email: existingUser.email,
+      password: "Password123!",
     };
     const output = await useCase.execute(input);
     expect(output).toBeDefined();
-    expect(output.userId).toBe(user.id);
+    expect(output.userId).toBe(existingUser.id);
     expect(output.token).toMatch(JWT_REGEX);
   });
 
@@ -57,16 +49,14 @@ describe("Login Use Case", async () => {
       email: "non.existing@example.com",
       password: "Password123!",
     };
-    await expect(useCase.execute(input)).rejects.toThrowError("User not found");
+    expect(useCase.execute(input)).rejects.toThrowError("User not found");
   });
 
   test("Should throw an error when logging in with incorrect password", async () => {
     const input = {
-      email: userEmail,
+      email: existingUser.email,
       password: "IncorrectPassword!",
     };
-    await expect(useCase.execute(input)).rejects.toThrowError(
-      "Invalid password"
-    );
+    expect(useCase.execute(input)).rejects.toThrowError("Invalid password");
   });
 });

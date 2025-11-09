@@ -1,112 +1,76 @@
 import type { SignupUseCase } from "@/application/use-cases/signup.use-case";
-import { Cpf } from "@/domain/value-objects/cpf";
 import { Email } from "@/domain/value-objects/email";
 import { SYMBOLS } from "@/inversify.symbols";
 import { container } from "@/config/inversify.container";
-import { describe, test, expect, afterEach, beforeAll } from "bun:test";
+import { describe, test, expect, beforeAll, mock, afterEach } from "bun:test";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
-import type {
-  IReadPatientRepository,
-  IWritePatientRepository,
-} from "@/application/repositories/patient.repository";
+import { Container } from "inversify";
+import { User } from "@/domain/entities/user";
+import { Password } from "@/domain/value-objects/password";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-describe("Signup Use Case", () => {
+describe("Signup Use Case", async () => {
+  let testContainer: Container;
   let useCase: SignupUseCase;
-  let readUserRepository: IReadUserRepository;
-  let writeUserRepository: IWriteUserRepository;
-  let readPatientRepository: IReadPatientRepository;
-  let writePatientRepository: IWritePatientRepository;
+
+  const existingUser = User.from(
+    Email.from("john.doe@example.com"),
+    await Password.from("Password123!"),
+    "PATIENT"
+  );
+  const mockReadUserRepository: IReadUserRepository = {
+    findByEmail: mock(async (email: Email) =>
+      email.value === existingUser.email ? existingUser : null
+    ),
+  };
+  const mockWriteUserRepository: IWriteUserRepository = {
+    save: mock(async (user: User) => {}),
+    clear: mock(async () => {}),
+  };
 
   beforeAll(() => {
-    useCase = container.get<SignupUseCase>(SYMBOLS.SignupUseCase);
-    readUserRepository = container.get<IReadUserRepository>(
-      SYMBOLS.IReadUserRepository
-    );
-    writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository
-    );
-    readPatientRepository = container.get<IReadPatientRepository>(
-      SYMBOLS.IReadPatientRepository
-    );
-    writePatientRepository = container.get<IWritePatientRepository>(
-      SYMBOLS.IWritePatientRepository
-    );
+    testContainer = new Container({ parent: container });
+    testContainer.unbind(SYMBOLS.IReadUserRepository);
+    testContainer.unbind(SYMBOLS.IWriteUserRepository);
+    testContainer
+      .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
+      .toConstantValue(mockReadUserRepository);
+    testContainer
+      .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
+      .toConstantValue(mockWriteUserRepository);
+    useCase = testContainer.get<SignupUseCase>(SYMBOLS.SignupUseCase);
   });
 
   afterEach(() => {
-    writeUserRepository.clear();
-    writePatientRepository.clear();
+    mock.clearAllMocks();
   });
 
   test("Should sign up a Patient successfully", async () => {
     const input = {
-      name: "John Doe",
-      cpf: "70000000400",
-      email: "john.doe@example.com",
+      email: "jane.doe@example.com",
       password: "Password123!",
+      role: "PATIENT",
     };
     const output = await useCase.execute(input);
+    expect(mockWriteUserRepository.save).toHaveBeenCalledTimes(1);
     expect(output).toBeDefined();
     expect(output.userId).toMatch(UUID7_REGEX);
-    expect(output.patientId).toMatch(UUID7_REGEX);
-    expect(output.name).toBe(input.name);
     expect(output.email).toBe(input.email);
-    expect(output.cpf).toBe(input.cpf);
-    expect(output.role).toBe("PATIENT");
-    const savedUser = await readUserRepository.findByEmail(
-      Email.from(input.email)
-    );
-    expect(savedUser).toBeDefined();
-    expect(savedUser?.id).toBe(output.userId);
-    expect(savedUser?.email).toBe(output.email);
-    expect(savedUser?.role).toBe("PATIENT");
-    const savedPatient = await readPatientRepository.findByCpf(
-      Cpf.from(input.cpf)
-    );
-    expect(savedPatient).toBeDefined();
-    expect(savedPatient?.id).toBe(output.patientId);
-    expect(savedPatient?.name).toBe(output.name);
-    expect(savedPatient?.cpf).toBe(output.cpf);
-    expect(savedPatient?.userId).toBe(savedUser?.id);
+    expect(output.role).toBe(input.role);
   });
 
   test("Should not allow signup with existing email", async () => {
-    const input1 = {
-      name: "John Doe",
-      cpf: "70000000400",
-      email: "john.doe@example.com",
-      password: "Password123!",
-    };
-    await useCase.execute(input1);
-    const input2 = {
-      name: "John Smith Doe",
-      cpf: "12984180038",
+    const input = {
       email: "john.doe@example.com",
       password: "Password456!",
+      role: "PATIENT",
     };
-    expect(useCase.execute(input2)).rejects.toThrow("Email already in use");
-  });
-
-  test("Should not allow signup with existing Cpf", async () => {
-    const input1 = {
-      name: "John Doe",
-      cpf: "70000000400",
-      email: "john.doe@example.com",
-      password: "Password123!",
-    };
-    await useCase.execute(input1);
-    const input2 = {
-      name: "John Smith Doe",
-      cpf: "70000000400",
-      email: "john.smith.doe@example.com",
-      password: "Password123!",
-    };
-    expect(useCase.execute(input2)).rejects.toThrow("CPF already in use");
+    expect(useCase.execute(input)).rejects.toThrow("Email already in use");
+    expect(mockWriteUserRepository.save).toHaveBeenCalledTimes(0);
   });
 });

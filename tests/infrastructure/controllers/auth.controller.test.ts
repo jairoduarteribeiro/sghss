@@ -4,7 +4,6 @@ import type { Express } from "express";
 import supertest from "supertest";
 import { container } from "@/config/inversify.container";
 import { HttpStatus } from "@/infrastructure/web/http-status.constants";
-import { SignupUseCase } from "@/application/use-cases/signup.use-case";
 import { SYMBOLS } from "@/inversify.symbols";
 import type { LoginUseCase } from "@/application/use-cases/login.use-case";
 import type {
@@ -15,6 +14,10 @@ import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "@/application/repositories/user.repository";
+import { Cpf } from "@/domain/value-objects/cpf";
+import { Email } from "@/domain/value-objects/email";
+import type { IUnitOfWork } from "@/application/ports/unit-of-work";
+import { Container } from "inversify";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -45,14 +48,14 @@ describe("Auth Controller", () => {
     request = supertest(app);
   });
 
-  afterEach(() => {
-    writeUserRepository.clear();
-    writePatientRepository.clear();
+  afterEach(async () => {
+    await Promise.all([
+      writeUserRepository.clear(),
+      writePatientRepository.clear(),
+    ]);
   });
 
   test("POST /auth/signup should return 201 with valid input", async () => {
-    const userRepoSaveSpy = spyOn(writeUserRepository, "save");
-    const patientRepoSaveSpy = spyOn(writePatientRepository, "save");
     const input = {
       name: "John Doe",
       cpf: "70000000400",
@@ -69,8 +72,21 @@ describe("Auth Controller", () => {
       email: input.email,
       role: "PATIENT",
     });
-    expect(userRepoSaveSpy).toHaveBeenCalledTimes(1);
-    expect(patientRepoSaveSpy).toHaveBeenCalledTimes(1);
+    const savedUser = await readUserRepository.findByEmail(
+      Email.from(input.email)
+    );
+    expect(savedUser).toBeDefined();
+    expect(savedUser?.id).toBe(response.body.userId);
+    expect(savedUser?.email).toBe(input.email);
+    expect(savedUser?.role).toBe("PATIENT");
+    const savedPatient = await readPatientRepository.findByCpf(
+      Cpf.from(input.cpf)
+    );
+    expect(savedPatient).toBeDefined();
+    expect(savedPatient?.id).toBe(response.body.patientId);
+    expect(savedPatient?.name).toBe(input.name);
+    expect(savedPatient?.cpf).toBe(input.cpf);
+    expect(savedPatient?.userId).toBe(savedUser?.id);
   });
 
   test("POST /auth/signup should return 422 with invalid input", async () => {
@@ -116,16 +132,17 @@ describe("Auth Controller", () => {
   });
 
   test("POST /auth/signup should return 500 on unexpected errors", async () => {
-    const mockUseCase: Partial<SignupUseCase> = {
-      execute: () => {
+    const mockUnitOfWork: Partial<IUnitOfWork> = {
+      transaction: async (fn: Function) => {
         throw new Error("Unexpected error");
       },
     };
-    container.snapshot();
-    (
-      await container.rebind<Partial<SignupUseCase>>(SYMBOLS.SignupUseCase)
-    ).toConstantValue(mockUseCase);
-    const mockedApp = createApp(container);
+    const testContainer = new Container({ parent: container });
+    testContainer.unbind(SYMBOLS.IUnitOfWork);
+    testContainer
+      .bind<Partial<IUnitOfWork>>(SYMBOLS.IUnitOfWork)
+      .toConstantValue(mockUnitOfWork);
+    const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const input = {
       name: "John Doe",
@@ -136,7 +153,6 @@ describe("Auth Controller", () => {
     const response = await mockedRequest.post("/auth/signup").send(input);
     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(response.body.message).toBe("Internal server error");
-    container.restore();
   });
 
   test("POST /auth/login should return 200 with valid credentials", async () => {
@@ -204,11 +220,12 @@ describe("Auth Controller", () => {
         throw new Error("Unexpected error");
       },
     };
-    container.snapshot();
-    (
-      await container.rebind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
-    ).toConstantValue(mockUseCase);
-    const mockedApp = createApp(container);
+    const testContainer = new Container({ parent: container });
+    testContainer.unbind(SYMBOLS.LoginUseCase);
+    testContainer
+      .bind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
+      .toConstantValue(mockUseCase);
+    const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const loginInput = {
       email: "john.doe@example.com",
@@ -219,6 +236,5 @@ describe("Auth Controller", () => {
       .send(loginInput);
     expect(loginResponse.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(loginResponse.body.message).toBe("Internal server error");
-    container.restore();
   });
 });
