@@ -23,7 +23,7 @@ const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
-describe("Auth Controller", () => {
+describe("Auth Controller - Signup", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
   let readUserRepository: IReadUserRepository;
@@ -153,6 +153,24 @@ describe("Auth Controller", () => {
     const response = await mockedRequest.post("/auth/signup").send(input);
     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(response.body.message).toBe("Internal server error");
+  });
+});
+
+describe("Auth Controller - Login", () => {
+  let app: Express;
+  let request: ReturnType<typeof supertest>;
+  let writeUserRepository: IWriteUserRepository;
+
+  beforeAll(() => {
+    writeUserRepository = container.get<IWriteUserRepository>(
+      SYMBOLS.IWriteUserRepository
+    );
+    app = createApp(container);
+    request = supertest(app);
+  });
+
+  afterEach(async () => {
+    await writeUserRepository.clear();
   });
 
   test("POST /auth/login should return 200 with valid credentials", async () => {
