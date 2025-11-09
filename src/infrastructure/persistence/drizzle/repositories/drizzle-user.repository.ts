@@ -32,6 +32,7 @@ export class DrizzleReadUserRepository implements IReadUserRepository {
   }
 }
 
+@injectable()
 export class DrizzleWriteUserRepository implements IWriteUserRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 

@@ -7,8 +7,8 @@ import { inject, injectable } from "inversify";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "../repositories/patient.repository";
-import { ConflictError } from "../errors/conflict.error";
+} from "@/application/repositories/patient.repository";
+import { ConflictError } from "@/application/errors/conflict.error";
 
 type RegisterPatientInput = {
   name: string;

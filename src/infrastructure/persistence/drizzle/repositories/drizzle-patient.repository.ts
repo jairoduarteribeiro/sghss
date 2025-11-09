@@ -6,12 +6,13 @@ import { Patient } from "@/domain/entities/patient";
 import { Cpf } from "@/domain/value-objects/cpf";
 import { type DbClient } from "@/infrastructure/persistence/drizzle/drizzle-client";
 import { SYMBOLS } from "@/inversify.symbols";
-import { inject } from "inversify";
-import { patients } from "../schema/patients";
+import { inject, injectable } from "inversify";
+import { patients } from "@/infrastructure/persistence/drizzle/schema/patients";
 import { eq } from "drizzle-orm";
 import { Uuid } from "@/domain/value-objects/uuid";
 import { Name } from "@/domain/value-objects/name";
 
+@injectable()
 export class DrizzleReadPatientRepository implements IReadPatientRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
@@ -31,6 +32,7 @@ export class DrizzleReadPatientRepository implements IReadPatientRepository {
   }
 }
 
+@injectable()
 export class DrizzleWritePatientRepository implements IWritePatientRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
