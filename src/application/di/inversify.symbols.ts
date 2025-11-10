@@ -19,6 +19,7 @@ export const SYMBOLS = {
   RegisterDoctorUseCase: Symbol.for("RegisterDoctorUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
+  DoctorController: Symbol.for("DoctorController"),
   // Services
   IAuthTokenGenerator: Symbol.for("IAuthTokenGenerator"),
 };

@@ -36,6 +36,7 @@ import {
   DrizzleReadDoctorRepository,
   DrizzleWriteDoctorRepository,
 } from "../persistence/drizzle/repositories/drizzle-doctor.repository";
+import { DoctorController } from "../web/controllers/doctor.controller";
 
 const container = new Container();
 
@@ -99,6 +100,10 @@ container
 container
   .bind<AuthController>(SYMBOLS.AuthController)
   .to(AuthController)
+  .inTransientScope();
+container
+  .bind<DoctorController>(SYMBOLS.DoctorController)
+  .to(DoctorController)
   .inTransientScope();
 
 // Service bindings

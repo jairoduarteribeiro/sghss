@@ -28,6 +28,7 @@ export class AuthController {
     @inject(SYMBOLS.LoginUseCase)
     private readonly loginUseCase: LoginUseCase
   ) {}
+
   router(): Router {
     const router = Router();
     router.post("/signup", this.signup.bind(this));
