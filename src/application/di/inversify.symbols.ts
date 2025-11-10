@@ -24,5 +24,5 @@ export const SYMBOLS = {
   IAuthTokenService: Symbol.for("IAuthTokenService"),
   // Middlewares
   RequireAuth: Symbol.for("RequireAuth"),
-  RequireAdmin: Symbol.for("RequireAdmin"),
+  RequireRole: Symbol.for("RequireRole"),
 };

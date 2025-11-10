@@ -38,7 +38,7 @@ import {
 } from "../persistence/drizzle/repositories/drizzle-doctor.repository";
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { RequireAuth } from "../web/middlewares/require-auth";
-import { RequireAdmin } from "../web/middlewares/require-admin";
+import { RequireRole } from "../web/middlewares/require-admin";
 
 const container = new Container();
 
@@ -120,8 +120,8 @@ container
   .to(RequireAuth)
   .inSingletonScope();
 container
-  .bind<RequireAdmin>(SYMBOLS.RequireAdmin)
-  .to(RequireAdmin)
+  .bind<RequireRole>(SYMBOLS.RequireRole)
+  .to(RequireRole)
   .inSingletonScope();
 
 export { container };

@@ -7,7 +7,7 @@ import { RegisterUserUseCase } from "../../../application/use-cases/register-use
 import { RegisterDoctorUseCase } from "../../../application/use-cases/register-doctor.use-case";
 import { HttpStatus } from "../http-status.constants";
 import type { RequireAuth } from "../middlewares/require-auth";
-import type { RequireAdmin } from "../middlewares/require-admin";
+import type { RequireRole } from "../middlewares/require-admin";
 
 const registerDoctorSchema = z.object({
   name: z.string(),
@@ -23,8 +23,8 @@ export class DoctorController {
     private readonly unitOfWork: IUnitOfWork,
     @inject(SYMBOLS.RequireAuth)
     private readonly requireAuth: RequireAuth,
-    @inject(SYMBOLS.RequireAdmin)
-    private readonly requireAdmin: RequireAdmin
+    @inject(SYMBOLS.RequireRole)
+    private readonly requireRole: RequireRole
   ) {}
 
   router(): Router {
@@ -32,7 +32,7 @@ export class DoctorController {
     router.post(
       "/doctors",
       this.requireAuth.handle.bind(this.requireAuth),
-      this.requireAdmin.handle.bind(this.requireAdmin),
+      this.requireRole.handle("ADMIN"),
       this.registerDoctor.bind(this)
     );
     return router;
