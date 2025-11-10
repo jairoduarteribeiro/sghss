@@ -35,9 +35,8 @@ describe("Doctor Controller", () => {
   let writeUserRepository: IWriteUserRepository;
   let readDoctorRepository: IReadDoctorRepository;
   let writeDoctorRepository: IWriteDoctorRepository;
-  const adminEmail = "admin@example.com";
-  const adminPassword = "AdminPass123!";
   let adminToken: string;
+  let nonAdminToken: string;
 
   beforeAll(() => {
     readUserRepository = container.get<IReadUserRepository>(
@@ -58,16 +57,27 @@ describe("Doctor Controller", () => {
 
   beforeEach(async () => {
     const adminUser = User.from(
-      Email.from(adminEmail),
-      await Password.from(adminPassword),
+      Email.from("admin@example.com"),
+      await Password.from("AdminPass123!"),
       "ADMIN"
     );
+    const nonAdminUser = User.from(
+      Email.from("nonadmin@example.com"),
+      await Password.from("NonAdminPass123!"),
+      "PATIENT"
+    );
     await writeUserRepository.save(adminUser);
-    const response = await request.post("/auth/login").send({
-      email: adminEmail,
-      password: adminPassword,
+    await writeUserRepository.save(nonAdminUser);
+    const responseAdmin = await request.post("/auth/login").send({
+      email: "admin@example.com",
+      password: "AdminPass123!",
     });
-    adminToken = response.body.token;
+    const responseNonAdmin = await request.post("/auth/login").send({
+      email: "nonadmin@example.com",
+      password: "NonAdminPass123!",
+    });
+    adminToken = responseAdmin.body.token;
+    nonAdminToken = responseNonAdmin.body.token;
   });
 
   afterEach(async () => {
@@ -111,5 +121,22 @@ describe("Doctor Controller", () => {
     expect(savedDoctor?.id).toBe(response.body.doctorId);
     expect(savedDoctor?.name).toBe(response.body.name);
     expect(savedDoctor?.crm).toBe(response.body.crm);
+  });
+
+  test("POST /doctors should return 403 when non-admin user tries to register a doctor", async () => {
+    const input = {
+      name: "Jane Doe",
+      crm: "654321-SP",
+      email: "jane.doe@example.com",
+      password: "Password123!",
+    };
+    const response = await request
+      .post("/doctors")
+      .set("Authorization", `Bearer ${nonAdminToken}`)
+      .send(input);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe(
+      "Only admin users can access this resource"
+    );
   });
 });
