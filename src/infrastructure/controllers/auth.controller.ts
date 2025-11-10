@@ -39,70 +39,33 @@ export class AuthController {
   }
 
   private async signup(req: Request, res: Response) {
-    try {
-      const output = await this.unitOfWork.transaction(async (container) => {
-        const signupUseCase = container.get<SignupUseCase>(
-          SYMBOLS.SignupUseCase
-        );
-        const registerPatientUseCase = container.get<RegisterPatientUseCase>(
-          SYMBOLS.RegisterPatientUseCase
-        );
-        const body = signupSchema.parse(req.body);
-        const signupOutput = await signupUseCase.execute({
-          email: body.email,
-          password: body.password,
-          role: "PATIENT",
-        });
-        const patientOutput = await registerPatientUseCase.execute({
-          name: body.name,
-          cpf: body.cpf,
-          userId: signupOutput.userId,
-        });
-        return {
-          ...signupOutput,
-          ...patientOutput,
-        };
+    const output = await this.unitOfWork.transaction(async (container) => {
+      const signupUseCase = container.get<SignupUseCase>(SYMBOLS.SignupUseCase);
+      const registerPatientUseCase = container.get<RegisterPatientUseCase>(
+        SYMBOLS.RegisterPatientUseCase
+      );
+      const body = signupSchema.parse(req.body);
+      const signupOutput = await signupUseCase.execute({
+        email: body.email,
+        password: body.password,
+        role: "PATIENT",
       });
-      res.status(HttpStatus.CREATED).json(output);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res
-          .status(HttpStatus.UNPROCESSABLE_ENTITY)
-          .json({ message: "Invalid request data", issues: error.issues });
-      }
-      if (error instanceof ValidationError) {
-        return res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ message: error.message });
-      }
-      if (error instanceof ConflictError) {
-        return res.status(HttpStatus.CONFLICT).json({ message: error.message });
-      }
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Internal server error" });
-    }
+      const patientOutput = await registerPatientUseCase.execute({
+        name: body.name,
+        cpf: body.cpf,
+        userId: signupOutput.userId,
+      });
+      return {
+        ...signupOutput,
+        ...patientOutput,
+      };
+    });
+    res.status(HttpStatus.CREATED).json(output);
   }
 
   private async login(req: Request, res: Response) {
-    try {
-      const body = loginSchema.parse(req.body);
-      const output = await this.loginUseCase.execute(body);
-      res.status(HttpStatus.OK).json(output);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res
-          .status(HttpStatus.UNPROCESSABLE_ENTITY)
-          .json({ message: "Invalid request data", issues: error.issues });
-      }
-      if (error instanceof InvalidCredentialsError) {
-        return res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ message: error.message });
-      }
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Internal server error" });
-    }
+    const body = loginSchema.parse(req.body);
+    const output = await this.loginUseCase.execute(body);
+    res.status(HttpStatus.OK).json(output);
   }
 }
