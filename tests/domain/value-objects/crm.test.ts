@@ -9,4 +9,16 @@ describe("Crm value object", () => {
       expect(crm.value).toBe(validCrm);
     }
   );
+
+  test.each([
+    "-MG",
+    "1234567-SP",
+    "123.RJ",
+    "1234DF",
+    "12345-BSB",
+    "123456-pr",
+  ])("Should not create a Crm with invalid format - %s", (invalidCrm) => {
+    const act = () => Crm.from(invalidCrm);
+    expect(act).toThrowError("CRM with invalid format");
+  });
 });
