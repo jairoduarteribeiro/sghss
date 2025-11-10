@@ -4,8 +4,13 @@ import { RegisterDoctorUseCase } from "../../../src/application/use-cases/regist
 import { Container } from "inversify";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type { IWriteDoctorRepository } from "../../../src/application/ports/repositories/doctor.repository";
-import type { Doctor } from "../../../src/domain/entities/doctor";
+import type {
+  IReadDoctorRepository,
+  IWriteDoctorRepository,
+} from "../../../src/application/ports/repositories/doctor.repository";
+import { Doctor } from "../../../src/domain/entities/doctor";
+import { Name } from "../../../src/domain/value-objects/name";
+import { Crm } from "../../../src/domain/value-objects/crm";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -14,6 +19,16 @@ describe("Register Doctor - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterDoctorUseCase;
 
+  const existingDoctor = Doctor.from(
+    Name.from("David Smith"),
+    Crm.from("654321-RJ"),
+    Uuid.generate()
+  );
+  const mockReadDoctorRepository: IReadDoctorRepository = {
+    findByCrm: mock(async (crm: Crm) =>
+      crm.value === existingDoctor.crm ? existingDoctor : null
+    ),
+  };
   const mockWriteDoctorRepository: IWriteDoctorRepository = {
     save: mock(async (doctor: Doctor) => {}),
     clear: mock(async () => {}),
@@ -21,7 +36,11 @@ describe("Register Doctor - Use Case", async () => {
 
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
+    testContainer.unbind(SYMBOLS.IReadDoctorRepository);
     testContainer.unbind(SYMBOLS.IWriteDoctorRepository);
+    testContainer
+      .bind<IReadDoctorRepository>(SYMBOLS.IReadDoctorRepository)
+      .toConstantValue(mockReadDoctorRepository);
     testContainer
       .bind<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository)
       .toConstantValue(mockWriteDoctorRepository);
@@ -48,5 +67,15 @@ describe("Register Doctor - Use Case", async () => {
     expect(output.name).toBe(input.name);
     expect(output.crm).toBe(input.crm);
     expect(output.userId).toBe(input.userId);
+  });
+
+  test("Should not register a Doctor with an existing Crm", async () => {
+    const input = {
+      name: "Jane Doe",
+      crm: "654321-RJ",
+      userId: Uuid.generate().value,
+    };
+    expect(useCase.execute(input)).rejects.toThrow("Crm already in use");
+    expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });
 });
