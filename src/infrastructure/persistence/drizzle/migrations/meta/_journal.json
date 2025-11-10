@@ -15,6 +15,13 @@
       "when": 1762543959122,
       "tag": "0001_melodic_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762787398996,
+      "tag": "0002_rare_alex_wilder",
+      "breakpoints": true
     }
   ]
 }

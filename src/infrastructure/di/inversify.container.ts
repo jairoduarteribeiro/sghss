@@ -27,6 +27,15 @@ import {
   DrizzleWriteUserRepository,
 } from "../persistence/drizzle/repositories/drizzle-user.repository";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
+import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor";
+import type {
+  IReadDoctorRepository,
+  IWriteDoctorRepository,
+} from "../../application/ports/repositories/doctor.repository";
+import {
+  DrizzleReadDoctorRepository,
+  DrizzleWriteDoctorRepository,
+} from "../persistence/drizzle/repositories/drizzle-doctor.repository";
 
 const container = new Container();
 
@@ -37,6 +46,14 @@ container.bind<DbClient>(SYMBOLS.DatabaseClient).toConstantValue(db);
 container.bind<Container>(SYMBOLS.Container).toConstantValue(container);
 
 // Repository bindings
+container
+  .bind<IReadDoctorRepository>(SYMBOLS.IReadDoctorRepository)
+  .to(DrizzleReadDoctorRepository)
+  .inTransientScope();
+container
+  .bind<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository)
+  .to(DrizzleWriteDoctorRepository)
+  .inTransientScope();
 container
   .bind<IReadPatientRepository>(SYMBOLS.IReadPatientRepository)
   .to(DrizzleReadPatientRepository)
@@ -72,6 +89,10 @@ container
 container
   .bind<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase)
   .to(RegisterPatientUseCase)
+  .inTransientScope();
+container
+  .bind<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase)
+  .to(RegisterDoctorUseCase)
   .inTransientScope();
 
 // Controller bindings

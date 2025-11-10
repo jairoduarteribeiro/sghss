@@ -4,6 +4,8 @@ export const SYMBOLS = {
   // Inversify Container
   Container: Symbol.for("Container"),
   // Repositories
+  IReadDoctorRepository: Symbol.for("IReadDoctorRepository"),
+  IWriteDoctorRepository: Symbol.for("IWriteDoctorRepository"),
   IReadPatientRepository: Symbol.for("IReadPatientRepository"),
   IWritePatientRepository: Symbol.for("IWritePatientRepository"),
   IReadUserRepository: Symbol.for("IReadUserRepository"),
@@ -14,6 +16,7 @@ export const SYMBOLS = {
   RegisterUserUseCase: Symbol.for("RegisterUserUseCase"),
   LoginUseCase: Symbol.for("LoginUseCase"),
   RegisterPatientUseCase: Symbol.for("RegisterPatientUseCase"),
+  RegisterDoctorUseCase: Symbol.for("RegisterDoctorUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
   // Services
