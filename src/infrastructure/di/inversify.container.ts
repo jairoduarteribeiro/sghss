@@ -27,7 +27,7 @@ import {
   DrizzleWriteUserRepository,
 } from "../persistence/drizzle/repositories/drizzle-user.repository";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
-import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor";
+import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,

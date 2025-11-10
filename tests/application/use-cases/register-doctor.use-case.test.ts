@@ -1,6 +1,6 @@
 import { describe, test, expect, afterEach, mock, beforeAll } from "bun:test";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
-import { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor";
+import { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor.use-case";
 import { Container } from "inversify";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
