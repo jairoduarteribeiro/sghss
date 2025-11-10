@@ -14,7 +14,7 @@ import {
 } from "../../application/services/auth-token-generator";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
-import { SignupUseCase } from "../../application/use-cases/signup.use-case";
+import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
 import { AuthController } from "../web/controllers/auth.controller";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
 import {
@@ -62,8 +62,8 @@ container
 
 // Use Case bindings
 container
-  .bind<SignupUseCase>(SYMBOLS.SignupUseCase)
-  .to(SignupUseCase)
+  .bind<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase)
+  .to(RegisterUserUseCase)
   .inTransientScope();
 container
   .bind<LoginUseCase>(SYMBOLS.LoginUseCase)

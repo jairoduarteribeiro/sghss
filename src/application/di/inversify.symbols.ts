@@ -11,7 +11,7 @@ export const SYMBOLS = {
   // Unit of Work
   IUnitOfWork: Symbol.for("IUnitOfWork"),
   // Use Cases
-  SignupUseCase: Symbol.for("SignupUseCase"),
+  RegisterUserUseCase: Symbol.for("RegisterUserUseCase"),
   LoginUseCase: Symbol.for("LoginUseCase"),
   RegisterPatientUseCase: Symbol.for("RegisterPatientUseCase"),
   // Controller

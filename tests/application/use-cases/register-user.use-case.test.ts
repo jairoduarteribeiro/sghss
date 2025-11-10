@@ -4,7 +4,7 @@ import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "../../../src/application/ports/repositories/user.repository";
-import type { SignupUseCase } from "../../../src/application/use-cases/signup.use-case";
+import type { RegisterUserUseCase } from "../../../src/application/use-cases/register-user.use-case";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { User } from "../../../src/domain/entities/user";
 import { Email } from "../../../src/domain/value-objects/email";
@@ -14,9 +14,9 @@ import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-describe("Signup Use Case", async () => {
+describe("Register User - Use Case", async () => {
   let testContainer: Container;
-  let useCase: SignupUseCase;
+  let useCase: RegisterUserUseCase;
 
   const existingUser = User.from(
     Email.from("john.doe@example.com"),
@@ -43,7 +43,9 @@ describe("Signup Use Case", async () => {
     testContainer
       .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
       .toConstantValue(mockWriteUserRepository);
-    useCase = testContainer.get<SignupUseCase>(SYMBOLS.SignupUseCase);
+    useCase = testContainer.get<RegisterUserUseCase>(
+      SYMBOLS.RegisterUserUseCase
+    );
   });
 
   afterEach(() => {

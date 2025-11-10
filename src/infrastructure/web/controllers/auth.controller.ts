@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { LoginUseCase } from "../../../application/use-cases/login.use-case";
 import type { RegisterPatientUseCase } from "../../../application/use-cases/register-patient.use-case";
-import type { SignupUseCase } from "../../../application/use-cases/signup.use-case";
+import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import { HttpStatus } from "../http-status.constants";
 
@@ -37,12 +37,14 @@ export class AuthController {
 
   private async signup(req: Request, res: Response) {
     const output = await this.unitOfWork.transaction(async (container) => {
-      const signupUseCase = container.get<SignupUseCase>(SYMBOLS.SignupUseCase);
+      const registerUserUseCase = container.get<RegisterUserUseCase>(
+        SYMBOLS.RegisterUserUseCase
+      );
       const registerPatientUseCase = container.get<RegisterPatientUseCase>(
         SYMBOLS.RegisterPatientUseCase
       );
       const body = signupSchema.parse(req.body);
-      const signupOutput = await signupUseCase.execute({
+      const userOutput = await registerUserUseCase.execute({
         email: body.email,
         password: body.password,
         role: "PATIENT",
@@ -50,10 +52,10 @@ export class AuthController {
       const patientOutput = await registerPatientUseCase.execute({
         name: body.name,
         cpf: body.cpf,
-        userId: signupOutput.userId,
+        userId: userOutput.userId,
       });
       return {
-        ...signupOutput,
+        ...userOutput,
         ...patientOutput,
       };
     });

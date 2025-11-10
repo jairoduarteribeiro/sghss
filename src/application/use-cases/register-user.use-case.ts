@@ -9,20 +9,20 @@ import type {
   IWriteUserRepository,
 } from "../ports/repositories/user.repository";
 
-type SignupInput = {
+type RegisterUserInput = {
   email: string;
   password: string;
   role: string;
 };
 
-type SignupOutput = {
+type RegisterUserOutput = {
   userId: string;
   email: string;
   role: string;
 };
 
 @injectable()
-export class SignupUseCase {
+export class RegisterUserUseCase {
   constructor(
     @inject(SYMBOLS.IReadUserRepository)
     private readonly readUserRepository: IReadUserRepository,
@@ -30,7 +30,7 @@ export class SignupUseCase {
     private readonly writeUserRepository: IWriteUserRepository
   ) {}
 
-  async execute(input: SignupInput): Promise<SignupOutput> {
+  async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
     const email = Email.from(input.email);
     if (await this.emailExists(email)) {
       throw new ConflictError("Email already in use");
