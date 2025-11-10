@@ -50,7 +50,7 @@ describe("Register Patient Use Case", async () => {
     mock.clearAllMocks();
   });
 
-  test("Should register a patient successfully", async () => {
+  test("Should register a Patient successfully", async () => {
     const userId = Uuid.generate();
     const input = {
       name: "Jane Doe",
@@ -66,13 +66,25 @@ describe("Register Patient Use Case", async () => {
     expect(output.userId).toBe(userId.value);
   });
 
-  test("Should not register a patient with an existing Cpf", async () => {
+  test("Should not register a Patient with an existing Cpf", async () => {
     const input = {
       name: "John Smith",
       cpf: "70000000400",
       userId: Uuid.generate().value,
     };
     expect(useCase.execute(input)).rejects.toThrowError("CPF already in use");
+    expect(mockWritePatientRepository.save).toHaveBeenCalledTimes(0);
+  });
+
+  test("Should not register a Patient with invalid input", async () => {
+    const input = {
+      name: "Jane Doe",
+      cpf: "129.841.800.38",
+      userId: Uuid.generate().value,
+    };
+    expect(useCase.execute(input)).rejects.toThrowError(
+      "CPF with invalid format"
+    );
     expect(mockWritePatientRepository.save).toHaveBeenCalledTimes(0);
   });
 });
