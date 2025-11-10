@@ -3,7 +3,7 @@ import { Email } from "../../domain/value-objects/email";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { InvalidCredentialsError } from "../errors/invalid-credentials.error";
 import type { IReadUserRepository } from "../ports/repositories/user.repository";
-import type { IAuthTokenGenerator } from "../services/auth-token-generator";
+import type { IAuthTokenService } from "../services/auth-token-service";
 
 type LoginInput = {
   email: string;
@@ -20,8 +20,8 @@ export class LoginUseCase {
   constructor(
     @inject(SYMBOLS.IReadUserRepository)
     private readonly readUserRepository: IReadUserRepository,
-    @inject(SYMBOLS.IAuthTokenGenerator)
-    private readonly tokenGenerator: IAuthTokenGenerator
+    @inject(SYMBOLS.IAuthTokenService)
+    private readonly tokenGenerator: IAuthTokenService
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {

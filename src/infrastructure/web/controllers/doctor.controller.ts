@@ -6,6 +6,8 @@ import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { RegisterDoctorUseCase } from "../../../application/use-cases/register-doctor.use-case";
 import { HttpStatus } from "../http-status.constants";
+import type { RequireAuth } from "../middlewares/require-auth";
+import type { RequireAdmin } from "../middlewares/require-admin";
 
 const registerDoctorSchema = z.object({
   name: z.string(),
@@ -18,12 +20,21 @@ const registerDoctorSchema = z.object({
 export class DoctorController {
   constructor(
     @inject(SYMBOLS.IUnitOfWork)
-    private readonly unitOfWork: IUnitOfWork
+    private readonly unitOfWork: IUnitOfWork,
+    @inject(SYMBOLS.RequireAuth)
+    private readonly requireAuth: RequireAuth,
+    @inject(SYMBOLS.RequireAdmin)
+    private readonly requireAdmin: RequireAdmin
   ) {}
 
   router(): Router {
     const router = Router();
-    router.post("/doctors", this.registerDoctor.bind(this));
+    router.post(
+      "/doctors",
+      this.requireAuth.handle.bind(this.requireAuth),
+      this.requireAdmin.handle.bind(this.requireAdmin),
+      this.registerDoctor.bind(this)
+    );
     return router;
   }
 

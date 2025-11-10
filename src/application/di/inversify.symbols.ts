@@ -21,5 +21,8 @@ export const SYMBOLS = {
   AuthController: Symbol.for("AuthController"),
   DoctorController: Symbol.for("DoctorController"),
   // Services
-  IAuthTokenGenerator: Symbol.for("IAuthTokenGenerator"),
+  IAuthTokenService: Symbol.for("IAuthTokenService"),
+  // Middlewares
+  RequireAuth: Symbol.for("RequireAuth"),
+  RequireAdmin: Symbol.for("RequireAdmin"),
 };

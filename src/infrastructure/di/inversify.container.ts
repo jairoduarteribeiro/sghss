@@ -9,9 +9,9 @@ import type {
   IWriteUserRepository,
 } from "../../application/ports/repositories/user.repository";
 import {
-  type IAuthTokenGenerator,
-  JwtTokenGenerator,
-} from "../../application/services/auth-token-generator";
+  type IAuthTokenService,
+  JwtAuthTokenService,
+} from "../../application/services/auth-token-service";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
@@ -37,6 +37,8 @@ import {
   DrizzleWriteDoctorRepository,
 } from "../persistence/drizzle/repositories/drizzle-doctor.repository";
 import { DoctorController } from "../web/controllers/doctor.controller";
+import { RequireAuth } from "../web/middlewares/require-auth";
+import { RequireAdmin } from "../web/middlewares/require-admin";
 
 const container = new Container();
 
@@ -108,8 +110,18 @@ container
 
 // Service bindings
 container
-  .bind<IAuthTokenGenerator>(SYMBOLS.IAuthTokenGenerator)
-  .to(JwtTokenGenerator)
+  .bind<IAuthTokenService>(SYMBOLS.IAuthTokenService)
+  .to(JwtAuthTokenService)
+  .inSingletonScope();
+
+// Middleware bindings
+container
+  .bind<RequireAuth>(SYMBOLS.RequireAuth)
+  .to(RequireAuth)
+  .inSingletonScope();
+container
+  .bind<RequireAdmin>(SYMBOLS.RequireAdmin)
+  .to(RequireAdmin)
   .inSingletonScope();
 
 export { container };
