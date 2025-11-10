@@ -19,4 +19,16 @@ describe("Doctor entity", () => {
     expect(doctor.crm).toBe(crm.value);
     expect(doctor.userId).toBe(userId.value);
   });
+
+  test("Should restore a Doctor successfully", () => {
+    const id = Uuid.generate();
+    const name = Name.from("John Doe");
+    const crm = Crm.from("123456-SP");
+    const userId = Uuid.generate();
+    const doctor = Doctor.restore(id, name, crm, userId);
+    expect(doctor.id).toBe(id.value);
+    expect(doctor.name).toBe(name.value);
+    expect(doctor.crm).toBe(crm.value);
+    expect(doctor.userId).toBe(userId.value);
+  });
 });
