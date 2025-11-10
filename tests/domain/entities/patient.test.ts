@@ -9,13 +9,25 @@ const UUID7_REGEX =
 
 describe("Patient entity", () => {
   test("Should create a Patient successfully", () => {
-    const patient = Patient.from(
-      Name.from("John Doe"),
-      Cpf.from("70000000400"),
-      Uuid.generate()
-    );
+    const name = Name.from("John Doe");
+    const cpf = Cpf.from("70000000400");
+    const userId = Uuid.generate();
+    const patient = Patient.from(name, cpf, userId);
     expect(patient.id).toMatch(UUID7_REGEX);
-    expect(patient.name).toBe("John Doe");
-    expect(patient.cpf).toBe("70000000400");
+    expect(patient.name).toBe(name.value);
+    expect(patient.cpf).toBe(cpf.value);
+    expect(patient.userId).toBe(userId.value);
+  });
+
+  test("Should restore a Patient successfully", () => {
+    const id = Uuid.generate();
+    const name = Name.from("John Doe");
+    const cpf = Cpf.from("70000000400");
+    const userId = Uuid.generate();
+    const patient = Patient.restore(id, name, cpf, userId);
+    expect(patient.id).toBe(id.value);
+    expect(patient.name).toBe(name.value);
+    expect(patient.cpf).toBe(cpf.value);
+    expect(patient.userId).toBe(userId.value);
   });
 });
