@@ -75,7 +75,7 @@ describe("Register Doctor - Use Case", async () => {
       crm: "654321-RJ",
       userId: Uuid.generate().value,
     };
-    expect(useCase.execute(input)).rejects.toThrow("Crm already in use");
+    expect(useCase.execute(input)).rejects.toThrowError("Crm already in use");
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });
 
@@ -85,7 +85,9 @@ describe("Register Doctor - Use Case", async () => {
       crm: "1234567-SP",
       userId: Uuid.generate().value,
     };
-    expect(useCase.execute(input)).rejects.toThrow("CRM with invalid format");
+    expect(useCase.execute(input)).rejects.toThrowError(
+      "CRM with invalid format"
+    );
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });
 });

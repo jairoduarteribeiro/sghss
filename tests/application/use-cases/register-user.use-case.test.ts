@@ -72,7 +72,7 @@ describe("Register User - Use Case", async () => {
       password: "Password456!",
       role: "PATIENT",
     };
-    expect(useCase.execute(input)).rejects.toThrow("Email already in use");
+    expect(useCase.execute(input)).rejects.toThrowError("Email already in use");
     expect(mockWriteUserRepository.save).toHaveBeenCalledTimes(0);
   });
 });
