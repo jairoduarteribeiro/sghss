@@ -21,4 +21,9 @@ describe("Crm value object", () => {
     const act = () => Crm.from(invalidCrm);
     expect(act).toThrowError("CRM with invalid format");
   });
+
+  test("Should not create a Crm with invalid state", () => {
+    const act = () => Crm.from("123456-PT");
+    expect(act).toThrowError("CRM with invalid state");
+  });
 });
