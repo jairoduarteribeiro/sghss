@@ -78,4 +78,14 @@ describe("Register Doctor - Use Case", async () => {
     expect(useCase.execute(input)).rejects.toThrow("Crm already in use");
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });
+
+  test("Should not register a Doctor with invalid input", async () => {
+    const input = {
+      name: "John Doe",
+      crm: "1234567-SP",
+      userId: Uuid.generate().value,
+    };
+    expect(useCase.execute(input)).rejects.toThrow("CRM with invalid format");
+    expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
+  });
 });
