@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "test:coverage": "bun test --coverage --coverage-reporter=lcov && genhtml -o coverage coverage/lcov.info"
   },
   "devDependencies": {
     "@types/bun": "latest",

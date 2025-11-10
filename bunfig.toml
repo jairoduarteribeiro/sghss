@@ -1,2 +1,6 @@
 [test]
 preload = ["./tests/index.ts"]
+coveragePathIgnorePatterns = [
+  "src/infrastructure/**",
+  "tests/index.ts"
+]
