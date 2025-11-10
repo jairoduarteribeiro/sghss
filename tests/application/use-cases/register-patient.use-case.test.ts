@@ -3,14 +3,14 @@ import { Container } from "inversify";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "../../../src/application/repositories/patient.repository";
+} from "../../../src/application/ports/repositories/patient.repository";
 import type { RegisterPatientUseCase } from "../../../src/application/use-cases/register-patient.use-case";
-import { container } from "../../../src/config/inversify.container";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 import { Patient } from "../../../src/domain/entities/patient";
 import { Cpf } from "../../../src/domain/value-objects/cpf";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { Name } from "../../../src/domain/value-objects/name";
-import { SYMBOLS } from "../../../src/inversify.symbols";
+import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 
 describe("Register Patient Use Case", async () => {
   let testContainer: Container;

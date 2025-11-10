@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { Email } from "../../domain/value-objects/email";
-import { SYMBOLS } from "../../inversify.symbols";
+import { SYMBOLS } from "../di/inversify.symbols";
 import { InvalidCredentialsError } from "../errors/invalid-credentials.error";
-import type { IReadUserRepository } from "../repositories/user.repository";
+import type { IReadUserRepository } from "../ports/repositories/user.repository";
 import type { IAuthTokenGenerator } from "../services/auth-token-generator";
 
 type LoginInput = {

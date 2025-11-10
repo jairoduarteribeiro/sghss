@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { createApp } from "./infrastructure/web/http";
-import { container } from "./config/inversify.container";
+import { container } from "./infrastructure/di/inversify.container";
 
 const port = 3000;
 const app = createApp(container);

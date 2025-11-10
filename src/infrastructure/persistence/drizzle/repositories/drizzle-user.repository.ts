@@ -3,12 +3,12 @@ import { inject, injectable } from "inversify";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "../../../../application/repositories/user.repository";
+} from "../../../../application/ports/repositories/user.repository";
 import { User } from "../../../../domain/entities/user";
 import { Email } from "../../../../domain/value-objects/email";
 import { Password } from "../../../../domain/value-objects/password";
 import { Uuid } from "../../../../domain/value-objects/uuid";
-import { SYMBOLS } from "../../../../inversify.symbols";
+import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type { DbClient } from "../drizzle-client";
 import { users } from "../schema";
 

@@ -1,12 +1,12 @@
 import { describe, test, expect, beforeAll, mock } from "bun:test";
 import { Container } from "inversify";
-import type { IReadUserRepository } from "../../../src/application/repositories/user.repository";
+import type { IReadUserRepository } from "../../../src/application/ports/repositories/user.repository";
 import type { LoginUseCase } from "../../../src/application/use-cases/login.use-case";
-import { container } from "../../../src/config/inversify.container";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 import { User } from "../../../src/domain/entities/user";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
-import { SYMBOLS } from "../../../src/inversify.symbols";
+import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 

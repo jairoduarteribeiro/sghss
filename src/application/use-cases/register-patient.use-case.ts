@@ -3,12 +3,12 @@ import { inject, injectable } from "inversify";
 import { Patient } from "../../domain/entities/patient";
 import { Cpf } from "../../domain/value-objects/cpf";
 import { Uuid } from "../../domain/value-objects/uuid";
-import { SYMBOLS } from "../../inversify.symbols";
+import { SYMBOLS } from "../di/inversify.symbols";
 import { ConflictError } from "../errors/conflict.error";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "../repositories/patient.repository";
+} from "../ports/repositories/patient.repository";
 
 type RegisterPatientInput = {
   name: string;

@@ -3,12 +3,12 @@ import { eq } from "drizzle-orm";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
-} from "../../../../application/repositories/patient.repository";
+} from "../../../../application/ports/repositories/patient.repository";
 import { Patient } from "../../../../domain/entities/patient";
 import { Cpf } from "../../../../domain/value-objects/cpf";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import { Name } from "../../../../domain/value-objects/name";
-import { SYMBOLS } from "../../../../inversify.symbols";
+import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type { DbClient } from "../drizzle-client";
 import { patients } from "../schema";
 

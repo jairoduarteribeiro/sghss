@@ -3,13 +3,13 @@ import { Container } from "inversify";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
-} from "../../../src/application/repositories/user.repository";
+} from "../../../src/application/ports/repositories/user.repository";
 import type { SignupUseCase } from "../../../src/application/use-cases/signup.use-case";
-import { container } from "../../../src/config/inversify.container";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 import { User } from "../../../src/domain/entities/user";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
-import { SYMBOLS } from "../../../src/inversify.symbols";
+import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;

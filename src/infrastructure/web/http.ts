@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import type { Container } from "inversify";
-import { SYMBOLS } from "../../inversify.symbols";
+import { SYMBOLS } from "../../application/di/inversify.symbols";
 import type { AuthController } from "../controllers/auth.controller";
 import { errorHandler } from "./middlewares/error-handler";
 
