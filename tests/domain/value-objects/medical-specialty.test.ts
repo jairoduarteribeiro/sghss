@@ -11,4 +11,12 @@ describe("Medical Specialty - Value Object", () => {
     const medicalSpecialty = MedicalSpecialty.from("   Pulmonary   Disease   and   Critical   Care   Medicine   ");
     expect(medicalSpecialty.value).toBe("Pulmonary Disease and Critical Care Medicine");
   });
+
+  test.each(["a", "a".repeat(51)])(
+    "Should not create a MedicalSpecialty with invalid length - %s",
+    (invalidSpecialty) => {
+      const act = () => MedicalSpecialty.from(invalidSpecialty);
+      expect(act).toThrowError("Medical specialty must have length between 2 and 50");
+    },
+  );
 });
