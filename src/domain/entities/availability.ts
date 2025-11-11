@@ -13,6 +13,7 @@ export class Availability {
     endDateTime: Date,
     doctorId: Uuid,
   ): Availability {
+    Availability.validateDates(startDateTime, endDateTime);
     return new Availability(
       Uuid.generate(),
       startDateTime,
@@ -28,6 +29,12 @@ export class Availability {
     doctorId: Uuid,
   ): Availability {
     return new Availability(id, startDateTime, endDateTime, doctorId);
+  }
+
+  private static validateDates(startDateTime: Date, endDateTime: Date): void {
+    if (endDateTime <= startDateTime) {
+      throw new Error("End datetime must be after start datetime");
+    }
   }
 
   get id(): string {
