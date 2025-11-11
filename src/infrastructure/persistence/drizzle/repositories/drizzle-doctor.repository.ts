@@ -1,32 +1,31 @@
+import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
+import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,
 } from "../../../../application/ports/repositories/doctor.repository";
 import { Doctor } from "../../../../domain/entities/doctor";
 import { Crm } from "../../../../domain/value-objects/crm";
-import { SYMBOLS } from "../../../../application/di/inversify.symbols";
+import { MedicalSpecialty } from "../../../../domain/value-objects/medical-specialty";
+import { Name } from "../../../../domain/value-objects/name";
+import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
 import { doctors } from "../schema";
-import { eq } from "drizzle-orm";
-import { Uuid } from "../../../../domain/value-objects/uuid";
-import { Name } from "../../../../domain/value-objects/name";
 
 @injectable()
 export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
   async findByCrm(crm: Crm): Promise<Doctor | null> {
-    const [row] = await this.db
-      .select()
-      .from(doctors)
-      .where(eq(doctors.crm, crm.value));
+    const [row] = await this.db.select().from(doctors).where(eq(doctors.crm, crm.value));
     return row
       ? Doctor.restore(
           Uuid.fromString(row.id),
           Name.from(row.name),
           Crm.from(row.crm),
-          Uuid.fromString(row.userId)
+          MedicalSpecialty.from(row.specialty),
+          Uuid.fromString(row.userId),
         )
       : null;
   }
@@ -41,6 +40,7 @@ export class DrizzleWriteDoctorRepository implements IWriteDoctorRepository {
       id: doctor.id,
       name: doctor.name,
       crm: doctor.crm,
+      specialty: doctor.specialty,
       userId: doctor.userId,
     });
   }

@@ -1,18 +1,19 @@
+import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
-import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
+import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterDoctorUseCase } from "../../../application/use-cases/register-doctor.use-case";
+import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { HttpStatus } from "../http-status.constants";
-import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireRole } from "../middlewares/require-admin";
+import type { RequireAuth } from "../middlewares/require-auth";
 
 const registerDoctorSchema = z.object({
   name: z.string(),
   crm: z.string(),
-  email: z.string().email(),
+  specialty: z.string(),
+  email: z.email(),
   password: z.string(),
 });
 
@@ -24,7 +25,7 @@ export class DoctorController {
     @inject(SYMBOLS.RequireAuth)
     private readonly requireAuth: RequireAuth,
     @inject(SYMBOLS.RequireRole)
-    private readonly requireRole: RequireRole
+    private readonly requireRole: RequireRole,
   ) {}
 
   router(): Router {
@@ -33,19 +34,15 @@ export class DoctorController {
       "/doctors",
       this.requireAuth.handle.bind(this.requireAuth),
       this.requireRole.handle("ADMIN"),
-      this.registerDoctor.bind(this)
+      this.registerDoctor.bind(this),
     );
     return router;
   }
 
   private async registerDoctor(req: Request, res: Response) {
     const output = await this.unitOfWork.transaction(async (container) => {
-      const registerUserUseCase = container.get<RegisterUserUseCase>(
-        SYMBOLS.RegisterUserUseCase
-      );
-      const registerDoctorUseCase = container.get<RegisterDoctorUseCase>(
-        SYMBOLS.RegisterDoctorUseCase
-      );
+      const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
+      const registerDoctorUseCase = container.get<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase);
       const body = registerDoctorSchema.parse(req.body);
       const userOutput = await registerUserUseCase.execute({
         email: body.email,
@@ -55,6 +52,7 @@ export class DoctorController {
       const doctorOutput = await registerDoctorUseCase.execute({
         name: body.name,
         crm: body.crm,
+        specialty: body.specialty,
         userId: userOutput.userId,
       });
       return {

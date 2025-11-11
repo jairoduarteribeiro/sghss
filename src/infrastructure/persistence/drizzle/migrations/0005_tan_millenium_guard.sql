@@ -1,0 +1,1 @@
+ALTER TABLE "doctors" ADD COLUMN "specialty" varchar(50) NOT NULL;
