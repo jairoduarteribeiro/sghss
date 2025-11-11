@@ -1,9 +1,8 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { HttpStatus } from "../http-status.constants";
-import { injectable, inject } from "inversify";
+import type { NextFunction, Request, Response } from "express";
+import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IAuthTokenService } from "../../../application/services/auth-token-service";
+import { HttpStatus } from "../http-status.constants";
 
 declare global {
   namespace Express {
@@ -20,7 +19,7 @@ declare global {
 export class RequireAuth {
   constructor(
     @inject(SYMBOLS.IAuthTokenService)
-    private readonly authTokenService: IAuthTokenService
+    private readonly authTokenService: IAuthTokenService,
   ) {}
 
   handle(req: Request, res: Response, next: NextFunction): void {

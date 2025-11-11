@@ -1,15 +1,15 @@
-import { describe, test, expect, beforeAll, mock, afterEach } from "bun:test";
+import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
+import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "../../../src/application/ports/repositories/user.repository";
 import type { RegisterUserUseCase } from "../../../src/application/use-cases/register-user.use-case";
-import { container } from "../../../src/infrastructure/di/inversify.container";
 import { User } from "../../../src/domain/entities/user";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
-import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -21,15 +21,15 @@ describe("Register User - Use Case", async () => {
   const existingUser = User.from(
     Email.from("john.doe@example.com"),
     await Password.from("Password123!"),
-    "PATIENT"
+    "PATIENT",
   );
   const mockReadUserRepository: IReadUserRepository = {
     findByEmail: mock(async (email: Email) =>
-      email.value === existingUser.email ? existingUser : null
+      email.value === existingUser.email ? existingUser : null,
     ),
   };
   const mockWriteUserRepository: IWriteUserRepository = {
-    save: mock(async (user: User) => {}),
+    save: mock(async (_user: User) => {}),
     clear: mock(async () => {}),
   };
 
@@ -44,7 +44,7 @@ describe("Register User - Use Case", async () => {
       .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
       .toConstantValue(mockWriteUserRepository);
     useCase = testContainer.get<RegisterUserUseCase>(
-      SYMBOLS.RegisterUserUseCase
+      SYMBOLS.RegisterUserUseCase,
     );
   });
 

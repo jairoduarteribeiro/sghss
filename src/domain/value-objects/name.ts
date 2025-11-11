@@ -7,8 +7,8 @@ export class Name {
   private constructor(readonly value: string) {}
 
   static from(name: string): Name {
-    const normalizedName = this.normalize(name);
-    this.validate(normalizedName);
+    const normalizedName = Name.normalize(name);
+    Name.validate(normalizedName);
     return new Name(normalizedName);
   }
 
@@ -17,7 +17,7 @@ export class Name {
   }
 
   private static validate(name: string): void {
-    if (!this.isValidLength(name)) {
+    if (!Name.isValidLength(name)) {
       throw new ValidationError(
         `Name length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
       );

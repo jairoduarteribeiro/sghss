@@ -5,6 +5,6 @@ export default defineConfig({
   schema: "./src/infrastructure/persistence/drizzle/schema",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env.DATABASE_URL ?? "", // TODO: Think about a better way to manage env variables
   },
 });

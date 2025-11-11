@@ -1,16 +1,16 @@
-import { describe, test, expect, afterEach, mock, beforeAll } from "bun:test";
-import { Uuid } from "../../../src/domain/value-objects/uuid";
-import { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor.use-case";
+import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
-import { container } from "../../../src/infrastructure/di/inversify.container";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,
 } from "../../../src/application/ports/repositories/doctor.repository";
+import type { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor.use-case";
 import { Doctor } from "../../../src/domain/entities/doctor";
-import { Name } from "../../../src/domain/value-objects/name";
 import { Crm } from "../../../src/domain/value-objects/crm";
+import { Name } from "../../../src/domain/value-objects/name";
+import { Uuid } from "../../../src/domain/value-objects/uuid";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -22,15 +22,15 @@ describe("Register Doctor - Use Case", async () => {
   const existingDoctor = Doctor.from(
     Name.from("David Smith"),
     Crm.from("654321-RJ"),
-    Uuid.generate()
+    Uuid.generate(),
   );
   const mockReadDoctorRepository: IReadDoctorRepository = {
     findByCrm: mock(async (crm: Crm) =>
-      crm.value === existingDoctor.crm ? existingDoctor : null
+      crm.value === existingDoctor.crm ? existingDoctor : null,
     ),
   };
   const mockWriteDoctorRepository: IWriteDoctorRepository = {
-    save: mock(async (doctor: Doctor) => {}),
+    save: mock(async (_doctor: Doctor) => {}),
     clear: mock(async () => {}),
   };
 
@@ -45,7 +45,7 @@ describe("Register Doctor - Use Case", async () => {
       .bind<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository)
       .toConstantValue(mockWriteDoctorRepository);
     useCase = testContainer.get<RegisterDoctorUseCase>(
-      SYMBOLS.RegisterDoctorUseCase
+      SYMBOLS.RegisterDoctorUseCase,
     );
   });
 
@@ -86,7 +86,7 @@ describe("Register Doctor - Use Case", async () => {
       userId: Uuid.generate().value,
     };
     expect(useCase.execute(input)).rejects.toThrowError(
-      "CRM with invalid format"
+      "CRM with invalid format",
     );
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });

@@ -6,21 +6,21 @@ export class Cpf {
   private constructor(readonly value: string) {}
 
   static from(cpf: string): Cpf {
-    this.validate(cpf);
-    return new Cpf(this.clean(cpf));
+    Cpf.validate(cpf);
+    return new Cpf(Cpf.clean(cpf));
   }
 
   private static validate(cpf: string): void {
-    if (!this.hasValidFormat(cpf)) {
+    if (!Cpf.hasValidFormat(cpf)) {
       throw new ValidationError("CPF with invalid format");
     }
-    const cleanedCpf = this.clean(cpf);
-    if (this.hasAllDigitsTheSame(cleanedCpf)) {
+    const cleanedCpf = Cpf.clean(cpf);
+    if (Cpf.hasAllDigitsTheSame(cleanedCpf)) {
       throw new ValidationError("CPF cannot have all digits the same");
     }
-    const firstDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 9));
-    const secondDigit = this.calculateCheckDigit(cleanedCpf.slice(0, 10));
-    const checkDigits = this.extractCheckDigits(cleanedCpf);
+    const firstDigit = Cpf.calculateCheckDigit(cleanedCpf.slice(0, 9));
+    const secondDigit = Cpf.calculateCheckDigit(cleanedCpf.slice(0, 10));
+    const checkDigits = Cpf.extractCheckDigits(cleanedCpf);
     if (checkDigits !== `${firstDigit}${secondDigit}`) {
       throw new ValidationError("CPF with invalid check digits");
     }

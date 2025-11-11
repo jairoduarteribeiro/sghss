@@ -35,16 +35,16 @@ export class Crm {
   private constructor(readonly value: string) {}
 
   static from(crm: string): Crm {
-    this.validate(crm);
+    Crm.validate(crm);
     return new Crm(crm);
   }
 
   private static validate(crm: string): void {
-    if (!this.hasValidFormat(crm)) {
+    if (!Crm.hasValidFormat(crm)) {
       throw new ValidationError("CRM with invalid format");
     }
-    const state = this.extractState(crm);
-    if (!this.isValidState(state)) {
+    const state = Crm.extractState(crm);
+    if (!Crm.isValidState(state)) {
       throw new ValidationError("CRM with invalid state");
     }
   }

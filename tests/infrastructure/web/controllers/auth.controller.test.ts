@@ -1,8 +1,8 @@
-import { describe, test, expect, afterEach, beforeAll } from "bun:test";
+import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import type { Express } from "express";
-import supertest from "supertest";
 import { Container } from "inversify";
-import type { IUnitOfWork } from "../../../../src/application/ports/unit-of-work";
+import supertest from "supertest";
+import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
@@ -11,13 +11,13 @@ import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "../../../../src/application/ports/repositories/user.repository";
+import type { IUnitOfWork } from "../../../../src/application/ports/unit-of-work";
 import type { LoginUseCase } from "../../../../src/application/use-cases/login.use-case";
-import { container } from "../../../../src/infrastructure/di/inversify.container";
 import { Cpf } from "../../../../src/domain/value-objects/cpf";
 import { Email } from "../../../../src/domain/value-objects/email";
+import { container } from "../../../../src/infrastructure/di/inversify.container";
 import { createApp } from "../../../../src/infrastructure/web/http";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
-import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -33,16 +33,16 @@ describe("Auth Controller - Signup", () => {
 
   beforeAll(() => {
     readUserRepository = container.get<IReadUserRepository>(
-      SYMBOLS.IReadUserRepository
+      SYMBOLS.IReadUserRepository,
     );
     writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository
+      SYMBOLS.IWriteUserRepository,
     );
     readPatientRepository = container.get<IReadPatientRepository>(
-      SYMBOLS.IReadPatientRepository
+      SYMBOLS.IReadPatientRepository,
     );
     writePatientRepository = container.get<IWritePatientRepository>(
-      SYMBOLS.IWritePatientRepository
+      SYMBOLS.IWritePatientRepository,
     );
     app = createApp(container);
     request = supertest(app);
@@ -73,14 +73,14 @@ describe("Auth Controller - Signup", () => {
       role: "PATIENT",
     });
     const savedUser = await readUserRepository.findByEmail(
-      Email.from(input.email)
+      Email.from(input.email),
     );
     expect(savedUser).toBeDefined();
     expect(savedUser?.id).toBe(response.body.userId);
     expect(savedUser?.email).toBe(input.email);
     expect(savedUser?.role).toBe("PATIENT");
     const savedPatient = await readPatientRepository.findByCpf(
-      Cpf.from(input.cpf)
+      Cpf.from(input.cpf),
     );
     expect(savedPatient).toBeDefined();
     expect(savedPatient?.id).toBe(response.body.patientId);
@@ -133,7 +133,7 @@ describe("Auth Controller - Signup", () => {
 
   test("POST /auth/signup should return 500 on unexpected errors", async () => {
     const mockUnitOfWork: Partial<IUnitOfWork> = {
-      transaction: async (fn: Function) => {
+      transaction: async <T>(_fn: (container: Container) => Promise<T>) => {
         throw new Error("Unexpected error");
       },
     };
@@ -163,7 +163,7 @@ describe("Auth Controller - Login", () => {
 
   beforeAll(() => {
     writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository
+      SYMBOLS.IWriteUserRepository,
     );
     app = createApp(container);
     request = supertest(app);

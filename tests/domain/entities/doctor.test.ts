@@ -1,9 +1,8 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { Doctor } from "../../../src/domain/entities/doctor";
-import { Name } from "../../../src/domain/value-objects/name";
 import { Crm } from "../../../src/domain/value-objects/crm";
+import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
-import { convertToObject } from "typescript";
 
 const UUID7_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;

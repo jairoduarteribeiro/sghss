@@ -8,8 +8,8 @@ export class Email {
   private constructor(readonly value: string) {}
 
   static from(email: string): Email {
-    const normalizedEmail = this.normalize(email);
-    this.validate(normalizedEmail);
+    const normalizedEmail = Email.normalize(email);
+    Email.validate(normalizedEmail);
     return new Email(normalizedEmail);
   }
 
@@ -17,7 +17,7 @@ export class Email {
     if (email.length > MAX_EMAIL_SIZE) {
       throw new ValidationError("Email must be at most 254 characters long");
     }
-    if (!this.hasValidFormat(email)) {
+    if (!Email.hasValidFormat(email)) {
       throw new ValidationError("Email with invalid format");
     }
   }

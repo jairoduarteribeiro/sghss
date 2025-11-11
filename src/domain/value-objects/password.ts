@@ -8,7 +8,7 @@ export class Password {
   private constructor(readonly hash: string) {}
 
   static async from(plainText: string): Promise<Password> {
-    this.validate(plainText);
+    Password.validate(plainText);
     const hash = await Bun.password.hash(plainText);
     return new Password(hash);
   }
@@ -22,12 +22,12 @@ export class Password {
   }
 
   private static validate(plainText: string): void {
-    if (!this.hasValidLength(plainText)) {
+    if (!Password.hasValidLength(plainText)) {
       throw new ValidationError(
         `Password length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
       );
     }
-    this.checkComplexity(plainText);
+    Password.checkComplexity(plainText);
   }
 
   private static hasValidLength(plainText: string): boolean {
