@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  text,
-  uuid,
-  varchar,
-  timestamp,
-  boolean,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { MAX_EMAIL_SIZE } from "../../../../domain/value-objects/email";
 
 export const users = pgTable("users", {

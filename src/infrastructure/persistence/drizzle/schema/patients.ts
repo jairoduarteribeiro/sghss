@@ -1,5 +1,5 @@
-import { pgTable, uuid, text, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const patients = pgTable("patients", {
