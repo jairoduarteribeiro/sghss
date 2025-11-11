@@ -37,4 +37,14 @@ describe("Availability entity", () => {
     expect(availability.endDateTime).toBe(endDateTime);
     expect(availability.doctorId).toBe(doctorId.value);
   });
+
+  test("Should not allow endDateTime before startDateTime", () => {
+    const act = () =>
+      Availability.from(
+        new Date("2024-07-01T17:00:00Z"),
+        new Date("2024-07-01T09:00:00Z"),
+        Uuid.generate(),
+      );
+    expect(act).toThrowError("End datetime must be after start datetime");
+  });
 });
