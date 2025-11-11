@@ -20,4 +20,21 @@ describe("Availability entity", () => {
     expect(availability.endDateTime).toBe(endDateTime);
     expect(availability.doctorId).toBe(doctorId.value);
   });
+
+  test("Should restore an Availability successfully", () => {
+    const id = Uuid.generate();
+    const startDateTime = new Date("2024-07-01T09:00:00Z");
+    const endDateTime = new Date("2024-07-01T17:00:00Z");
+    const doctorId = Uuid.generate();
+    const availability = Availability.restore(
+      id,
+      startDateTime,
+      endDateTime,
+      doctorId,
+    );
+    expect(availability.id).toBe(id.value);
+    expect(availability.startDateTime).toBe(startDateTime);
+    expect(availability.endDateTime).toBe(endDateTime);
+    expect(availability.doctorId).toBe(doctorId.value);
+  });
 });
