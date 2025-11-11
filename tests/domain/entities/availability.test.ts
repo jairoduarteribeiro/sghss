@@ -47,4 +47,16 @@ describe("Availability entity", () => {
       );
     expect(act).toThrowError("End datetime must be after start datetime");
   });
+
+  test("Should not allow different between startDateTime and endDateTime less than 30 minutes", () => {
+    const act = () =>
+      Availability.from(
+        new Date("2024-07-01T09:00:00Z"),
+        new Date("2024-07-01T09:15:00Z"),
+        Uuid.generate(),
+      );
+    expect(act).toThrowError(
+      "End datetime must be more than 30 minutes after start datetime",
+    );
+  });
 });
