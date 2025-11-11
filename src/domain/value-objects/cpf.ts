@@ -1,6 +1,7 @@
 import { ValidationError } from "../errors/validation.error";
 
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
+export const CPF_LENGTH = 11;
 
 export class Cpf {
   private constructor(readonly value: string) {}

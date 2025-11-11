@@ -1,7 +1,7 @@
 import { ValidationError } from "../errors/validation.error";
 
-const MIN_LENGTH = 2;
-const MAX_LENGTH = 255;
+const MIN_NAME_LENGTH = 2;
+export const MAX_NAME_LENGTH = 255;
 
 export class Name {
   private constructor(readonly value: string) {}
@@ -18,13 +18,11 @@ export class Name {
 
   private static validate(name: string): void {
     if (!Name.isValidLength(name)) {
-      throw new ValidationError(
-        `Name length must be between ${MIN_LENGTH} and ${MAX_LENGTH} characters`
-      );
+      throw new ValidationError(`Name length must be between ${MIN_NAME_LENGTH} and ${MAX_NAME_LENGTH} characters`);
     }
   }
 
   private static isValidLength(name: string): boolean {
-    return MIN_LENGTH <= name.length && name.length <= MAX_LENGTH;
+    return MIN_NAME_LENGTH <= name.length && name.length <= MAX_NAME_LENGTH;
   }
 }

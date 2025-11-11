@@ -1,5 +1,7 @@
 import { ValidationError } from "../errors/validation.error";
 
+export const MAX_CRM_LENGTH = 9;
+
 const CRM_REGEX = /^\d{1,6}-[A-Z]{2}$/;
 const VALID_STATES = [
   "AC",

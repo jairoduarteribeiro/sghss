@@ -1,11 +1,13 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { MAX_CRM_LENGTH } from "../../../../domain/value-objects/crm";
+import { MAX_NAME_LENGTH } from "../../../../domain/value-objects/name";
 import { users } from "./users";
 
 export const doctors = pgTable("doctors", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  crm: varchar("crm", { length: 9 }).notNull().unique(),
+  name: varchar("name", { length: MAX_NAME_LENGTH }).notNull(),
+  crm: varchar("crm", { length: MAX_CRM_LENGTH }).notNull().unique(),
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
