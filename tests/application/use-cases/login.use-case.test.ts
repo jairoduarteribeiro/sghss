@@ -1,12 +1,12 @@
-import { describe, test, expect, beforeAll, mock } from "bun:test";
+import { beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
+import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 import type { IReadUserRepository } from "../../../src/application/ports/repositories/user.repository";
 import type { LoginUseCase } from "../../../src/application/use-cases/login.use-case";
-import { container } from "../../../src/infrastructure/di/inversify.container";
 import { User } from "../../../src/domain/entities/user";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
-import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
+import { container } from "../../../src/infrastructure/di/inversify.container";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
@@ -14,10 +14,7 @@ describe("Login Use Case", async () => {
   let testContainer: Container;
   let useCase: LoginUseCase;
 
-  const existingUser = User.from(
-    Email.from("john.doe@example.com"),
-    await Password.from("Password123!")
-  );
+  const existingUser = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"));
   const mockReadUserRepository: IReadUserRepository = {
     findByEmail: mock(async (email: Email) => {
       return email.value === existingUser.email ? existingUser : null;
@@ -27,9 +24,7 @@ describe("Login Use Case", async () => {
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
     await testContainer.unbind(SYMBOLS.IReadUserRepository);
-    testContainer
-      .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
-      .toConstantValue(mockReadUserRepository);
+    testContainer.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
     useCase = testContainer.get<LoginUseCase>(SYMBOLS.LoginUseCase);
   });
 

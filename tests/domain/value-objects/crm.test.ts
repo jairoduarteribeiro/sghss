@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { Crm } from "../../../src/domain/value-objects/crm";
 
 describe("Crm value object", () => {
@@ -7,20 +7,16 @@ describe("Crm value object", () => {
     (validCrm) => {
       const crm = Crm.from(validCrm);
       expect(crm.value).toBe(validCrm);
-    }
+    },
   );
 
-  test.each([
-    "-MG",
-    "1234567-SP",
-    "123.RJ",
-    "1234DF",
-    "12345-BSB",
-    "123456-pr",
-  ])("Should not create a Crm with invalid format - %s", (invalidCrm) => {
-    const act = () => Crm.from(invalidCrm);
-    expect(act).toThrowError("CRM with invalid format");
-  });
+  test.each(["-MG", "1234567-SP", "123.RJ", "1234DF", "12345-BSB", "123456-pr"])(
+    "Should not create a Crm with invalid format - %s",
+    (invalidCrm) => {
+      const act = () => Crm.from(invalidCrm);
+      expect(act).toThrowError("CRM with invalid format");
+    },
+  );
 
   test("Should not create a Crm with invalid state", () => {
     const act = () => Crm.from("123456-PT");

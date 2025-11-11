@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { Email } from "../../../src/domain/value-objects/email";
 
 const generateEmailWithLength = (totalLength: number): string => {
@@ -16,13 +16,10 @@ describe("Email value object", () => {
     "test1@example2.com3.br4",
     "my.test@example.com",
     "my1.test2@example3.com4",
-  ])(
-    "Should create an Email if a valid value (%s) is provided",
-    (validEmail) => {
-      const email = Email.from(validEmail);
-      expect(email.value).toBe(validEmail);
-    }
-  );
+  ])("Should create an Email if a valid value (%s) is provided", (validEmail) => {
+    const email = Email.from(validEmail);
+    expect(email.value).toBe(validEmail);
+  });
 
   test("Should create a normalized (lowercase and trimmed) Email", () => {
     const unnormalizedEmail = "  Test@Example.COM  ";
@@ -61,11 +58,8 @@ describe("Email value object", () => {
     "my.t@example.com",
     "1test@example.com",
     "my.1test@example.com",
-  ])(
-    "Should not create an Email if format is invalid (%s)",
-    (invalidFormat) => {
-      const act = () => Email.from(invalidFormat);
-      expect(act).toThrowError("Email with invalid format");
-    }
-  );
+  ])("Should not create an Email if format is invalid (%s)", (invalidFormat) => {
+    const act = () => Email.from(invalidFormat);
+    expect(act).toThrowError("Email with invalid format");
+  });
 });

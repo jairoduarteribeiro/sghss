@@ -1,11 +1,10 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { Patient } from "../../../src/domain/entities/patient";
 import { Cpf } from "../../../src/domain/value-objects/cpf";
 import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 
-const UUID7_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 describe("Patient entity", () => {
   test("Should create a Patient successfully", () => {
