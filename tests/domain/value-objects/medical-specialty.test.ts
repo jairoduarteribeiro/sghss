@@ -6,4 +6,9 @@ describe("Medical Specialty - Value Object", () => {
     const medicalSpecialty = MedicalSpecialty.from("Cardiology");
     expect(medicalSpecialty.value).toBe("Cardiology");
   });
+
+  test("Should trim and normalize a MedicalSpecialty", () => {
+    const medicalSpecialty = MedicalSpecialty.from("   Pulmonary   Disease   and   Critical   Care   Medicine   ");
+    expect(medicalSpecialty.value).toBe("Pulmonary Disease and Critical Care Medicine");
+  });
 });
