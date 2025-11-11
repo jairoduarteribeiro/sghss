@@ -7,7 +7,7 @@ const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{
 describe("Availability entity", () => {
   test("Should create an Availability successfully", () => {
     const startDateTime = new Date("2024-07-01T09:00:00Z");
-    const endDateTime = new Date("2024-07-01T17:00:00Z");
+    const endDateTime = new Date("2024-07-01T12:00:00Z");
     const doctorId = Uuid.generate();
     const availability = Availability.from(startDateTime, endDateTime, doctorId);
     expect(availability.id).toMatch(UUID7_REGEX);
@@ -44,5 +44,11 @@ describe("Availability entity", () => {
     const act = () =>
       Availability.from(new Date("2024-07-01T09:10:00Z"), new Date("2024-07-01T09:50:00Z"), Uuid.generate());
     expect(act).toThrowError("Start datetime and end datetime must be in multiples of 30 minutes");
+  });
+
+  test("Should not allow availability more than 4 hours", () => {
+    const act = () =>
+      Availability.from(new Date("2024-07-01T09:00:00Z"), new Date("2024-07-01T14:30:00Z"), Uuid.generate());
+    expect(act).toThrowError("Availability cannot exceed 4 hours");
   });
 });
