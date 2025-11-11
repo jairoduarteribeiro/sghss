@@ -35,6 +35,13 @@ export class Availability {
     if (endDateTime <= startDateTime) {
       throw new Error("End datetime must be after start datetime");
     }
+    const diffInMs = endDateTime.getTime() - startDateTime.getTime();
+    const diffInMinutes = diffInMs / (1000 * 60);
+    if (diffInMinutes < 30) {
+      throw new Error(
+        "End datetime must be more than 30 minutes after start datetime",
+      );
+    }
   }
 
   get id(): string {
