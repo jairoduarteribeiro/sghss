@@ -11,6 +11,7 @@
     "test:watch": "bun test --watch --only-failures"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
     "@types/bun": "latest",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
