@@ -28,6 +28,9 @@ export class Availability {
     if (!Availability.isMultipleOf30Minutes(startDateTime) || !Availability.isMultipleOf30Minutes(endDateTime)) {
       throw new ValidationError("Start datetime and end datetime must be in multiples of 30 minutes");
     }
+    if (!Availability.isDurationAtMost4Hours(startDateTime, endDateTime)) {
+      throw new ValidationError("Availability cannot exceed 4 hours");
+    }
   }
 
   private static isStartBeforeEnd(startDateTime: Date, endDateTime: Date): boolean {
@@ -43,6 +46,12 @@ export class Availability {
   private static isMultipleOf30Minutes(dateTime: Date): boolean {
     const minutes = dateTime.getUTCMinutes();
     return minutes % 30 === 0;
+  }
+
+  private static isDurationAtMost4Hours(startDateTime: Date, endDateTime: Date): boolean {
+    const diffInMs = endDateTime.getTime() - startDateTime.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+    return diffInHours <= 4;
   }
 
   get id(): string {
