@@ -1,15 +1,6 @@
 import { injectable } from "inversify";
 import jwt from "jsonwebtoken";
-
-type AuthTokenPayload = {
-  userId: string;
-  role: string;
-};
-
-export interface IAuthTokenService {
-  generate(payload: AuthTokenPayload): string;
-  extract(token: string): AuthTokenPayload | null;
-}
+import type { AuthTokenPayload, IAuthTokenService } from "../../application/ports/services/auth-token-service";
 
 @injectable()
 export class JwtAuthTokenService implements IAuthTokenService {

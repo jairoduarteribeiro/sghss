@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
-import type { IAuthTokenService } from "../../../application/services/auth-token-service";
+import type { IAuthTokenService } from "../../../application/ports/services/auth-token-service";
 import { HttpStatus } from "../http-status.constants";
 
 declare global {
@@ -35,9 +35,7 @@ export class RequireAuth {
     }
     const payload = this.authTokenService.extract(token);
     if (!payload) {
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ message: "Invalid or expired token" });
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired token" });
       return;
     }
     req.user = { id: payload.userId, role: payload.role };
