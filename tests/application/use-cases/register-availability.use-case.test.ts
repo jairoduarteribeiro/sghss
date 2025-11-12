@@ -5,6 +5,7 @@ import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../../../src/application/ports/repositories/availability.repository";
+import type { IUnitOfWork } from "../../../src/application/ports/unit-of-work";
 import type { RegisterAvailabilityUseCase } from "../../../src/application/use-cases/register-availability.use-case";
 import { Availability } from "../../../src/domain/entities/availability";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
@@ -20,6 +21,12 @@ describe("Register Availability - Use Case", async () => {
     Availability.from(new Date("2024-07-01T14:00:00Z"), new Date("2024-07-01T16:00:00Z"), existingDoctorId),
   ];
 
+  const mockUnitOfWork: IUnitOfWork = {
+    transaction: async <T>(fn: (container: Container) => Promise<T>) => {
+      return fn(testContainer);
+    },
+  };
+
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (doctorId: Uuid) =>
       doctorId.value === existingDoctorId.value ? existingAvailabilities : [],
@@ -34,12 +41,14 @@ describe("Register Availability - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.unbind(SYMBOLS.IReadAvailabilityRepository);
     testContainer.unbind(SYMBOLS.IWriteAvailabilityRepository);
+    testContainer.unbind(SYMBOLS.IUnitOfWork);
     testContainer
       .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
       .toConstantValue(mockReadAvailabilityRepository);
     testContainer
       .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
       .toConstantValue(mockWriteAvailabilityRepository);
+    testContainer.bind<IUnitOfWork>(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
     useCase = testContainer.get<RegisterAvailabilityUseCase>(SYMBOLS.RegisterAvailabilityUseCase);
   });
 
@@ -73,9 +82,7 @@ describe("Register Availability - Use Case", async () => {
       startDateTime: overlapping.startDateTime,
       endDateTime: overlapping.endDateTime,
     };
-    await expect(useCase.execute(input)).rejects.toThrowError(
-      "The availability overlaps with an existing availability",
-    );
+    expect(useCase.execute(input)).rejects.toThrowError("The new availability overlaps with existing availabilities");
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(0);
   });
 });

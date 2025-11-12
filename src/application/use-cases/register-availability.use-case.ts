@@ -7,6 +7,7 @@ import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
+import type { IUnitOfWork } from "../ports/unit-of-work";
 
 type RegisterAvailabilityInput = {
   doctorId: string;
@@ -24,29 +25,30 @@ type RegisterAvailabilityOutput = {
 @injectable()
 export class RegisterAvailabilityUseCase {
   constructor(
-    @inject(SYMBOLS.IReadAvailabilityRepository)
-    private readonly readAvailabilityRepository: IReadAvailabilityRepository,
-    @inject(SYMBOLS.IWriteAvailabilityRepository)
-    private readonly writeAvailabilityRepository: IWriteAvailabilityRepository,
+    @inject(SYMBOLS.IUnitOfWork)
+    private readonly unitOfWork: IUnitOfWork,
   ) {}
   async execute(input: RegisterAvailabilityInput): Promise<RegisterAvailabilityOutput> {
-    const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
-    if (await this.isOverlappingAvailability(availability)) {
-      throw new ValidationError("The availability overlaps with an existing availability");
-    }
-    await this.writeAvailabilityRepository.save(availability);
-    return {
-      availabilityId: availability.id,
-      doctorId: availability.doctorId,
-      startDateTime: availability.startDateTime,
-      endDateTime: availability.endDateTime,
-    };
-  }
-
-  private async isOverlappingAvailability(availability: Availability): Promise<boolean> {
-    const existingAvailabilities = await this.readAvailabilityRepository.findByDoctorId(
-      Uuid.fromString(availability.doctorId),
-    );
-    return existingAvailabilities.some((existing) => existing.overlapsWith(availability));
+    return this.unitOfWork.transaction(async (container) => {
+      const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
+      const readAvailabilityRepository = container.get<IReadAvailabilityRepository>(
+        SYMBOLS.IReadAvailabilityRepository,
+      );
+      const existingAvailabilities = await readAvailabilityRepository.findByDoctorId(Uuid.fromString(input.doctorId));
+      const hasOverlap = existingAvailabilities.some((existing) => existing.overlapsWith(availability));
+      if (hasOverlap) {
+        throw new ValidationError("The new availability overlaps with existing availabilities");
+      }
+      const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
+        SYMBOLS.IWriteAvailabilityRepository,
+      );
+      await writeAvailabilityRepository.save(availability);
+      return {
+        availabilityId: availability.id,
+        doctorId: availability.doctorId,
+        startDateTime: availability.startDateTime,
+        endDateTime: availability.endDateTime,
+      };
+    });
   }
 }
