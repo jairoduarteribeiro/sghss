@@ -1,5 +1,6 @@
 import { Container } from "inversify";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
+import type { IWriteAvailabilityRepository } from "../../application/ports/repositories/availability.repository";
 import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,
@@ -12,10 +13,12 @@ import type { IReadUserRepository, IWriteUserRepository } from "../../applicatio
 import type { IAuthTokenService } from "../../application/ports/services/auth-token-service";
 import type { IUnitOfWork } from "../../application/ports/unit-of-work";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
+import { RegisterAvailabilityUseCase } from "../../application/use-cases/register-availability.use-case";
 import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
+import { DrizzleWriteAvailabilityRepository } from "../persistence/drizzle/repositories/drizzle-availability.repository";
 import {
   DrizzleReadDoctorRepository,
   DrizzleWriteDoctorRepository,
@@ -59,6 +62,10 @@ container
   .inTransientScope();
 container.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).to(DrizzleReadUserRepository).inTransientScope();
 container.bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository).to(DrizzleWriteUserRepository).inTransientScope();
+container
+  .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
+  .to(DrizzleWriteAvailabilityRepository)
+  .inTransientScope();
 
 // UnitOfWork binding
 container.bind<IUnitOfWork>(SYMBOLS.IUnitOfWork).to(DrizzleUnitOfWork).inSingletonScope();
@@ -68,6 +75,10 @@ container.bind<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase).to(RegisterUser
 container.bind<LoginUseCase>(SYMBOLS.LoginUseCase).to(LoginUseCase).inTransientScope();
 container.bind<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase).to(RegisterPatientUseCase).inTransientScope();
 container.bind<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase).to(RegisterDoctorUseCase).inTransientScope();
+container
+  .bind<RegisterAvailabilityUseCase>(SYMBOLS.RegisterAvailabilityUseCase)
+  .to(RegisterAvailabilityUseCase)
+  .inTransientScope();
 
 // Controller bindings
 container.bind<AuthController>(SYMBOLS.AuthController).to(AuthController).inTransientScope();
