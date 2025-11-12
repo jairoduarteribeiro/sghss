@@ -17,7 +17,7 @@ function splitAvailabilityIntoSlotsOf30Minutes(availability: Availability): void
   }
 }
 
-describe("Availability entity", () => {
+describe("Availability - Entity", () => {
   test("Should create an Availability successfully with slots", () => {
     const startDateTime = new Date("2024-07-01T09:00:00Z");
     const endDateTime = new Date("2024-07-01T12:00:00Z");

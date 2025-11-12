@@ -10,7 +10,7 @@ import { container } from "../../../src/infrastructure/di/inversify.container";
 
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
-describe("Login Use Case", async () => {
+describe("Login - Use Case", async () => {
   let testContainer: Container;
   let useCase: LoginUseCase;
 

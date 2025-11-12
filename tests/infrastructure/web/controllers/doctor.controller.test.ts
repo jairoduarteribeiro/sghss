@@ -20,7 +20,7 @@ import { HttpStatus } from "../../../../src/infrastructure/web/http-status.const
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-describe("Doctor Controller", () => {
+describe("Doctor - Controller", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
   let readUserRepository: IReadUserRepository;

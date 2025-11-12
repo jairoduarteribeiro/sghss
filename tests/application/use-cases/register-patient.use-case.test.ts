@@ -12,19 +12,13 @@ import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 
-describe("Register Patient Use Case", async () => {
+describe("Register Patient - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterPatientUseCase;
 
-  const existingPatient = Patient.from(
-    Name.from("John Doe"),
-    Cpf.from("70000000400"),
-    Uuid.generate(),
-  );
+  const existingPatient = Patient.from(Name.from("John Doe"), Cpf.from("70000000400"), Uuid.generate());
   const mockReadPatientRepository: IReadPatientRepository = {
-    findByCpf: mock(async (cpf: Cpf) =>
-      cpf.value === existingPatient.cpf ? existingPatient : null,
-    ),
+    findByCpf: mock(async (cpf: Cpf) => (cpf.value === existingPatient.cpf ? existingPatient : null)),
   };
   const mockWritePatientRepository: IWritePatientRepository = {
     save: mock(async (_patient: Patient) => {}),
@@ -41,9 +35,7 @@ describe("Register Patient Use Case", async () => {
     testContainer
       .bind<IWritePatientRepository>(SYMBOLS.IWritePatientRepository)
       .toConstantValue(mockWritePatientRepository);
-    useCase = testContainer.get<RegisterPatientUseCase>(
-      SYMBOLS.RegisterPatientUseCase,
-    );
+    useCase = testContainer.get<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase);
   });
 
   afterEach(() => {
@@ -82,9 +74,7 @@ describe("Register Patient Use Case", async () => {
       cpf: "129.841.800.38",
       userId: Uuid.generate().value,
     };
-    expect(useCase.execute(input)).rejects.toThrowError(
-      "CPF with invalid format",
-    );
+    expect(useCase.execute(input)).rejects.toThrowError("CPF with invalid format");
     expect(mockWritePatientRepository.save).toHaveBeenCalledTimes(0);
   });
 });

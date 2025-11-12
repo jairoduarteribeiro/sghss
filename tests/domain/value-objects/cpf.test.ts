@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Cpf } from "../../../src/domain/value-objects/cpf";
 
-describe("Cpf value object", () => {
+describe("Cpf - Value Object", () => {
   test.each(["70000000400", "12984180038"])("Should create a Cpf if a valid value (%s) is provided", (validCpf) => {
     const cpf = Cpf.from(validCpf);
     expect(cpf.value).toBe(validCpf);

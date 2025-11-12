@@ -8,7 +8,7 @@ const generateEmailWithLength = (totalLength: number): string => {
   return `${localPart}${domain}`;
 };
 
-describe("Email value object", () => {
+describe("Email - Value Object", () => {
   test.each([
     "test@example.com",
     "test1@example2.com3",

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Password } from "../../../src/domain/value-objects/password";
 
-describe("Password value object", () => {
+describe("Password - Value Object", () => {
   test.each(["Pass123!", "LongPass!1234567890"])(
     "Should create and successfully verify a valid password (%s)",
     async (validPassword) => {

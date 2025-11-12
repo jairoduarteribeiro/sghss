@@ -5,7 +5,7 @@ import { Password } from "../../../src/domain/value-objects/password";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-describe("User entity", () => {
+describe("User - Entity", () => {
   test("Should create a User successfully", async () => {
     const user = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"));
     expect(user.id).toMatch(UUID7_REGEX);

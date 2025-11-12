@@ -6,7 +6,7 @@ import { Uuid } from "../../../src/domain/value-objects/uuid";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-describe("Patient entity", () => {
+describe("Patient - Entity", () => {
   test("Should create a Patient successfully", () => {
     const name = Name.from("John Doe");
     const cpf = Cpf.from("70000000400");

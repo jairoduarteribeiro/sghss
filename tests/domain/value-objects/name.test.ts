@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Name } from "../../../src/domain/value-objects/name";
 
-describe("Name Value Object", () => {
+describe("Name - Value Object", () => {
   test("Should create a valid Name", () => {
     const name = Name.from("John Doe");
     expect(name.value).toBe("John Doe");

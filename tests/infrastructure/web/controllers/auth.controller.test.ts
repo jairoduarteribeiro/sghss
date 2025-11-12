@@ -19,11 +19,10 @@ import { container } from "../../../../src/infrastructure/di/inversify.container
 import { createApp } from "../../../../src/infrastructure/web/http";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
 
-const UUID7_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
-describe("Auth Controller - Signup", () => {
+describe("Auth (Signup) - Controller", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
   let readUserRepository: IReadUserRepository;
@@ -32,27 +31,16 @@ describe("Auth Controller - Signup", () => {
   let writePatientRepository: IWritePatientRepository;
 
   beforeAll(() => {
-    readUserRepository = container.get<IReadUserRepository>(
-      SYMBOLS.IReadUserRepository,
-    );
-    writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository,
-    );
-    readPatientRepository = container.get<IReadPatientRepository>(
-      SYMBOLS.IReadPatientRepository,
-    );
-    writePatientRepository = container.get<IWritePatientRepository>(
-      SYMBOLS.IWritePatientRepository,
-    );
+    readUserRepository = container.get<IReadUserRepository>(SYMBOLS.IReadUserRepository);
+    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
+    readPatientRepository = container.get<IReadPatientRepository>(SYMBOLS.IReadPatientRepository);
+    writePatientRepository = container.get<IWritePatientRepository>(SYMBOLS.IWritePatientRepository);
     app = createApp(container);
     request = supertest(app);
   });
 
   afterEach(async () => {
-    await Promise.all([
-      writeUserRepository.clear(),
-      writePatientRepository.clear(),
-    ]);
+    await Promise.all([writeUserRepository.clear(), writePatientRepository.clear()]);
   });
 
   test("POST /auth/signup should return 201 with valid input", async () => {
@@ -72,16 +60,12 @@ describe("Auth Controller - Signup", () => {
       email: input.email,
       role: "PATIENT",
     });
-    const savedUser = await readUserRepository.findByEmail(
-      Email.from(input.email),
-    );
+    const savedUser = await readUserRepository.findByEmail(Email.from(input.email));
     expect(savedUser).toBeDefined();
     expect(savedUser?.id).toBe(response.body.userId);
     expect(savedUser?.email).toBe(input.email);
     expect(savedUser?.role).toBe("PATIENT");
-    const savedPatient = await readPatientRepository.findByCpf(
-      Cpf.from(input.cpf),
-    );
+    const savedPatient = await readPatientRepository.findByCpf(Cpf.from(input.cpf));
     expect(savedPatient).toBeDefined();
     expect(savedPatient?.id).toBe(response.body.patientId);
     expect(savedPatient?.name).toBe(input.name);
@@ -139,9 +123,7 @@ describe("Auth Controller - Signup", () => {
     };
     const testContainer = new Container({ parent: container });
     testContainer.unbind(SYMBOLS.IUnitOfWork);
-    testContainer
-      .bind<Partial<IUnitOfWork>>(SYMBOLS.IUnitOfWork)
-      .toConstantValue(mockUnitOfWork);
+    testContainer.bind<Partial<IUnitOfWork>>(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
     const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const input = {
@@ -156,15 +138,13 @@ describe("Auth Controller - Signup", () => {
   });
 });
 
-describe("Auth Controller - Login", () => {
+describe("Auth (Login) - Controller", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
   let writeUserRepository: IWriteUserRepository;
 
   beforeAll(() => {
-    writeUserRepository = container.get<IWriteUserRepository>(
-      SYMBOLS.IWriteUserRepository,
-    );
+    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
     app = createApp(container);
     request = supertest(app);
   });
@@ -240,18 +220,14 @@ describe("Auth Controller - Login", () => {
     };
     const testContainer = new Container({ parent: container });
     testContainer.unbind(SYMBOLS.LoginUseCase);
-    testContainer
-      .bind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase)
-      .toConstantValue(mockUseCase);
+    testContainer.bind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase).toConstantValue(mockUseCase);
     const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const loginInput = {
       email: "john.doe@example.com",
       password: "Password123!",
     };
-    const loginResponse = await mockedRequest
-      .post("/auth/login")
-      .send(loginInput);
+    const loginResponse = await mockedRequest.post("/auth/login").send(loginInput);
     expect(loginResponse.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     expect(loginResponse.body.message).toBe("Internal server error");
   });
