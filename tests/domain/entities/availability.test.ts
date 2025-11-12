@@ -1,19 +1,34 @@
 import { describe, expect, test } from "bun:test";
 import { Availability } from "../../../src/domain/entities/availability";
+import { Slot } from "../../../src/domain/entities/slot";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
+function splitAvailabilityIntoSlotsOf30Minutes(availability: Availability): void {
+  const slotDurationInMs = 30 * 60 * 1000;
+  let currentStart = new Date(availability.startDateTime);
+  while (currentStart < availability.endDateTime) {
+    const currentEnd = new Date(currentStart.getTime() + slotDurationInMs);
+    if (currentEnd > availability.endDateTime) break;
+    const slot = Slot.from(currentStart, currentEnd, Uuid.fromString(availability.id));
+    availability.addSlot(slot);
+    currentStart = currentEnd;
+  }
+}
+
 describe("Availability entity", () => {
-  test("Should create an Availability successfully", () => {
+  test("Should create an Availability successfully with slots", () => {
     const startDateTime = new Date("2024-07-01T09:00:00Z");
     const endDateTime = new Date("2024-07-01T12:00:00Z");
     const doctorId = Uuid.generate();
     const availability = Availability.from(startDateTime, endDateTime, doctorId);
+    splitAvailabilityIntoSlotsOf30Minutes(availability);
     expect(availability.id).toMatch(UUID7_REGEX);
     expect(availability.startDateTime).toBe(startDateTime);
     expect(availability.endDateTime).toBe(endDateTime);
     expect(availability.doctorId).toBe(doctorId.value);
+    expect(availability.slots.length).toBe(6);
   });
 
   test("Should restore an Availability successfully", () => {
@@ -22,10 +37,12 @@ describe("Availability entity", () => {
     const endDateTime = new Date("2024-07-01T17:00:00Z");
     const doctorId = Uuid.generate();
     const availability = Availability.restore(id, startDateTime, endDateTime, doctorId);
+    splitAvailabilityIntoSlotsOf30Minutes(availability);
     expect(availability.id).toBe(id.value);
     expect(availability.startDateTime).toBe(startDateTime);
     expect(availability.endDateTime).toBe(endDateTime);
     expect(availability.doctorId).toBe(doctorId.value);
+    expect(availability.slots.length).toBe(16);
   });
 
   test("Should not allow endDateTime before startDateTime", () => {
