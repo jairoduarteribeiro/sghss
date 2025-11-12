@@ -10,6 +10,7 @@ export const SYMBOLS = {
   IWritePatientRepository: Symbol.for("IWritePatientRepository"),
   IReadUserRepository: Symbol.for("IReadUserRepository"),
   IWriteUserRepository: Symbol.for("IWriteUserRepository"),
+  IReadAvailabilityRepository: Symbol.for("IReadAvailabilityRepository"),
   IWriteAvailabilityRepository: Symbol.for("IWriteAvailabilityRepository"),
   // Unit of Work
   IUnitOfWork: Symbol.for("IUnitOfWork"),

@@ -1,6 +1,9 @@
 import { Container } from "inversify";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
-import type { IWriteAvailabilityRepository } from "../../application/ports/repositories/availability.repository";
+import type {
+  IReadAvailabilityRepository,
+  IWriteAvailabilityRepository,
+} from "../../application/ports/repositories/availability.repository";
 import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,
@@ -18,7 +21,10 @@ import { RegisterDoctorUseCase } from "../../application/use-cases/register-doct
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
-import { DrizzleWriteAvailabilityRepository } from "../persistence/drizzle/repositories/drizzle-availability.repository";
+import {
+  DrizzleReadAvailabilityRepository,
+  DrizzleWriteAvailabilityRepository,
+} from "../persistence/drizzle/repositories/drizzle-availability.repository";
 import {
   DrizzleReadDoctorRepository,
   DrizzleWriteDoctorRepository,
@@ -62,6 +68,10 @@ container
   .inTransientScope();
 container.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).to(DrizzleReadUserRepository).inTransientScope();
 container.bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository).to(DrizzleWriteUserRepository).inTransientScope();
+container
+  .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
+  .to(DrizzleReadAvailabilityRepository)
+  .inTransientScope();
 container
   .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
   .to(DrizzleWriteAvailabilityRepository)

@@ -1,9 +1,26 @@
+import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../../application/di/inversify.symbols";
-import type { IWriteAvailabilityRepository } from "../../../../application/ports/repositories/availability.repository";
-import type { Availability } from "../../../../domain/entities/availability";
+import type {
+  IReadAvailabilityRepository,
+  IWriteAvailabilityRepository,
+} from "../../../../application/ports/repositories/availability.repository";
+import { Availability } from "../../../../domain/entities/availability";
+import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
 import { availabilities } from "../schema";
+
+@injectable()
+export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepository {
+  constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
+
+  async findByDoctorId(doctorId: Uuid): Promise<Availability[]> {
+    const results = await this.db.select().from(availabilities).where(eq(availabilities.doctorId, doctorId.value));
+    return results.map((row) =>
+      Availability.restore(Uuid.fromString(row.id), row.startDateTime, row.endDateTime, Uuid.fromString(row.doctorId)),
+    );
+  }
+}
 
 @injectable()
 export class DrizzleWriteAvailabilityRepository implements IWriteAvailabilityRepository {

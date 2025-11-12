@@ -69,4 +69,8 @@ export class Availability {
   get doctorId(): string {
     return this._doctorId.value;
   }
+
+  overlapsWith(other: Availability): boolean {
+    return this._startDateTime < other._endDateTime && this._endDateTime > other._startDateTime;
+  }
 }
