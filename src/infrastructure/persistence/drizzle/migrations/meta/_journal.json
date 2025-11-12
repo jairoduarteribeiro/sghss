@@ -43,6 +43,13 @@
       "when": 1762894558560,
       "tag": "0005_tan_millenium_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762970174561,
+      "tag": "0006_open_major_mapleleaf",
+      "breakpoints": true
     }
   ]
 }
