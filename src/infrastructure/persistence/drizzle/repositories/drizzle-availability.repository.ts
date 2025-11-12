@@ -8,7 +8,7 @@ import type {
 import { Availability } from "../../../../domain/entities/availability";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { availabilities } from "../schema";
+import { availabilities, slots } from "../schema";
 
 @injectable()
 export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepository {
@@ -33,5 +33,14 @@ export class DrizzleWriteAvailabilityRepository implements IWriteAvailabilityRep
       endDateTime: availability.endDateTime,
       doctorId: availability.doctorId,
     });
+    for (const slot of availability.slots) {
+      await this.db.insert(slots).values({
+        id: slot.id,
+        startDateTime: slot.startDateTime,
+        endDateTime: slot.endDateTime,
+        status: slot.status,
+        availabilityId: slot.availabilityId,
+      });
+    }
   }
 }

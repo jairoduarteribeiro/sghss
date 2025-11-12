@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Availability } from "../../domain/entities/availability";
+import { Slot } from "../../domain/entities/slot";
 import { ValidationError } from "../../domain/errors/validation.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
@@ -8,6 +9,13 @@ import type {
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
 import type { IUnitOfWork } from "../ports/unit-of-work";
+
+type SlotOutput = {
+  slotId: string;
+  startDateTime: Date;
+  endDateTime: Date;
+  status: "AVAILABLE" | "BOOKED" | "CANCELLED";
+};
 
 type RegisterAvailabilityInput = {
   doctorId: string;
@@ -20,6 +28,7 @@ type RegisterAvailabilityOutput = {
   doctorId: string;
   startDateTime: Date;
   endDateTime: Date;
+  slots: SlotOutput[];
 };
 
 @injectable()
@@ -28,6 +37,7 @@ export class RegisterAvailabilityUseCase {
     @inject(SYMBOLS.IUnitOfWork)
     private readonly unitOfWork: IUnitOfWork,
   ) {}
+
   async execute(input: RegisterAvailabilityInput): Promise<RegisterAvailabilityOutput> {
     return this.unitOfWork.transaction(async (container) => {
       const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
@@ -39,6 +49,7 @@ export class RegisterAvailabilityUseCase {
       if (hasOverlap) {
         throw new ValidationError("The new availability overlaps with existing availabilities");
       }
+      this.addSlotsToAvailability(availability);
       const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
         SYMBOLS.IWriteAvailabilityRepository,
       );
@@ -48,7 +59,25 @@ export class RegisterAvailabilityUseCase {
         doctorId: availability.doctorId,
         startDateTime: availability.startDateTime,
         endDateTime: availability.endDateTime,
+        slots: availability.slots.map((slot) => ({
+          slotId: slot.id,
+          startDateTime: slot.startDateTime,
+          endDateTime: slot.endDateTime,
+          status: slot.status,
+        })),
       };
     });
+  }
+
+  private addSlotsToAvailability(availability: Availability): void {
+    const slotDurationInMinutes = 30;
+    const start = availability.startDateTime.getTime();
+    const end = availability.endDateTime.getTime();
+    for (let time = start; time < end; time += slotDurationInMinutes * 60 * 1000) {
+      const slotStart = new Date(time);
+      const slotEnd = new Date(time + slotDurationInMinutes * 60 * 1000);
+      const slot = Slot.from(slotStart, slotEnd, Uuid.fromString(availability.id));
+      availability.addSlot(slot);
+    }
   }
 }
