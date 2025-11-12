@@ -11,6 +11,8 @@ import { Availability } from "../../../src/domain/entities/availability";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 
+const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe("Register Availability - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterAvailabilityUseCase;
@@ -65,9 +67,35 @@ describe("Register Availability - Use Case", async () => {
     const output = await useCase.execute(input);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(1);
     expect(output).toBeDefined();
+    expect(output.availabilityId).toMatch(UUID7_REGEX);
     expect(output.doctorId).toBe(existingDoctorId.value);
     expect(output.startDateTime).toBe(input.startDateTime);
     expect(output.endDateTime).toBe(input.endDateTime);
+    expect(output.slots.length).toBe(4);
+    expect(output.slots[0]).toEqual({
+      slotId: expect.stringMatching(UUID7_REGEX),
+      startDateTime: new Date("2024-07-01T08:00:00Z"),
+      endDateTime: new Date("2024-07-01T08:30:00Z"),
+      status: "AVAILABLE",
+    });
+    expect(output.slots[1]).toEqual({
+      slotId: expect.stringMatching(UUID7_REGEX),
+      startDateTime: new Date("2024-07-01T08:30:00Z"),
+      endDateTime: new Date("2024-07-01T09:00:00Z"),
+      status: "AVAILABLE",
+    });
+    expect(output.slots[2]).toEqual({
+      slotId: expect.stringMatching(UUID7_REGEX),
+      startDateTime: new Date("2024-07-01T09:00:00Z"),
+      endDateTime: new Date("2024-07-01T09:30:00Z"),
+      status: "AVAILABLE",
+    });
+    expect(output.slots[3]).toEqual({
+      slotId: expect.stringMatching(UUID7_REGEX),
+      startDateTime: new Date("2024-07-01T09:30:00Z"),
+      endDateTime: new Date("2024-07-01T10:00:00Z"),
+      status: "AVAILABLE",
+    });
   });
 
   test.each([
