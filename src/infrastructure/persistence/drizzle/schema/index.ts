@@ -1,3 +1,4 @@
+export * from "./appointments";
 export * from "./availabilities";
 export * from "./doctors";
 export * from "./patients";

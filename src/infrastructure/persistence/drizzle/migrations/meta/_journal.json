@@ -50,6 +50,13 @@
       "when": 1762970174561,
       "tag": "0006_open_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1762971610123,
+      "tag": "0007_charming_eddie_brock",
+      "breakpoints": true
     }
   ]
 }
