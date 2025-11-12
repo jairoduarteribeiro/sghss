@@ -1,5 +1,6 @@
 import { ValidationError } from "../errors/validation.error";
 import { Uuid } from "../value-objects/uuid";
+import type { Slot } from "./slot";
 
 export class Availability {
   private constructor(
@@ -7,6 +8,7 @@ export class Availability {
     private readonly _startDateTime: Date,
     private readonly _endDateTime: Date,
     private readonly _doctorId: Uuid,
+    private readonly _slots: Slot[] = [],
   ) {}
 
   static from(startDateTime: Date, endDateTime: Date, doctorId: Uuid): Availability {
@@ -72,5 +74,13 @@ export class Availability {
 
   overlapsWith(other: Availability): boolean {
     return this._startDateTime < other._endDateTime && this._endDateTime > other._startDateTime;
+  }
+
+  addSlot(slot: Slot): void {
+    this._slots.push(slot);
+  }
+
+  get slots(): Slot[] {
+    return this._slots;
   }
 }
