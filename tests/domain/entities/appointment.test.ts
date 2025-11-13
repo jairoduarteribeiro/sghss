@@ -29,4 +29,20 @@ describe("Appointment - Entity", () => {
     expect(appointment.slotId).toBe(slotId.value);
     expect(appointment.patientId).toBe(patientId.value);
   });
+
+  test("Should restore an Appointment successfully", () => {
+    const id = Uuid.generate();
+    const status = "COMPLETED";
+    const modality = "TELEMEDICINE";
+    const telemedicineLink = "https://vidaplus.com/meet/xyz789";
+    const slotId = Uuid.generate();
+    const patientId = Uuid.generate();
+    const appointment = Appointment.restore(id, status, modality, telemedicineLink, slotId, patientId);
+    expect(appointment.id).toBe(id.value);
+    expect(appointment.status).toBe(status);
+    expect(appointment.modality).toBe(modality);
+    expect(appointment.telemedicineLink).toBe(telemedicineLink);
+    expect(appointment.slotId).toBe(slotId.value);
+    expect(appointment.patientId).toBe(patientId.value);
+  });
 });
