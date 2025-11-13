@@ -34,7 +34,7 @@ export class AvailabilityController {
       "/availabilities",
       this.requireAuth.handle.bind(this.requireAuth),
       this.attachDoctorUserId.handle(),
-      this.requireOwner.handle(),
+      this.requireOwner.handle({ allowAdmin: true }),
       this.registerAvailability.bind(this),
     );
     return router;
