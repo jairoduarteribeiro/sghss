@@ -41,8 +41,8 @@ import {
 import { JwtAuthTokenService } from "../services/jwt-auth-token.service";
 import { AuthController } from "../web/controllers/auth.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
-import { RequireRole } from "../web/middlewares/require-admin";
 import { RequireAuth } from "../web/middlewares/require-auth";
+import { RequireRole } from "../web/middlewares/require-role";
 
 const container = new Container();
 

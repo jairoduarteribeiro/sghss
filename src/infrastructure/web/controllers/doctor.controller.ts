@@ -6,8 +6,8 @@ import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterDoctorUseCase } from "../../../application/use-cases/register-doctor.use-case";
 import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { HttpStatus } from "../http-status.constants";
-import type { RequireRole } from "../middlewares/require-admin";
 import type { RequireAuth } from "../middlewares/require-auth";
+import type { RequireRole } from "../middlewares/require-role";
 
 const registerDoctorSchema = z.object({
   name: z.string(),
