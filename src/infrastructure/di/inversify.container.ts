@@ -42,7 +42,9 @@ import { JwtAuthTokenService } from "../services/jwt-auth-token.service";
 import { AuthController } from "../web/controllers/auth.controller";
 import { AvailabilityController } from "../web/controllers/availability.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
+import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { RequireAuth } from "../web/middlewares/require-auth";
+import { RequireOwner } from "../web/middlewares/require-owner";
 import { RequireRole } from "../web/middlewares/require-role";
 
 const container = new Container();
@@ -102,5 +104,7 @@ container.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).to(JwtAuthTokenServ
 // Middleware bindings
 container.bind<RequireAuth>(SYMBOLS.RequireAuth).to(RequireAuth).inSingletonScope();
 container.bind<RequireRole>(SYMBOLS.RequireRole).to(RequireRole).inSingletonScope();
+container.bind<RequireOwner>(SYMBOLS.RequireOwner).to(RequireOwner).inSingletonScope();
+container.bind<AttachDoctorUserId>(SYMBOLS.AttachDoctorUserId).to(AttachDoctorUserId).inSingletonScope();
 
 export { container };

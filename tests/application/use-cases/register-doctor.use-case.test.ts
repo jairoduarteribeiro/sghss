@@ -26,6 +26,7 @@ describe("Register Doctor - Use Case", async () => {
     Uuid.generate(),
   );
   const mockReadDoctorRepository: IReadDoctorRepository = {
+    findById: mock(async (_id: Uuid) => null),
     findByCrm: mock(async (crm: Crm) => (crm.value === existingDoctor.crm ? existingDoctor : null)),
   };
   const mockWriteDoctorRepository: IWriteDoctorRepository = {

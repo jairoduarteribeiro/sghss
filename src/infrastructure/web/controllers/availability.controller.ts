@@ -5,7 +5,9 @@ import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterAvailabilityUseCase } from "../../../application/use-cases/register-availability.use-case";
 import { HttpStatus } from "../http-status.constants";
+import type { AttachDoctorUserId } from "../middlewares/attach-doctor-user-id";
 import type { RequireAuth } from "../middlewares/require-auth";
+import type { RequireOwner } from "../middlewares/require-owner";
 
 const registerAvailabilitySchema = z.object({
   doctorId: z.uuidv7(),
@@ -20,6 +22,10 @@ export class AvailabilityController {
     private readonly unitOfWork: IUnitOfWork,
     @inject(SYMBOLS.RequireAuth)
     private readonly requireAuth: RequireAuth,
+    @inject(SYMBOLS.AttachDoctorUserId)
+    private readonly attachDoctorUserId: AttachDoctorUserId,
+    @inject(SYMBOLS.RequireOwner)
+    private readonly requireOwner: RequireOwner,
   ) {}
 
   router(): Router {
@@ -27,6 +33,8 @@ export class AvailabilityController {
     router.post(
       "/availabilities",
       this.requireAuth.handle.bind(this.requireAuth),
+      this.attachDoctorUserId.handle(),
+      this.requireOwner.handle(),
       this.registerAvailability.bind(this),
     );
     return router;

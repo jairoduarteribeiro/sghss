@@ -29,4 +29,6 @@ export const SYMBOLS = {
   // Middlewares
   RequireAuth: Symbol.for("RequireAuth"),
   RequireRole: Symbol.for("RequireRole"),
+  RequireOwner: Symbol.for("RequireOwner"),
+  AttachDoctorUserId: Symbol.for("AttachDoctorUserId"),
 };

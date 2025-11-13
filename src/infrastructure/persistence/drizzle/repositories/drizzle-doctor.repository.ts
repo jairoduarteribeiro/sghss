@@ -17,6 +17,19 @@ import { doctors } from "../schema";
 export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
+  async findById(id: Uuid): Promise<Doctor | null> {
+    const [row] = await this.db.select().from(doctors).where(eq(doctors.id, id.value));
+    return row
+      ? Doctor.restore(
+          Uuid.fromString(row.id),
+          Name.from(row.name),
+          Crm.from(row.crm),
+          MedicalSpecialty.from(row.specialty),
+          Uuid.fromString(row.userId),
+        )
+      : null;
+  }
+
   async findByCrm(crm: Crm): Promise<Doctor | null> {
     const [row] = await this.db.select().from(doctors).where(eq(doctors.crm, crm.value));
     return row
