@@ -16,4 +16,17 @@ describe("Appointment - Entity", () => {
     expect(appointment.slotId).toBe(slotId.value);
     expect(appointment.patientId).toBe(patientId.value);
   });
+
+  test("Should create a telemedicine Appointment successfully", () => {
+    const slotId = Uuid.generate();
+    const patientId = Uuid.generate();
+    const telemedicineLink = "https://vidaplus.com/meet/abc123";
+    const appointment = Appointment.telemedicine(slotId, patientId, telemedicineLink);
+    expect(appointment.id).toMatch(UUID7_REGEX);
+    expect(appointment.status).toBe("SCHEDULED");
+    expect(appointment.modality).toBe("TELEMEDICINE");
+    expect(appointment.telemedicineLink).toBe(telemedicineLink);
+    expect(appointment.slotId).toBe(slotId.value);
+    expect(appointment.patientId).toBe(patientId.value);
+  });
 });
