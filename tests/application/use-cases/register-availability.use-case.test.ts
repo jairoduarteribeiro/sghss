@@ -19,8 +19,8 @@ describe("Register Availability - Use Case", async () => {
 
   const existingDoctorId = Uuid.generate();
   const existingAvailabilities: Availability[] = [
-    Availability.from(new Date("2024-07-01T10:00:00Z"), new Date("2024-07-01T12:00:00Z"), existingDoctorId),
-    Availability.from(new Date("2024-07-01T14:00:00Z"), new Date("2024-07-01T16:00:00Z"), existingDoctorId),
+    Availability.from(new Date("2024-07-01T10:00:00.000Z"), new Date("2024-07-01T12:00:00.000Z"), existingDoctorId),
+    Availability.from(new Date("2024-07-01T14:00:00.000Z"), new Date("2024-07-01T16:00:00.000Z"), existingDoctorId),
   ];
 
   const mockUnitOfWork: IUnitOfWork = {
@@ -61,8 +61,8 @@ describe("Register Availability - Use Case", async () => {
   test("Should register an Availability successfully", async () => {
     const input = {
       doctorId: existingDoctorId.value,
-      startDateTime: new Date("2024-07-01T08:00:00Z"),
-      endDateTime: new Date("2024-07-01T10:00:00Z"),
+      startDateTime: new Date("2024-07-01T08:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
     };
     const output = await useCase.execute(input);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(1);
@@ -74,36 +74,36 @@ describe("Register Availability - Use Case", async () => {
     expect(output.slots.length).toBe(4);
     expect(output.slots[0]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T08:00:00Z"),
-      endDateTime: new Date("2024-07-01T08:30:00Z"),
+      startDateTime: new Date("2024-07-01T08:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T08:30:00.000Z"),
       status: "AVAILABLE",
     });
     expect(output.slots[1]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T08:30:00Z"),
-      endDateTime: new Date("2024-07-01T09:00:00Z"),
+      startDateTime: new Date("2024-07-01T08:30:00.000Z"),
+      endDateTime: new Date("2024-07-01T09:00:00.000Z"),
       status: "AVAILABLE",
     });
     expect(output.slots[2]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T09:00:00Z"),
-      endDateTime: new Date("2024-07-01T09:30:00Z"),
+      startDateTime: new Date("2024-07-01T09:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T09:30:00.000Z"),
       status: "AVAILABLE",
     });
     expect(output.slots[3]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T09:30:00Z"),
-      endDateTime: new Date("2024-07-01T10:00:00Z"),
+      startDateTime: new Date("2024-07-01T09:30:00.000Z"),
+      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
       status: "AVAILABLE",
     });
   });
 
   test.each([
-    { startDateTime: new Date("2024-07-01T09:00:00Z"), endDateTime: new Date("2024-07-01T11:00:00Z") },
-    { startDateTime: new Date("2024-07-01T11:00:00Z"), endDateTime: new Date("2024-07-01T13:00:00Z") },
-    { startDateTime: new Date("2024-07-01T11:00:00Z"), endDateTime: new Date("2024-07-01T15:00:00Z") },
-    { startDateTime: new Date("2024-07-01T13:00:00Z"), endDateTime: new Date("2024-07-01T15:00:00Z") },
-    { startDateTime: new Date("2024-07-01T15:00:00Z"), endDateTime: new Date("2024-07-01T17:00:00Z") },
+    { startDateTime: new Date("2024-07-01T09:00:00.000Z"), endDateTime: new Date("2024-07-01T11:00:00.000Z") },
+    { startDateTime: new Date("2024-07-01T11:00:00.000Z"), endDateTime: new Date("2024-07-01T13:00:00.000Z") },
+    { startDateTime: new Date("2024-07-01T11:00:00.000Z"), endDateTime: new Date("2024-07-01T15:00:00.000Z") },
+    { startDateTime: new Date("2024-07-01T13:00:00.000Z"), endDateTime: new Date("2024-07-01T15:00:00.000Z") },
+    { startDateTime: new Date("2024-07-01T15:00:00.000Z"), endDateTime: new Date("2024-07-01T17:00:00.000Z") },
   ])("Should not register an Availability if it overlaps with existing ones - %s", async (overlapping) => {
     const input = {
       doctorId: existingDoctorId.value,

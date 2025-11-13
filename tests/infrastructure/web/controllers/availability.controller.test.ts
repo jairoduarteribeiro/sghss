@@ -48,15 +48,15 @@ describe("Availability - Controller", async () => {
   test("POST /availabilities should return 201 with valid input", async () => {
     const input = {
       doctorId: doctor.id,
-      startDateTime: "2024-07-01T08:00:00Z",
-      endDateTime: "2024-07-01T10:00:00Z",
+      startDateTime: "2024-07-01T08:00:00.000Z",
+      endDateTime: "2024-07-01T10:00:00.000Z",
     };
     const response = await request.post("/availabilities").send(input);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.availabilityId).toMatch(UUID7_REGEX);
     expect(response.body.doctorId).toBe(input.doctorId);
-    expect(new Date(response.body.startDateTime).getTime()).toBe(new Date(input.startDateTime).getTime());
-    expect(new Date(response.body.endDateTime).getTime()).toBe(new Date(input.endDateTime).getTime());
+    expect(response.body.startDateTime).toBe(input.startDateTime);
+    expect(response.body.endDateTime).toBe(input.endDateTime);
     expect(response.body.slots).toHaveLength(4);
   });
 });
