@@ -95,4 +95,17 @@ describe("Availability - Controller", async () => {
     const response = await request.post("/availabilities").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
   });
+
+  test("POST /availabilities should return 403 when a doctor tries to register availability for another doctor", async () => {
+    const input = {
+      doctorId: doctor.id,
+      startDateTime: "2024-07-01T08:00:00.000Z",
+      endDateTime: "2024-07-01T10:00:00.000Z",
+    };
+    const response = await request
+      .post("/availabilities")
+      .set("Authorization", `Bearer ${otherDoctorToken}`)
+      .send(input);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+  });
 });
