@@ -25,9 +25,11 @@ describe("Availability - Controller", async () => {
   let writeUserRepository: IWriteUserRepository;
   let writeDoctorRepository: IWriteDoctorRepository;
   let writeAvailabilityRepository: IWriteAvailabilityRepository;
+  let adminToken: string;
   let doctorToken: string;
   let otherDoctorToken: string;
 
+  const adminUser = User.from(Email.from("admin@example.com"), await Password.from("Password123!"), "ADMIN");
   const doctorUser = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"), "DOCTOR");
   const otherDoctorUser = User.from(Email.from("jane.doe@example.com"), await Password.from("Password123!"), "DOCTOR");
   const doctor = Doctor.from(
@@ -47,12 +49,16 @@ describe("Availability - Controller", async () => {
     writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
     writeDoctorRepository = container.get<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository);
     writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository);
+    await writeUserRepository.save(adminUser);
     await writeUserRepository.save(doctorUser);
     await writeUserRepository.save(otherDoctorUser);
     await writeDoctorRepository.save(doctor);
     await writeDoctorRepository.save(otherDoctor);
     app = createApp(container);
     request = supertest(app);
+    const responseAdminLogin = await request
+      .post("/auth/login")
+      .send({ email: adminUser.email, password: "Password123!" });
     const responseDoctorLogin = await request
       .post("/auth/login")
       .send({ email: doctorUser.email, password: "Password123!" });
@@ -61,6 +67,7 @@ describe("Availability - Controller", async () => {
       .send({ email: otherDoctorUser.email, password: "Password123!" });
     doctorToken = responseDoctorLogin.body.token;
     otherDoctorToken = responseOtherDoctorLogin.body.token;
+    adminToken = responseAdminLogin.body.token;
   });
 
   afterEach(async () => {
@@ -78,6 +85,22 @@ describe("Availability - Controller", async () => {
       endDateTime: "2024-07-01T10:00:00.000Z",
     };
     const response = await request.post("/availabilities").set("Authorization", `Bearer ${doctorToken}`).send(input);
+    expect(response.status).toBe(HttpStatus.CREATED);
+    expect(response.body.availabilityId).toMatch(UUID7_REGEX);
+    expect(response.body.doctorId).toBe(input.doctorId);
+    expect(response.body.startDateTime).toBe(input.startDateTime);
+    expect(response.body.endDateTime).toBe(input.endDateTime);
+    expect(response.body.slots).toHaveLength(4);
+  });
+
+  test("POST /availabilities should return 201 when using admin token", async () => {
+    const input = {
+      doctorId: doctor.id,
+      startDateTime: "2024-07-01T08:00:00.000Z",
+      endDateTime: "2024-07-01T10:00:00.000Z",
+    };
+    const response = await request.post("/availabilities").set("Authorization", `Bearer ${adminToken}`).send(input);
+    console.log(response.body.message);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.availabilityId).toMatch(UUID7_REGEX);
     expect(response.body.doctorId).toBe(input.doctorId);
