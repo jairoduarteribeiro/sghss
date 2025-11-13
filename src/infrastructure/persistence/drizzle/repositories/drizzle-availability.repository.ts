@@ -43,4 +43,8 @@ export class DrizzleWriteAvailabilityRepository implements IWriteAvailabilityRep
       });
     }
   }
+
+  async clear(): Promise<void> {
+    await this.db.delete(availabilities);
+  }
 }
