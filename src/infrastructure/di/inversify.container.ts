@@ -40,6 +40,7 @@ import {
 } from "../persistence/drizzle/repositories/drizzle-user.repository";
 import { JwtAuthTokenService } from "../services/jwt-auth-token.service";
 import { AuthController } from "../web/controllers/auth.controller";
+import { AvailabilityController } from "../web/controllers/availability.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { RequireAuth } from "../web/middlewares/require-auth";
 import { RequireRole } from "../web/middlewares/require-role";
@@ -93,6 +94,7 @@ container
 // Controller bindings
 container.bind<AuthController>(SYMBOLS.AuthController).to(AuthController).inTransientScope();
 container.bind<DoctorController>(SYMBOLS.DoctorController).to(DoctorController).inTransientScope();
+container.bind<AvailabilityController>(SYMBOLS.AvailabilityController).to(AvailabilityController).inTransientScope();
 
 // Service bindings
 container.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).to(JwtAuthTokenService).inSingletonScope();
