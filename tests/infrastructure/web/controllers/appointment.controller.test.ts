@@ -132,4 +132,15 @@ describe("Appointment - Controller", async () => {
     expect(response.body.modality).toBe("TELEMEDICINE");
     expect(response.body.telemedicineLink).not.toBeNull();
   });
+
+  test("POST /appointments should return 401 when the token is missing", async () => {
+    const input = {
+      slotId,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const response = await request.post("/appointments").send(input);
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Missing token");
+  });
 });
