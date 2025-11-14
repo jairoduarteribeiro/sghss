@@ -140,6 +140,23 @@ describe("Appointment - Controller", async () => {
     expect(response.body.telemedicineLink).not.toBeNull();
   });
 
+  test("POST /appointments should return 201 when registering an appointment with admin token", async () => {
+    const input = {
+      slotId,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const response = await request.post("/appointments").set("Authorization", `Bearer ${adminToken}`).send(input);
+    expect(response.status).toBe(HttpStatus.CREATED);
+    expect(response.body.appointmentId).toMatch(UUID7_REGEX);
+    expect(response.body.slotId).toBe(slotId);
+    expect(response.body.patientId).toBe(patientId);
+    expect(response.body.doctorId).toBe(doctorId);
+    expect(response.body.status).toBe("SCHEDULED");
+    expect(response.body.modality).toBe("IN_PERSON");
+    expect(response.body.telemedicineLink).toBeNull();
+  });
+
   test("POST /appointments should return 401 when the token is missing", async () => {
     const input = {
       slotId,
