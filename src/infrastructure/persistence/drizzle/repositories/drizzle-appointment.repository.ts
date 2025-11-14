@@ -8,7 +8,7 @@ import type {
 import { Appointment } from "../../../../domain/entities/appointment";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { appointments, slots } from "../schema";
+import { appointments } from "../schema";
 
 @injectable()
 export class DrizzleReadAppointmentRepository implements IReadAppointmentRepository {
@@ -42,7 +42,6 @@ export class DrizzleWriteAppointmentRepository implements IWriteAppointmentRepos
       modality: appointment.modality,
       telemedicineLink: appointment.telemedicineLink,
     });
-    await this.db.update(slots).set({ status: "BOOKED" }).where(eq(slots.id, appointment.slotId));
   }
 
   async clear(): Promise<void> {

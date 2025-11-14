@@ -38,6 +38,7 @@ describe("Register Availability - Use Case", async () => {
 
   const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {
     save: mock(async (_availability: Availability) => {}),
+    update: mock(async (_availability: Availability) => {}),
     clear: mock(async () => {}),
   };
 

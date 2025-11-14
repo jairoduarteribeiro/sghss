@@ -80,6 +80,14 @@ export class Availability {
     this._slots.push(slot);
   }
 
+  bookSlot(slotId: Uuid): void {
+    const slot = this._slots.find((s) => s.id === slotId.value);
+    if (!slot) {
+      throw new Error("Slot not found in this availability");
+    }
+    slot.book();
+  }
+
   get slots(): Slot[] {
     return this._slots;
   }

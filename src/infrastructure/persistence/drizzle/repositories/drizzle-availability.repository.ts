@@ -102,6 +102,26 @@ export class DrizzleWriteAvailabilityRepository implements IWriteAvailabilityRep
     }
   }
 
+  async update(availability: Availability): Promise<void> {
+    await this.db
+      .update(availabilities)
+      .set({
+        startDateTime: availability.startDateTime,
+        endDateTime: availability.endDateTime,
+      })
+      .where(eq(availabilities.id, availability.id));
+    for (const slot of availability.slots) {
+      await this.db
+        .update(slots)
+        .set({
+          startDateTime: slot.startDateTime,
+          endDateTime: slot.endDateTime,
+          status: slot.status,
+        })
+        .where(eq(slots.id, slot.id));
+    }
+  }
+
   async clear(): Promise<void> {
     await this.db.delete(availabilities);
   }

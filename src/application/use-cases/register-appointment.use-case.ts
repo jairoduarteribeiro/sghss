@@ -4,7 +4,10 @@ import { ValidationError } from "../../domain/errors/validation.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import type { IWriteAppointmentRepository } from "../ports/repositories/appointment.repository";
-import type { IReadAvailabilityRepository } from "../ports/repositories/availability.repository";
+import type {
+  IReadAvailabilityRepository,
+  IWriteAvailabilityRepository,
+} from "../ports/repositories/availability.repository";
 import type { IUnitOfWork } from "../ports/unit-of-work";
 
 type RegisterAppointmentInput = {
@@ -42,6 +45,11 @@ export class RegisterAppointmentUseCase {
       const writeAppointmentRepository = container.get<IWriteAppointmentRepository>(
         SYMBOLS.IWriteAppointmentRepository,
       );
+      const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
+        SYMBOLS.IWriteAvailabilityRepository,
+      );
+      availability.bookSlot(Uuid.fromString(input.slotId));
+      await writeAvailabilityRepository.update(availability);
       await writeAppointmentRepository.save(appointment);
       return {
         appointmentId: appointment.id,

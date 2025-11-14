@@ -7,7 +7,7 @@ export class Slot {
     private readonly _id: Uuid,
     private readonly _startDateTime: Date,
     private readonly _endDateTime: Date,
-    private readonly _status: SlotStatus,
+    private _status: SlotStatus,
     private readonly _availabilityId: Uuid,
   ) {}
 
@@ -37,5 +37,13 @@ export class Slot {
 
   get availabilityId(): string {
     return this._availabilityId.value;
+  }
+
+  book(): void {
+    this._status = "BOOKED";
+  }
+
+  makeAvailable(): void {
+    this._status = "AVAILABLE";
   }
 }

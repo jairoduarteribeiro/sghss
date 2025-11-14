@@ -1,8 +1,11 @@
-import { beforeAll, describe, expect, mock, test } from "bun:test";
+import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
 import type { IWriteAppointmentRepository } from "../../../src/application/ports/repositories/appointment.repository";
-import type { IReadAvailabilityRepository } from "../../../src/application/ports/repositories/availability.repository";
+import type {
+  IReadAvailabilityRepository,
+  IWriteAvailabilityRepository,
+} from "../../../src/application/ports/repositories/availability.repository";
 import type { IConferenceLinkGenerator } from "../../../src/application/ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../../../src/application/ports/unit-of-work";
 import type { RegisterAppointmentUseCase } from "../../../src/application/use-cases/register-appointment.use-case";
@@ -36,9 +39,7 @@ describe("Register Appointment - Use Case", () => {
     new Date("2024-07-10T10:30:00.000Z"),
     Uuid.fromString(availability.id),
   );
-  const slots = {
-    [freeSlot.id]: freeSlot,
-  };
+  availability.addSlot(freeSlot);
 
   const mockUnitOfWork: IUnitOfWork = {
     transaction: async <T>(fn: (container: Container) => Promise<T>) => fn(testContainer),
@@ -47,12 +48,18 @@ describe("Register Appointment - Use Case", () => {
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (_doctorId: Uuid) => []),
     findBySlotId: mock(async (slotId: Uuid) =>
-      slots[slotId.value]?.availabilityId === availability.id ? availability : null,
+      availability.slots.some((s) => s.id === slotId.value) ? availability : null,
     ),
   };
 
   const mockWriteAppointmentRepository: IWriteAppointmentRepository = {
     save: mock(async (_appointment) => {}),
+    clear: mock(async () => {}),
+  };
+
+  const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {
+    save: mock(async (_availability: Availability) => {}),
+    update: mock(async (_availability: Availability) => {}),
     clear: mock(async () => {}),
   };
 
@@ -64,15 +71,24 @@ describe("Register Appointment - Use Case", () => {
     testContainer = new Container({ parent: container });
     testContainer.unbind(SYMBOLS.IReadAvailabilityRepository);
     testContainer.unbind(SYMBOLS.IWriteAppointmentRepository);
+    testContainer.unbind(SYMBOLS.IWriteAvailabilityRepository);
     testContainer.unbind(SYMBOLS.IConferenceLinkGenerator);
     testContainer.unbind(SYMBOLS.IUnitOfWork);
     testContainer
       .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
       .toConstantValue(mockReadAvailabilityRepository);
     testContainer.bind(SYMBOLS.IWriteAppointmentRepository).toConstantValue(mockWriteAppointmentRepository);
+    testContainer
+      .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
+      .toConstantValue(mockWriteAvailabilityRepository);
     testContainer.bind(SYMBOLS.IConferenceLinkGenerator).toConstantValue(mockConferenceLinkGenerator);
     testContainer.bind(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
     useCase = testContainer.get<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase);
+  });
+
+  afterEach(() => {
+    freeSlot.makeAvailable();
+    mock.clearAllMocks();
   });
 
   test("Should register an IN_PERSON appointment successfully", async () => {
@@ -90,6 +106,7 @@ describe("Register Appointment - Use Case", () => {
     expect(output.modality).toBe("IN_PERSON");
     expect(output.telemedicineLink).toBeNull();
     expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(1);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(1);
     expect(mockConferenceLinkGenerator.generate).toHaveBeenCalledTimes(0);
   });
 });

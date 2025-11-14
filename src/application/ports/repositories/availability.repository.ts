@@ -8,5 +8,6 @@ export interface IReadAvailabilityRepository {
 
 export interface IWriteAvailabilityRepository {
   save(availability: Availability): Promise<void>;
+  update(availability: Availability): Promise<void>;
   clear(): Promise<void>;
 }
