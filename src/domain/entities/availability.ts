@@ -82,10 +82,12 @@ export class Availability {
 
   bookSlot(slotId: Uuid): void {
     const slot = this._slots.find((s) => s.id === slotId.value);
-    if (!slot) {
-      throw new Error("Slot not found in this availability");
-    }
-    slot.book();
+    slot?.book();
+  }
+
+  isSlotAvailable(slotId: Uuid): boolean {
+    const slot = this._slots.find((s) => s.id === slotId.value);
+    return slot?.status === "AVAILABLE";
   }
 
   get slots(): Slot[] {

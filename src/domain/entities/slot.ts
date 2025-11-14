@@ -11,8 +11,8 @@ export class Slot {
     private readonly _availabilityId: Uuid,
   ) {}
 
-  static from(startDateTime: Date, endDateTime: Date, availabilityId: Uuid): Slot {
-    return new Slot(Uuid.generate(), startDateTime, endDateTime, "AVAILABLE", availabilityId);
+  static from(startDateTime: Date, endDateTime: Date, availabilityId: Uuid, status: SlotStatus = "AVAILABLE"): Slot {
+    return new Slot(Uuid.generate(), startDateTime, endDateTime, status, availabilityId);
   }
 
   static restore(id: Uuid, startDateTime: Date, endDateTime: Date, status: SlotStatus, availabilityId: Uuid): Slot {

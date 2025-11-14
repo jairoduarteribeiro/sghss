@@ -1,6 +1,6 @@
 import { inject } from "inversify";
 import { Appointment } from "../../domain/entities/appointment";
-import { ValidationError } from "../../domain/errors/validation.error";
+import { AppError } from "../../domain/errors/app.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import type { IWriteAppointmentRepository } from "../ports/repositories/appointment.repository";
@@ -35,30 +35,28 @@ export class RegisterAppointmentUseCase {
 
   async execute(input: RegisterAppointmentInput): Promise<RegisterAppointmentOutput> {
     return this.unitOfWork.transaction(async (container) => {
-      const conferenceLinkGenerator = container.get<IConferenceLinkGenerator>(SYMBOLS.IConferenceLinkGenerator);
-      const appointment =
-        input.modality === "IN_PERSON"
-          ? Appointment.inPerson(Uuid.fromString(input.slotId), Uuid.fromString(input.patientId))
-          : Appointment.telemedicine(
-              Uuid.fromString(input.slotId),
-              Uuid.fromString(input.patientId),
-              conferenceLinkGenerator.generate(),
-            );
+      const slotId = Uuid.fromString(input.slotId);
       const readAvailabilityRepository = container.get<IReadAvailabilityRepository>(
         SYMBOLS.IReadAvailabilityRepository,
       );
-      const availability = await readAvailabilityRepository.findBySlotId(Uuid.fromString(input.slotId));
-      if (!availability) {
-        throw new ValidationError("The slot does not belong to any availability");
+      const availability = await readAvailabilityRepository.findBySlotId(slotId);
+      if (!availability?.isSlotAvailable(slotId)) {
+        throw new AppError("The slot is already booked");
       }
-      const writeAppointmentRepository = container.get<IWriteAppointmentRepository>(
-        SYMBOLS.IWriteAppointmentRepository,
-      );
+      availability.bookSlot(slotId);
       const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
         SYMBOLS.IWriteAvailabilityRepository,
       );
-      availability.bookSlot(Uuid.fromString(input.slotId));
       await writeAvailabilityRepository.update(availability);
+      const patientId = Uuid.fromString(input.patientId);
+      const conferenceLinkGenerator = container.get<IConferenceLinkGenerator>(SYMBOLS.IConferenceLinkGenerator);
+      const appointment =
+        input.modality === "IN_PERSON"
+          ? Appointment.inPerson(slotId, patientId)
+          : Appointment.telemedicine(slotId, patientId, conferenceLinkGenerator.generate());
+      const writeAppointmentRepository = container.get<IWriteAppointmentRepository>(
+        SYMBOLS.IWriteAppointmentRepository,
+      );
       await writeAppointmentRepository.save(appointment);
       return {
         appointmentId: appointment.id,
