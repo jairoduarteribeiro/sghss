@@ -32,4 +32,23 @@ describe("Consultation - Entity", () => {
     expect(consultation.prescription).toBeNull();
     expect(consultation.referral).toBeNull();
   });
+
+  test("Should restore a Consultation successfully", () => {
+    const id = Uuid.generate();
+    const appointmentId = Uuid.generate();
+    const consultation = Consultation.restore({
+      id,
+      appointmentId,
+      notes: "Follow-up consultation notes.",
+      diagnosis: "Condition improved.",
+      prescription: "Continue current medication.",
+      referral: "No further referral needed.",
+    });
+    expect(consultation.id).toBe(id.value);
+    expect(consultation.appointmentId).toBe(appointmentId.value);
+    expect(consultation.notes).toBe("Follow-up consultation notes.");
+    expect(consultation.diagnosis).toBe("Condition improved.");
+    expect(consultation.prescription).toBe("Continue current medication.");
+    expect(consultation.referral).toBe("No further referral needed.");
+  });
 });
