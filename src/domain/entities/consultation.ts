@@ -8,6 +8,15 @@ type ConsultationCreateProps = {
   referral?: string | null;
 };
 
+type ConsultationRestoreProps = {
+  id: Uuid;
+  appointmentId: Uuid;
+  notes?: string | null;
+  diagnosis?: string | null;
+  prescription?: string | null;
+  referral?: string | null;
+};
+
 export class Consultation {
   private constructor(
     private readonly _id: Uuid,
@@ -21,6 +30,17 @@ export class Consultation {
   static from(props: ConsultationCreateProps): Consultation {
     return new Consultation(
       Uuid.generate(),
+      props.appointmentId,
+      props.notes ?? null,
+      props.diagnosis ?? null,
+      props.prescription ?? null,
+      props.referral ?? null,
+    );
+  }
+
+  static restore(props: ConsultationRestoreProps): Consultation {
+    return new Consultation(
+      props.id,
       props.appointmentId,
       props.notes ?? null,
       props.diagnosis ?? null,
