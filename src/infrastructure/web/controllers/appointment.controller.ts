@@ -5,7 +5,9 @@ import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterAppointmentUseCase } from "../../../application/use-cases/register-appointment.use-case";
 import { HttpStatus } from "../http-status.constants";
+import type { AttachPatientUserId } from "../middlewares/attach-patient-user-id";
 import type { RequireAuth } from "../middlewares/require-auth";
+import type { RequireOwner } from "../middlewares/require-owner";
 
 const registerAppointmentSchema = z.object({
   slotId: z.uuidv7(),
@@ -20,11 +22,21 @@ export class AppointmentController {
     private readonly unitOfWork: IUnitOfWork,
     @inject(SYMBOLS.RequireAuth)
     private readonly requireAuth: RequireAuth,
+    @inject(SYMBOLS.AttachPatientUserId)
+    private readonly attachPatientUserId: AttachPatientUserId,
+    @inject(SYMBOLS.RequireOwner)
+    private readonly requireOwner: RequireOwner,
   ) {}
 
   router(): Router {
     const router = Router();
-    router.post("/appointments", this.requireAuth.handle.bind(this.requireAuth), this.registerAppointment.bind(this));
+    router.post(
+      "/appointments",
+      this.requireAuth.handle.bind(this.requireAuth),
+      this.attachPatientUserId.handle(),
+      this.requireOwner.handle(),
+      this.registerAppointment.bind(this),
+    );
     return router;
   }
 

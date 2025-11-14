@@ -1,14 +1,11 @@
-import { Name } from "../../domain/value-objects/name";
 import { inject, injectable } from "inversify";
 import { Patient } from "../../domain/entities/patient";
 import { Cpf } from "../../domain/value-objects/cpf";
+import { Name } from "../../domain/value-objects/name";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { ConflictError } from "../errors/conflict.error";
-import type {
-  IReadPatientRepository,
-  IWritePatientRepository,
-} from "../ports/repositories/patient.repository";
+import type { IReadPatientRepository, IWritePatientRepository } from "../ports/repositories/patient.repository";
 
 type RegisterPatientInput = {
   name: string;
@@ -29,7 +26,7 @@ export class RegisterPatientUseCase {
     @inject(SYMBOLS.IReadPatientRepository)
     private readPatientRepository: IReadPatientRepository,
     @inject(SYMBOLS.IWritePatientRepository)
-    private writePatientRepository: IWritePatientRepository
+    private writePatientRepository: IWritePatientRepository,
   ) {}
 
   async execute(input: RegisterPatientInput): Promise<RegisterPatientOutput> {
@@ -37,11 +34,7 @@ export class RegisterPatientUseCase {
     if (await this.cpfExists(cpf)) {
       throw new ConflictError("CPF already in use");
     }
-    const patient = Patient.from(
-      Name.from(input.name),
-      Cpf.from(input.cpf),
-      Uuid.fromString(input.userId)
-    );
+    const patient = Patient.from(Name.from(input.name), Cpf.from(input.cpf), Uuid.fromString(input.userId));
     await this.writePatientRepository.save(patient);
     return {
       patientId: patient.id,

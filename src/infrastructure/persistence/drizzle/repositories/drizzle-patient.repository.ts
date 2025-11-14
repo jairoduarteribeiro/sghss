@@ -1,14 +1,14 @@
-import { inject, injectable } from "inversify";
 import { eq } from "drizzle-orm";
+import { inject, injectable } from "inversify";
+import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
   IReadPatientRepository,
   IWritePatientRepository,
 } from "../../../../application/ports/repositories/patient.repository";
 import { Patient } from "../../../../domain/entities/patient";
 import { Cpf } from "../../../../domain/value-objects/cpf";
-import { Uuid } from "../../../../domain/value-objects/uuid";
 import { Name } from "../../../../domain/value-objects/name";
-import { SYMBOLS } from "../../../../application/di/inversify.symbols";
+import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
 import { patients } from "../schema";
 
@@ -16,18 +16,17 @@ import { patients } from "../schema";
 export class DrizzleReadPatientRepository implements IReadPatientRepository {
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
-  async findByCpf(cpf: Cpf): Promise<Patient | null> {
-    const [row] = await this.db
-      .select()
-      .from(patients)
-      .where(eq(patients.cpf, cpf.value));
+  async findById(id: Uuid): Promise<Patient | null> {
+    const [row] = await this.db.select().from(patients).where(eq(patients.id, id.value));
     return row
-      ? Patient.restore(
-          Uuid.fromString(row.id),
-          Name.from(row.name),
-          Cpf.from(row.cpf),
-          Uuid.fromString(row.userId)
-        )
+      ? Patient.restore(Uuid.fromString(row.id), Name.from(row.name), Cpf.from(row.cpf), Uuid.fromString(row.userId))
+      : null;
+  }
+
+  async findByCpf(cpf: Cpf): Promise<Patient | null> {
+    const [row] = await this.db.select().from(patients).where(eq(patients.cpf, cpf.value));
+    return row
+      ? Patient.restore(Uuid.fromString(row.id), Name.from(row.name), Cpf.from(row.cpf), Uuid.fromString(row.userId))
       : null;
   }
 }

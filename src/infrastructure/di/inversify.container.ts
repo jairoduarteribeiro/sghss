@@ -55,6 +55,7 @@ import { AuthController } from "../web/controllers/auth.controller";
 import { AvailabilityController } from "../web/controllers/availability.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
+import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
 import { RequireAuth } from "../web/middlewares/require-auth";
 import { RequireOwner } from "../web/middlewares/require-owner";
 import { RequireRole } from "../web/middlewares/require-role";
@@ -135,5 +136,6 @@ container.bind<RequireAuth>(SYMBOLS.RequireAuth).to(RequireAuth).inSingletonScop
 container.bind<RequireRole>(SYMBOLS.RequireRole).to(RequireRole).inSingletonScope();
 container.bind<RequireOwner>(SYMBOLS.RequireOwner).to(RequireOwner).inSingletonScope();
 container.bind<AttachDoctorUserId>(SYMBOLS.AttachDoctorUserId).to(AttachDoctorUserId).inSingletonScope();
+container.bind<AttachPatientUserId>(SYMBOLS.AttachPatientUserId).to(AttachPatientUserId).inSingletonScope();
 
 export { container };

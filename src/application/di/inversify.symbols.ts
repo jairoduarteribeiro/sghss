@@ -36,4 +36,5 @@ export const SYMBOLS = {
   RequireRole: Symbol.for("RequireRole"),
   RequireOwner: Symbol.for("RequireOwner"),
   AttachDoctorUserId: Symbol.for("AttachDoctorUserId"),
+  AttachPatientUserId: Symbol.for("AttachPatientUserId"),
 };
