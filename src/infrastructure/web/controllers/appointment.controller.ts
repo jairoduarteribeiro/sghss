@@ -34,7 +34,7 @@ export class AppointmentController {
       "/appointments",
       this.requireAuth.handle.bind(this.requireAuth),
       this.attachPatientUserId.handle(),
-      this.requireOwner.handle(),
+      this.requireOwner.handle({ allowAdmin: true }),
       this.registerAppointment.bind(this),
     );
     return router;
