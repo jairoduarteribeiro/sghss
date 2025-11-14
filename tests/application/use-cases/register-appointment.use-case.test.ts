@@ -64,7 +64,7 @@ describe("Register Appointment - Use Case", () => {
   };
 
   const mockConferenceLinkGenerator: IConferenceLinkGenerator = {
-    generate: mock((id) => `https://example.com/meet/${id.value}`),
+    generate: mock(() => `https://example.com/meet/${Uuid.generate().value}`),
   };
 
   beforeAll(() => {
@@ -108,5 +108,24 @@ describe("Register Appointment - Use Case", () => {
     expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(1);
     expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(1);
     expect(mockConferenceLinkGenerator.generate).toHaveBeenCalledTimes(0);
+  });
+
+  test("Should register a TELEMEDICINE appointment successfully", async () => {
+    const input = {
+      slotId: freeSlot.id,
+      patientId: patientId.value,
+      modality: "TELEMEDICINE" as const,
+    };
+    const output = await useCase.execute(input);
+    expect(output).toBeDefined();
+    expect(output.slotId).toBe(freeSlot.id);
+    expect(output.patientId).toBe(patientId.value);
+    expect(output.doctorId).toBe(doctor.id);
+    expect(output.status).toBe("SCHEDULED");
+    expect(output.modality).toBe("TELEMEDICINE");
+    expect(output.telemedicineLink).not.toBeNull();
+    expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(1);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(1);
+    expect(mockConferenceLinkGenerator.generate).toHaveBeenCalledTimes(1);
   });
 });
