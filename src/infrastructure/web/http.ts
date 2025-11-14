@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import type { Container } from "inversify";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
+import type { AppointmentController } from "./controllers/appointment.controller";
 import type { AuthController } from "./controllers/auth.controller";
 import type { AvailabilityController } from "./controllers/availability.controller";
 import type { DoctorController } from "./controllers/doctor.controller";
@@ -11,11 +12,13 @@ export const createApp = (container: Container): Express => {
   const authController = container.get<AuthController>(SYMBOLS.AuthController);
   const doctorController = container.get<DoctorController>(SYMBOLS.DoctorController);
   const availabilityController = container.get<AvailabilityController>(SYMBOLS.AvailabilityController);
+  const appointmentController = container.get<AppointmentController>(SYMBOLS.AppointmentController);
 
   app.use(express.json());
   app.use("/auth", authController.router());
   app.use(doctorController.router());
   app.use(availabilityController.router());
+  app.use(appointmentController.router());
   app.use(errorHandler);
 
   return app;
