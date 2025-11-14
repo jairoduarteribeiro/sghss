@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/validation.error";
+import { DomainValidationError } from "../errors/domain-validation.error";
 
 const MIN_NAME_LENGTH = 2;
 export const MAX_NAME_LENGTH = 255;
@@ -18,7 +18,9 @@ export class Name {
 
   private static validate(name: string): void {
     if (!Name.isValidLength(name)) {
-      throw new ValidationError(`Name length must be between ${MIN_NAME_LENGTH} and ${MAX_NAME_LENGTH} characters`);
+      throw new DomainValidationError(
+        `Name length must be between ${MIN_NAME_LENGTH} and ${MAX_NAME_LENGTH} characters`,
+      );
     }
   }
 

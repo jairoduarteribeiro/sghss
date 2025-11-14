@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Availability } from "../../domain/entities/availability";
 import { Slot } from "../../domain/entities/slot";
-import { ValidationError } from "../../domain/errors/validation.error";
+import { DomainConflictError } from "../../domain/errors/domain-conflict.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import type {
@@ -46,7 +46,7 @@ export class RegisterAvailabilityUseCase {
     );
     const hasOverlap = existingAvailabilities.some((existing) => existing.overlapsWith(availability));
     if (hasOverlap) {
-      throw new ValidationError("The new availability overlaps with existing availabilities");
+      throw new DomainConflictError("The new availability overlaps with existing availabilities");
     }
     this.addSlotsToAvailability(availability);
     await this.writeAvailabilityRepository.save(availability);

@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/validation.error";
+import { DomainValidationError } from "../errors/domain-validation.error";
 import { Uuid } from "../value-objects/uuid";
 import type { Slot } from "./slot";
 
@@ -22,16 +22,16 @@ export class Availability {
 
   private static validateDates(startDateTime: Date, endDateTime: Date): void {
     if (!Availability.isStartBeforeEnd(startDateTime, endDateTime)) {
-      throw new ValidationError("End datetime must be after start datetime");
+      throw new DomainValidationError("End datetime must be after start datetime");
     }
     if (!Availability.isDurationAtLeast30Minutes(startDateTime, endDateTime)) {
-      throw new ValidationError("End datetime must be more than 30 minutes after start datetime");
+      throw new DomainValidationError("End datetime must be more than 30 minutes after start datetime");
     }
     if (!Availability.isMultipleOf30Minutes(startDateTime) || !Availability.isMultipleOf30Minutes(endDateTime)) {
-      throw new ValidationError("Start datetime and end datetime must be in multiples of 30 minutes");
+      throw new DomainValidationError("Start datetime and end datetime must be in multiples of 30 minutes");
     }
     if (!Availability.isDurationAtMost4Hours(startDateTime, endDateTime)) {
-      throw new ValidationError("Availability cannot exceed 4 hours");
+      throw new DomainValidationError("Availability cannot exceed 4 hours");
     }
   }
 

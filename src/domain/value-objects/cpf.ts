@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/validation.error";
+import { DomainValidationError } from "../errors/domain-validation.error";
 
 const CPF_REGEX = /^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/;
 export const CPF_LENGTH = 11;
@@ -13,17 +13,17 @@ export class Cpf {
 
   private static validate(cpf: string): void {
     if (!Cpf.hasValidFormat(cpf)) {
-      throw new ValidationError("CPF with invalid format");
+      throw new DomainValidationError("CPF with invalid format");
     }
     const cleanedCpf = Cpf.clean(cpf);
     if (Cpf.hasAllDigitsTheSame(cleanedCpf)) {
-      throw new ValidationError("CPF cannot have all digits the same");
+      throw new DomainValidationError("CPF cannot have all digits the same");
     }
     const firstDigit = Cpf.calculateCheckDigit(cleanedCpf.slice(0, 9));
     const secondDigit = Cpf.calculateCheckDigit(cleanedCpf.slice(0, 10));
     const checkDigits = Cpf.extractCheckDigits(cleanedCpf);
     if (checkDigits !== `${firstDigit}${secondDigit}`) {
-      throw new ValidationError("CPF with invalid check digits");
+      throw new DomainValidationError("CPF with invalid check digits");
     }
   }
 

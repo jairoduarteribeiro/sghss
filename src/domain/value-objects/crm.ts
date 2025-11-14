@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/validation.error";
+import { DomainValidationError } from "../errors/domain-validation.error";
 
 export const MAX_CRM_LENGTH = 9;
 
@@ -43,11 +43,11 @@ export class Crm {
 
   private static validate(crm: string): void {
     if (!Crm.hasValidFormat(crm)) {
-      throw new ValidationError("CRM with invalid format");
+      throw new DomainValidationError("CRM with invalid format");
     }
     const state = Crm.extractState(crm);
     if (!Crm.isValidState(state)) {
-      throw new ValidationError("CRM with invalid state");
+      throw new DomainValidationError("CRM with invalid state");
     }
   }
 

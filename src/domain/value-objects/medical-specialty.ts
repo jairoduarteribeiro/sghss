@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/validation.error";
+import { DomainValidationError } from "../errors/domain-validation.error";
 
 const MIN_SPECIALTY_LENGTH = 2;
 export const MAX_SPECIALTY_LENGTH = 50;
@@ -18,7 +18,7 @@ export class MedicalSpecialty {
 
   private static validate(specialty: string): void {
     if (!MedicalSpecialty.hasValidLength(specialty)) {
-      throw new ValidationError(
+      throw new DomainValidationError(
         `Medical specialty must have length between ${MIN_SPECIALTY_LENGTH} and ${MAX_SPECIALTY_LENGTH}"`,
       );
     }
