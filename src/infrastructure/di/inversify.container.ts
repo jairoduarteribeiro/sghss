@@ -62,6 +62,7 @@ import { VidaPlusLinkGeneratorService } from "../services/vida-plus-link-generat
 import { AppointmentController } from "../web/controllers/appointment.controller";
 import { AuthController } from "../web/controllers/auth.controller";
 import { AvailabilityController } from "../web/controllers/availability.controller";
+import { ConsultationController } from "../web/controllers/consultation.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
@@ -144,6 +145,7 @@ container.bind<AuthController>(SYMBOLS.AuthController).to(AuthController).inTran
 container.bind<DoctorController>(SYMBOLS.DoctorController).to(DoctorController).inTransientScope();
 container.bind<AvailabilityController>(SYMBOLS.AvailabilityController).to(AvailabilityController).inTransientScope();
 container.bind<AppointmentController>(SYMBOLS.AppointmentController).to(AppointmentController).inTransientScope();
+container.bind<ConsultationController>(SYMBOLS.ConsultationController).to(ConsultationController).inTransientScope();
 
 // Service bindings
 container.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).to(JwtAuthTokenService).inSingletonScope();

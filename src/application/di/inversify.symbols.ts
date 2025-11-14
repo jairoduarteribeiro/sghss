@@ -31,6 +31,7 @@ export const SYMBOLS = {
   DoctorController: Symbol.for("DoctorController"),
   AvailabilityController: Symbol.for("AvailabilityController"),
   AppointmentController: Symbol.for("AppointmentController"),
+  ConsultationController: Symbol.for("ConsultationController"),
   // Services
   IAuthTokenService: Symbol.for("IAuthTokenService"),
   IConferenceLinkGenerator: Symbol.for("IConferenceLinkGenerator"),
