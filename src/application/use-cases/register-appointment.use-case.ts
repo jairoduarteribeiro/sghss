@@ -8,6 +8,7 @@ import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
+import type { IConferenceLinkGenerator } from "../ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../ports/unit-of-work";
 
 type RegisterAppointmentInput = {
@@ -34,7 +35,15 @@ export class RegisterAppointmentUseCase {
 
   async execute(input: RegisterAppointmentInput): Promise<RegisterAppointmentOutput> {
     return this.unitOfWork.transaction(async (container) => {
-      const appointment = Appointment.inPerson(Uuid.fromString(input.slotId), Uuid.fromString(input.patientId));
+      const conferenceLinkGenerator = container.get<IConferenceLinkGenerator>(SYMBOLS.IConferenceLinkGenerator);
+      const appointment =
+        input.modality === "IN_PERSON"
+          ? Appointment.inPerson(Uuid.fromString(input.slotId), Uuid.fromString(input.patientId))
+          : Appointment.telemedicine(
+              Uuid.fromString(input.slotId),
+              Uuid.fromString(input.patientId),
+              conferenceLinkGenerator.generate(),
+            );
       const readAvailabilityRepository = container.get<IReadAvailabilityRepository>(
         SYMBOLS.IReadAvailabilityRepository,
       );
@@ -58,7 +67,7 @@ export class RegisterAppointmentUseCase {
         doctorId: availability.doctorId,
         status: appointment.status,
         modality: appointment.modality,
-        telemedicineLink: null,
+        telemedicineLink: appointment.telemedicineLink,
       };
     });
   }
