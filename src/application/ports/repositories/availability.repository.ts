@@ -3,6 +3,7 @@ import type { Uuid } from "../../../domain/value-objects/uuid";
 
 export interface IReadAvailabilityRepository {
   findByDoctorId(doctorId: Uuid): Promise<Availability[]>;
+  findBySlotId(slotId: Uuid): Promise<Availability | null>;
 }
 
 export interface IWriteAvailabilityRepository {

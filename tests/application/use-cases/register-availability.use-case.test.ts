@@ -33,6 +33,7 @@ describe("Register Availability - Use Case", async () => {
     findByDoctorId: mock(async (doctorId: Uuid) =>
       doctorId.value === existingDoctorId.value ? existingAvailabilities : [],
     ),
+    findBySlotId: mock(async (_slotId: Uuid) => null),
   };
 
   const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {

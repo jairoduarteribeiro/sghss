@@ -12,6 +12,8 @@ export const SYMBOLS = {
   IWriteUserRepository: Symbol.for("IWriteUserRepository"),
   IReadAvailabilityRepository: Symbol.for("IReadAvailabilityRepository"),
   IWriteAvailabilityRepository: Symbol.for("IWriteAvailabilityRepository"),
+  IReadAppointmentRepository: Symbol.for("IReadAppointmentRepository"),
+  IWriteAppointmentRepository: Symbol.for("IWriteAppointmentRepository"),
   // Unit of Work
   IUnitOfWork: Symbol.for("IUnitOfWork"),
   // Use Cases
@@ -20,12 +22,14 @@ export const SYMBOLS = {
   RegisterPatientUseCase: Symbol.for("RegisterPatientUseCase"),
   RegisterDoctorUseCase: Symbol.for("RegisterDoctorUseCase"),
   RegisterAvailabilityUseCase: Symbol.for("RegisterAvailabilityUseCase"),
+  RegisterAppointmentUseCase: Symbol.for("RegisterAppointmentUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
   DoctorController: Symbol.for("DoctorController"),
   AvailabilityController: Symbol.for("AvailabilityController"),
   // Services
   IAuthTokenService: Symbol.for("IAuthTokenService"),
+  IConferenceLinkGenerator: Symbol.for("IConferenceLinkGenerator"),
   // Middlewares
   RequireAuth: Symbol.for("RequireAuth"),
   RequireRole: Symbol.for("RequireRole"),

@@ -1,6 +1,10 @@
 import { Container } from "inversify";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
 import type {
+  IReadAppointmentRepository,
+  IWriteAppointmentRepository,
+} from "../../application/ports/repositories/appointment.repository";
+import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../../application/ports/repositories/availability.repository";
@@ -14,13 +18,19 @@ import type {
 } from "../../application/ports/repositories/patient.repository";
 import type { IReadUserRepository, IWriteUserRepository } from "../../application/ports/repositories/user.repository";
 import type { IAuthTokenService } from "../../application/ports/services/auth-token-service";
+import type { IConferenceLinkGenerator } from "../../application/ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../../application/ports/unit-of-work";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
+import { RegisterAppointmentUseCase } from "../../application/use-cases/register-appointment.use-case";
 import { RegisterAvailabilityUseCase } from "../../application/use-cases/register-availability.use-case";
 import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
+import {
+  DrizzleReadAppointmentRepository,
+  DrizzleWriteAppointmentRepository,
+} from "../persistence/drizzle/repositories/drizzle-appointment.repository";
 import {
   DrizzleReadAvailabilityRepository,
   DrizzleWriteAvailabilityRepository,
@@ -39,6 +49,7 @@ import {
   DrizzleWriteUserRepository,
 } from "../persistence/drizzle/repositories/drizzle-user.repository";
 import { JwtAuthTokenService } from "../services/jwt-auth-token.service";
+import { VidaPlusLinkGeneratorService } from "../services/vida-plus-link-generator.service";
 import { AuthController } from "../web/controllers/auth.controller";
 import { AvailabilityController } from "../web/controllers/availability.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
@@ -79,6 +90,14 @@ container
   .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
   .to(DrizzleWriteAvailabilityRepository)
   .inTransientScope();
+container
+  .bind<IReadAppointmentRepository>(SYMBOLS.IReadAppointmentRepository)
+  .to(DrizzleReadAppointmentRepository)
+  .inTransientScope();
+container
+  .bind<IWriteAppointmentRepository>(SYMBOLS.IWriteAppointmentRepository)
+  .to(DrizzleWriteAppointmentRepository)
+  .inTransientScope();
 
 // UnitOfWork binding
 container.bind<IUnitOfWork>(SYMBOLS.IUnitOfWork).to(DrizzleUnitOfWork).inSingletonScope();
@@ -92,6 +111,10 @@ container
   .bind<RegisterAvailabilityUseCase>(SYMBOLS.RegisterAvailabilityUseCase)
   .to(RegisterAvailabilityUseCase)
   .inTransientScope();
+container
+  .bind<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase)
+  .to(RegisterAppointmentUseCase)
+  .inTransientScope();
 
 // Controller bindings
 container.bind<AuthController>(SYMBOLS.AuthController).to(AuthController).inTransientScope();
@@ -100,6 +123,10 @@ container.bind<AvailabilityController>(SYMBOLS.AvailabilityController).to(Availa
 
 // Service bindings
 container.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).to(JwtAuthTokenService).inSingletonScope();
+container
+  .bind<IConferenceLinkGenerator>(SYMBOLS.IConferenceLinkGenerator)
+  .to(VidaPlusLinkGeneratorService)
+  .inSingletonScope();
 
 // Middleware bindings
 container.bind<RequireAuth>(SYMBOLS.RequireAuth).to(RequireAuth).inSingletonScope();

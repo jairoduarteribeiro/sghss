@@ -100,7 +100,6 @@ describe("Availability - Controller", async () => {
       endDateTime: "2024-07-01T10:00:00.000Z",
     };
     const response = await request.post("/availabilities").set("Authorization", `Bearer ${adminToken}`).send(input);
-    console.log(response.body.message);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.availabilityId).toMatch(UUID7_REGEX);
     expect(response.body.doctorId).toBe(input.doctorId);

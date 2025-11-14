@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import { pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 import { doctors } from "./doctors";
+import { slots } from "./slots";
 
 export const availabilities = pgTable("availabilities", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -12,9 +13,10 @@ export const availabilities = pgTable("availabilities", {
     .references(() => doctors.id, { onDelete: "cascade" }),
 });
 
-export const availabilitiesRelations = relations(availabilities, ({ one }) => ({
+export const availabilitiesRelations = relations(availabilities, ({ one, many }) => ({
   doctor: one(doctors, {
     fields: [availabilities.doctorId],
     references: [doctors.id],
   }),
+  slots: many(slots),
 }));

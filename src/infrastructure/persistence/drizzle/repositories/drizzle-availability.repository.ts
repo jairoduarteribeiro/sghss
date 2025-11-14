@@ -6,6 +6,7 @@ import type {
   IWriteAvailabilityRepository,
 } from "../../../../application/ports/repositories/availability.repository";
 import { Availability } from "../../../../domain/entities/availability";
+import { Slot } from "../../../../domain/entities/slot";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
 import { availabilities, slots } from "../schema";
@@ -15,10 +16,67 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
   constructor(@inject(SYMBOLS.DatabaseClient) private readonly db: DbClient) {}
 
   async findByDoctorId(doctorId: Uuid): Promise<Availability[]> {
-    const results = await this.db.select().from(availabilities).where(eq(availabilities.doctorId, doctorId.value));
-    return results.map((row) =>
-      Availability.restore(Uuid.fromString(row.id), row.startDateTime, row.endDateTime, Uuid.fromString(row.doctorId)),
+    const rows = await this.db.query.availabilities.findMany({
+      where: eq(availabilities.doctorId, doctorId.value),
+      with: {
+        slots: true,
+      },
+    });
+    return rows.map((row) => {
+      const availability = Availability.restore(
+        Uuid.fromString(row.id),
+        new Date(row.startDateTime),
+        new Date(row.endDateTime),
+        Uuid.fromString(row.doctorId),
+      );
+      for (const slot of row.slots) {
+        availability.addSlot(
+          Slot.restore(
+            Uuid.fromString(slot.id),
+            new Date(slot.startDateTime),
+            new Date(slot.endDateTime),
+            slot.status,
+            Uuid.fromString(slot.availabilityId),
+          ),
+        );
+      }
+      return availability;
+    });
+  }
+
+  async findBySlotId(slotId: Uuid): Promise<Availability | null> {
+    const row = await this.db.query.slots.findFirst({
+      where: eq(slots.id, slotId.value),
+      with: {
+        availability: {
+          with: {
+            slots: true,
+          },
+        },
+      },
+    });
+    if (!row || !row.availability) {
+      return null;
+    }
+    const availabilityRow = row.availability;
+    const availability = Availability.restore(
+      Uuid.fromString(availabilityRow.id),
+      new Date(availabilityRow.startDateTime),
+      new Date(availabilityRow.endDateTime),
+      Uuid.fromString(availabilityRow.doctorId),
     );
+    for (const slot of availabilityRow.slots) {
+      availability.addSlot(
+        Slot.restore(
+          Uuid.fromString(slot.id),
+          new Date(slot.startDateTime),
+          new Date(slot.endDateTime),
+          slot.status,
+          Uuid.fromString(slot.availabilityId),
+        ),
+      );
+    }
+    return availability;
   }
 }
 
