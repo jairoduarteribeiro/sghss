@@ -95,7 +95,6 @@ describe("Appointment - Controller", async () => {
       modality: "IN_PERSON",
     };
     const response = await request.post("/appointments").set("Authorization", `Bearer ${patientToken}`).send(input);
-    console.log(response.body);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.appointmentId).toMatch(UUID7_REGEX);
     expect(response.body.slotId).toBe(slotId);

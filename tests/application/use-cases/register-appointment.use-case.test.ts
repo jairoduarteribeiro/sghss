@@ -7,7 +7,6 @@ import type {
   IWriteAvailabilityRepository,
 } from "../../../src/application/ports/repositories/availability.repository";
 import type { IConferenceLinkGenerator } from "../../../src/application/ports/services/conference-link-generator";
-import type { IUnitOfWork } from "../../../src/application/ports/unit-of-work";
 import type { RegisterAppointmentUseCase } from "../../../src/application/use-cases/register-appointment.use-case";
 import { Availability } from "../../../src/domain/entities/availability";
 import { Doctor } from "../../../src/domain/entities/doctor";
@@ -48,10 +47,6 @@ describe("Register Appointment - Use Case", () => {
   availability.addSlot(freeSlot);
   availability.addSlot(bookedSlot);
 
-  const mockUnitOfWork: IUnitOfWork = {
-    transaction: async <T>(fn: (container: Container) => Promise<T>) => fn(testContainer),
-  };
-
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (_doctorId: Uuid) => []),
     findBySlotId: mock(async (slotId: Uuid) =>
@@ -80,7 +75,6 @@ describe("Register Appointment - Use Case", () => {
     testContainer.unbind(SYMBOLS.IWriteAppointmentRepository);
     testContainer.unbind(SYMBOLS.IWriteAvailabilityRepository);
     testContainer.unbind(SYMBOLS.IConferenceLinkGenerator);
-    testContainer.unbind(SYMBOLS.IUnitOfWork);
     testContainer
       .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
       .toConstantValue(mockReadAvailabilityRepository);
@@ -89,7 +83,6 @@ describe("Register Appointment - Use Case", () => {
       .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
       .toConstantValue(mockWriteAvailabilityRepository);
     testContainer.bind(SYMBOLS.IConferenceLinkGenerator).toConstantValue(mockConferenceLinkGenerator);
-    testContainer.bind(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
     useCase = testContainer.get<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase);
   });
 

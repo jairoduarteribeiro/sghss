@@ -9,7 +9,6 @@ import type {
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
 import type { IConferenceLinkGenerator } from "../ports/services/conference-link-generator";
-import type { IUnitOfWork } from "../ports/unit-of-work";
 
 type RegisterAppointmentInput = {
   slotId: string;
@@ -29,44 +28,38 @@ type RegisterAppointmentOutput = {
 
 export class RegisterAppointmentUseCase {
   constructor(
-    @inject(SYMBOLS.IUnitOfWork)
-    private readonly unitOfWork: IUnitOfWork,
+    @inject(SYMBOLS.IReadAvailabilityRepository)
+    private readonly readAvailabilityRepository: IReadAvailabilityRepository,
+    @inject(SYMBOLS.IWriteAvailabilityRepository)
+    private readonly writeAvailabilityRepository: IWriteAvailabilityRepository,
+    @inject(SYMBOLS.IWriteAppointmentRepository)
+    private readonly writeAppointmentRepository: IWriteAppointmentRepository,
+    @inject(SYMBOLS.IConferenceLinkGenerator)
+    private readonly conferenceLinkGenerator: IConferenceLinkGenerator,
   ) {}
 
   async execute(input: RegisterAppointmentInput): Promise<RegisterAppointmentOutput> {
-    return this.unitOfWork.transaction(async (container) => {
-      const slotId = Uuid.fromString(input.slotId);
-      const readAvailabilityRepository = container.get<IReadAvailabilityRepository>(
-        SYMBOLS.IReadAvailabilityRepository,
-      );
-      const availability = await readAvailabilityRepository.findBySlotId(slotId);
-      if (!availability?.isSlotAvailable(slotId)) {
-        throw new AppError("The slot is already booked");
-      }
-      availability.bookSlot(slotId);
-      const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
-        SYMBOLS.IWriteAvailabilityRepository,
-      );
-      await writeAvailabilityRepository.update(availability);
-      const patientId = Uuid.fromString(input.patientId);
-      const conferenceLinkGenerator = container.get<IConferenceLinkGenerator>(SYMBOLS.IConferenceLinkGenerator);
-      const appointment =
-        input.modality === "IN_PERSON"
-          ? Appointment.inPerson(slotId, patientId)
-          : Appointment.telemedicine(slotId, patientId, conferenceLinkGenerator.generate());
-      const writeAppointmentRepository = container.get<IWriteAppointmentRepository>(
-        SYMBOLS.IWriteAppointmentRepository,
-      );
-      await writeAppointmentRepository.save(appointment);
-      return {
-        appointmentId: appointment.id,
-        slotId: appointment.slotId,
-        patientId: appointment.patientId,
-        doctorId: availability.doctorId,
-        status: appointment.status,
-        modality: appointment.modality,
-        telemedicineLink: appointment.telemedicineLink,
-      };
-    });
+    const slotId = Uuid.fromString(input.slotId);
+    const availability = await this.readAvailabilityRepository.findBySlotId(slotId);
+    if (!availability?.isSlotAvailable(slotId)) {
+      throw new AppError("The slot is already booked");
+    }
+    availability.bookSlot(slotId);
+    await this.writeAvailabilityRepository.update(availability);
+    const patientId = Uuid.fromString(input.patientId);
+    const appointment =
+      input.modality === "IN_PERSON"
+        ? Appointment.inPerson(slotId, patientId)
+        : Appointment.telemedicine(slotId, patientId, this.conferenceLinkGenerator.generate());
+    await this.writeAppointmentRepository.save(appointment);
+    return {
+      appointmentId: appointment.id,
+      slotId: appointment.slotId,
+      patientId: appointment.patientId,
+      doctorId: availability.doctorId,
+      status: appointment.status,
+      modality: appointment.modality,
+      telemedicineLink: appointment.telemedicineLink,
+    };
   }
 }

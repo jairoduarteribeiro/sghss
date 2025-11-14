@@ -8,7 +8,6 @@ import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
-import type { IUnitOfWork } from "../ports/unit-of-work";
 
 type SlotOutput = {
   slotId: string;
@@ -34,39 +33,35 @@ type RegisterAvailabilityOutput = {
 @injectable()
 export class RegisterAvailabilityUseCase {
   constructor(
-    @inject(SYMBOLS.IUnitOfWork)
-    private readonly unitOfWork: IUnitOfWork,
+    @inject(SYMBOLS.IReadAvailabilityRepository)
+    private readonly readAvailabilityRepository: IReadAvailabilityRepository,
+    @inject(SYMBOLS.IWriteAvailabilityRepository)
+    private readonly writeAvailabilityRepository: IWriteAvailabilityRepository,
   ) {}
 
   async execute(input: RegisterAvailabilityInput): Promise<RegisterAvailabilityOutput> {
-    return this.unitOfWork.transaction(async (container) => {
-      const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
-      const readAvailabilityRepository = container.get<IReadAvailabilityRepository>(
-        SYMBOLS.IReadAvailabilityRepository,
-      );
-      const existingAvailabilities = await readAvailabilityRepository.findByDoctorId(Uuid.fromString(input.doctorId));
-      const hasOverlap = existingAvailabilities.some((existing) => existing.overlapsWith(availability));
-      if (hasOverlap) {
-        throw new ValidationError("The new availability overlaps with existing availabilities");
-      }
-      this.addSlotsToAvailability(availability);
-      const writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(
-        SYMBOLS.IWriteAvailabilityRepository,
-      );
-      await writeAvailabilityRepository.save(availability);
-      return {
-        availabilityId: availability.id,
-        doctorId: availability.doctorId,
-        startDateTime: availability.startDateTime,
-        endDateTime: availability.endDateTime,
-        slots: availability.slots.map((slot) => ({
-          slotId: slot.id,
-          startDateTime: slot.startDateTime,
-          endDateTime: slot.endDateTime,
-          status: slot.status,
-        })),
-      };
-    });
+    const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
+    const existingAvailabilities = await this.readAvailabilityRepository.findByDoctorId(
+      Uuid.fromString(input.doctorId),
+    );
+    const hasOverlap = existingAvailabilities.some((existing) => existing.overlapsWith(availability));
+    if (hasOverlap) {
+      throw new ValidationError("The new availability overlaps with existing availabilities");
+    }
+    this.addSlotsToAvailability(availability);
+    await this.writeAvailabilityRepository.save(availability);
+    return {
+      availabilityId: availability.id,
+      doctorId: availability.doctorId,
+      startDateTime: availability.startDateTime,
+      endDateTime: availability.endDateTime,
+      slots: availability.slots.map((slot) => ({
+        slotId: slot.id,
+        startDateTime: slot.startDateTime,
+        endDateTime: slot.endDateTime,
+        status: slot.status,
+      })),
+    };
   }
 
   private addSlotsToAvailability(availability: Availability): void {
