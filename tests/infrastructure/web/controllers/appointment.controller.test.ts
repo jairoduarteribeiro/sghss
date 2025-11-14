@@ -70,6 +70,13 @@ describe("Appointment - Controller", async () => {
     };
     const signupResponse = await request.post("/auth/signup").send(patientInput);
     patientId = signupResponse.body.patientId;
+    const otherPatientInput = {
+      name: "Alice Johnson",
+      cpf: "12984180038",
+      email: "alice.johnson@example.com",
+      password: "Password123!",
+    };
+    await request.post("/auth/signup").send(otherPatientInput);
     const loginResponse = await request.post("/auth/login").send({
       email: patientInput.email,
       password: patientInput.password,
@@ -142,5 +149,26 @@ describe("Appointment - Controller", async () => {
     const response = await request.post("/appointments").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(response.body.message).toBe("Missing token");
+  });
+
+  test("POST /appointments should return 403 when using a token of a different patient", async () => {
+    const otherPatientToken = (
+      await request.post("/auth/login").send({
+        email: "alice.johnson@example.com",
+        password: "Password123!",
+      })
+    ).body.token;
+
+    const input = {
+      slotId,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const response = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${otherPatientToken}`)
+      .send(input);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("You are not authorized to access this resource");
   });
 });
