@@ -39,7 +39,14 @@ describe("Register Appointment - Use Case", () => {
     new Date("2024-07-10T10:30:00.000Z"),
     Uuid.fromString(availability.id),
   );
+  const bookedSlot = Slot.from(
+    new Date("2024-07-10T10:30:00.000Z"),
+    new Date("2024-07-10T11:00:00.000Z"),
+    Uuid.fromString(availability.id),
+    "BOOKED",
+  );
   availability.addSlot(freeSlot);
+  availability.addSlot(bookedSlot);
 
   const mockUnitOfWork: IUnitOfWork = {
     transaction: async <T>(fn: (container: Container) => Promise<T>) => fn(testContainer),
@@ -127,5 +134,16 @@ describe("Register Appointment - Use Case", () => {
     expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(1);
     expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(1);
     expect(mockConferenceLinkGenerator.generate).toHaveBeenCalledTimes(1);
+  });
+
+  test("Should not register an appointment if the slot is already booked", async () => {
+    const input = {
+      slotId: bookedSlot.id,
+      patientId: patientId.value,
+      modality: "IN_PERSON" as const,
+    };
+    expect(useCase.execute(input)).rejects.toThrowError("The slot is already booked");
+    expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(0);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
   });
 });
