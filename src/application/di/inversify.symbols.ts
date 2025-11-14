@@ -14,6 +14,8 @@ export const SYMBOLS = {
   IWriteAvailabilityRepository: Symbol.for("IWriteAvailabilityRepository"),
   IReadAppointmentRepository: Symbol.for("IReadAppointmentRepository"),
   IWriteAppointmentRepository: Symbol.for("IWriteAppointmentRepository"),
+  IReadConsultationRepository: Symbol.for("IReadConsultationRepository"),
+  IWriteConsultationRepository: Symbol.for("IWriteConsultationRepository"),
   // Unit of Work
   IUnitOfWork: Symbol.for("IUnitOfWork"),
   // Use Cases
@@ -23,6 +25,7 @@ export const SYMBOLS = {
   RegisterDoctorUseCase: Symbol.for("RegisterDoctorUseCase"),
   RegisterAvailabilityUseCase: Symbol.for("RegisterAvailabilityUseCase"),
   RegisterAppointmentUseCase: Symbol.for("RegisterAppointmentUseCase"),
+  RegisterConsultationUseCase: Symbol.for("RegisterConsultationUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
   DoctorController: Symbol.for("DoctorController"),

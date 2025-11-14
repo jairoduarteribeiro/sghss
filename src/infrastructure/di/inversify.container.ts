@@ -9,6 +9,10 @@ import type {
   IWriteAvailabilityRepository,
 } from "../../application/ports/repositories/availability.repository";
 import type {
+  IReadConsultationRepository,
+  IWriteConsultationRepository,
+} from "../../application/ports/repositories/consultation.repository";
+import type {
   IReadDoctorRepository,
   IWriteDoctorRepository,
 } from "../../application/ports/repositories/doctor.repository";
@@ -23,6 +27,7 @@ import type { IUnitOfWork } from "../../application/ports/unit-of-work";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterAppointmentUseCase } from "../../application/use-cases/register-appointment.use-case";
 import { RegisterAvailabilityUseCase } from "../../application/use-cases/register-availability.use-case";
+import { RegisterConsultationUseCase } from "../../application/use-cases/register-consultation.use-case";
 import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
@@ -35,6 +40,10 @@ import {
   DrizzleReadAvailabilityRepository,
   DrizzleWriteAvailabilityRepository,
 } from "../persistence/drizzle/repositories/drizzle-availability.repository";
+import {
+  DrizzleReadConsultationRepository,
+  DrizzleWriteConsultationRepository,
+} from "../persistence/drizzle/repositories/drizzle-consultation.repository";
 import {
   DrizzleReadDoctorRepository,
   DrizzleWriteDoctorRepository,
@@ -100,6 +109,14 @@ container
   .bind<IWriteAppointmentRepository>(SYMBOLS.IWriteAppointmentRepository)
   .to(DrizzleWriteAppointmentRepository)
   .inTransientScope();
+container
+  .bind<IReadConsultationRepository>(SYMBOLS.IReadConsultationRepository)
+  .to(DrizzleReadConsultationRepository)
+  .inTransientScope();
+container
+  .bind<IWriteConsultationRepository>(SYMBOLS.IWriteConsultationRepository)
+  .to(DrizzleWriteConsultationRepository)
+  .inTransientScope();
 
 // UnitOfWork binding
 container.bind<IUnitOfWork>(SYMBOLS.IUnitOfWork).to(DrizzleUnitOfWork).inSingletonScope();
@@ -116,6 +133,10 @@ container
 container
   .bind<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase)
   .to(RegisterAppointmentUseCase)
+  .inTransientScope();
+container
+  .bind<RegisterConsultationUseCase>(SYMBOLS.RegisterConsultationUseCase)
+  .to(RegisterConsultationUseCase)
   .inTransientScope();
 
 // Controller bindings
