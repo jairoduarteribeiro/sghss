@@ -21,4 +21,15 @@ describe("Consultation - Entity", () => {
     expect(consultation.prescription).toBe("Aspirin 100mg daily.");
     expect(consultation.referral).toBe("Cardiology specialist consultation.");
   });
+
+  test("Should create a Consultation with optional fields as null", () => {
+    const appointmentId = Uuid.generate();
+    const consultation = Consultation.from({ appointmentId });
+    expect(consultation.id).toMatch(UUID7_REGEX);
+    expect(consultation.appointmentId).toBe(appointmentId.value);
+    expect(consultation.notes).toBeNull();
+    expect(consultation.diagnosis).toBeNull();
+    expect(consultation.prescription).toBeNull();
+    expect(consultation.referral).toBeNull();
+  });
 });
