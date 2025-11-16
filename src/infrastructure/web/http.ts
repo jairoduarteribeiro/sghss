@@ -6,6 +6,7 @@ import type { AuthController } from "./controllers/auth.controller";
 import type { AvailabilityController } from "./controllers/availability.controller";
 import type { ConsultationController } from "./controllers/consultation.controller";
 import type { DoctorController } from "./controllers/doctor.controller";
+import type { PatientController } from "./controllers/patient.controller";
 import { errorHandler } from "./middlewares/error-handler";
 
 export const createApp = (container: Container): Express => {
@@ -15,6 +16,7 @@ export const createApp = (container: Container): Express => {
   const availabilityController = container.get<AvailabilityController>(SYMBOLS.AvailabilityController);
   const appointmentController = container.get<AppointmentController>(SYMBOLS.AppointmentController);
   const consultationController = container.get<ConsultationController>(SYMBOLS.ConsultationController);
+  const patientController = container.get<PatientController>(SYMBOLS.PatientController);
 
   app.use(express.json());
   app.use("/auth", authController.router());
@@ -22,6 +24,7 @@ export const createApp = (container: Container): Express => {
   app.use(availabilityController.router());
   app.use(appointmentController.router());
   app.use(consultationController.router());
+  app.use(patientController.router());
   app.use(errorHandler);
 
   return app;

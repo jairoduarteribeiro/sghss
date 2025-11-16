@@ -64,6 +64,7 @@ import { AuthController } from "../web/controllers/auth.controller";
 import { AvailabilityController } from "../web/controllers/availability.controller";
 import { ConsultationController } from "../web/controllers/consultation.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
+import { PatientController } from "../web/controllers/patient.controller";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
 import { RequireAuth } from "../web/middlewares/require-auth";
@@ -146,6 +147,7 @@ container.bind<DoctorController>(SYMBOLS.DoctorController).to(DoctorController).
 container.bind<AvailabilityController>(SYMBOLS.AvailabilityController).to(AvailabilityController).inTransientScope();
 container.bind<AppointmentController>(SYMBOLS.AppointmentController).to(AppointmentController).inTransientScope();
 container.bind<ConsultationController>(SYMBOLS.ConsultationController).to(ConsultationController).inTransientScope();
+container.bind<PatientController>(SYMBOLS.PatientController).to(PatientController).inTransientScope();
 
 // Service bindings
 container.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).to(JwtAuthTokenService).inSingletonScope();
