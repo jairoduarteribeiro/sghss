@@ -165,7 +165,7 @@ describe("Appointment - Controller", async () => {
     };
     const response = await request.post("/appointments").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-    expect(response.body.message).toBe("Missing token");
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
 
   test("POST /appointments should return 403 when using a token of a different patient", async () => {

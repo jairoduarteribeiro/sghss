@@ -116,7 +116,7 @@ describe("Availability - Controller", async () => {
     };
     const response = await request.post("/availabilities").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-    expect(response.body.message).toBe("Missing token");
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
 
   test("POST /availabilities should return 403 when a doctor tries to register availability for another doctor", async () => {

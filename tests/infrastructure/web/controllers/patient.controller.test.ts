@@ -99,4 +99,16 @@ describe("Patient - Controller", () => {
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe("Only admin users can access this resource");
   });
+
+  test("POST /patients should return 401 when no token is provided", async () => {
+    const input = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    const response = await request.post("/patients").send(input);
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
 });

@@ -25,12 +25,12 @@ export class RequireAuth {
   handle(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Missing token" });
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Authentication token is missing or invalid" });
       return;
     }
     const token = authHeader.split(" ")[1];
     if (!token) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Missing token" });
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Authentication token is missing or invalid" });
       return;
     }
     const payload = this.authTokenService.extract(token);
