@@ -24,6 +24,7 @@ describe("Patient - Controller", () => {
   let writeUserRepository: IWriteUserRepository;
   let readPatientRepository: IReadPatientRepository;
   let adminToken: string;
+  let nonAdminToken: string;
 
   beforeAll(() => {
     readUserRepository = container.get<IReadUserRepository>(SYMBOLS.IReadUserRepository);
@@ -35,12 +36,23 @@ describe("Patient - Controller", () => {
 
   beforeEach(async () => {
     const adminUser = User.from(Email.from("admin@example.com"), await Password.from("AdminPass123!"), "ADMIN");
+    const nonAdminUser = User.from(
+      Email.from("nonadmin@example.com"),
+      await Password.from("NonAdminPass123!"),
+      "PATIENT",
+    );
     await writeUserRepository.save(adminUser);
+    await writeUserRepository.save(nonAdminUser);
     const responseAdmin = await request.post("/auth/login").send({
       email: "admin@example.com",
       password: "AdminPass123!",
     });
+    const responseNonAdmin = await request.post("/auth/login").send({
+      email: "nonadmin@example.com",
+      password: "NonAdminPass123!",
+    });
     adminToken = responseAdmin.body.token;
+    nonAdminToken = responseNonAdmin.body.token;
   });
 
   afterEach(async () => {
@@ -74,5 +86,17 @@ describe("Patient - Controller", () => {
     expect(savedPatient?.id).toBe(response.body.patientId);
     expect(savedPatient?.name).toBe(response.body.name);
     expect(savedPatient?.cpf).toBe(response.body.cpf);
+  });
+
+  test("POST /patients should return 403 when non admin user tries to register a patient", async () => {
+    const input = {
+      name: "John Doe",
+      cpf: "70000000400",
+      email: "john.doe@example.com",
+      password: "Password123!",
+    };
+    const response = await request.post("/patients").set("Authorization", `Bearer ${nonAdminToken}`).send(input);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("Only admin users can access this resource");
   });
 });
