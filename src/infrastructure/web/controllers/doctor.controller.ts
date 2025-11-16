@@ -40,10 +40,10 @@ export class DoctorController {
   }
 
   private async registerDoctor(req: Request, res: Response) {
+    const body = registerDoctorSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
       const registerDoctorUseCase = container.get<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase);
-      const body = registerDoctorSchema.parse(req.body);
       const userOutput = await registerUserUseCase.execute({
         email: body.email,
         password: body.password,

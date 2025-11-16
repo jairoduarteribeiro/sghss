@@ -1,11 +1,11 @@
+import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import { Router, type Request, type Response } from "express";
 import { z } from "zod";
+import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { LoginUseCase } from "../../../application/use-cases/login.use-case";
 import type { RegisterPatientUseCase } from "../../../application/use-cases/register-patient.use-case";
 import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
-import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import { HttpStatus } from "../http-status.constants";
 
 const signupSchema = z.object({
@@ -26,7 +26,7 @@ export class AuthController {
     @inject(SYMBOLS.IUnitOfWork)
     private readonly unitOfWork: IUnitOfWork,
     @inject(SYMBOLS.LoginUseCase)
-    private readonly loginUseCase: LoginUseCase
+    private readonly loginUseCase: LoginUseCase,
   ) {}
 
   router(): Router {
@@ -37,14 +37,10 @@ export class AuthController {
   }
 
   private async signup(req: Request, res: Response) {
+    const body = signupSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
-      const registerUserUseCase = container.get<RegisterUserUseCase>(
-        SYMBOLS.RegisterUserUseCase
-      );
-      const registerPatientUseCase = container.get<RegisterPatientUseCase>(
-        SYMBOLS.RegisterPatientUseCase
-      );
-      const body = signupSchema.parse(req.body);
+      const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
+      const registerPatientUseCase = container.get<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase);
       const userOutput = await registerUserUseCase.execute({
         email: body.email,
         password: body.password,
