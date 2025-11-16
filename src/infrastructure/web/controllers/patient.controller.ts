@@ -6,6 +6,8 @@ import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterPatientUseCase } from "../../../application/use-cases/register-patient.use-case";
 import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { HttpStatus } from "../http-status.constants";
+import type { RequireAuth } from "../middlewares/require-auth";
+import type { RequireRole } from "../middlewares/require-role";
 
 const registerPatientSchema = z.object({
   name: z.string(),
@@ -19,11 +21,20 @@ export class PatientController {
   constructor(
     @inject(SYMBOLS.IUnitOfWork)
     private readonly unitOfWork: IUnitOfWork,
+    @inject(SYMBOLS.RequireAuth)
+    private readonly requireAuth: RequireAuth,
+    @inject(SYMBOLS.RequireRole)
+    private readonly requireRole: RequireRole,
   ) {}
 
   router(): Router {
     const router = Router();
-    router.post("/patients", this.registerPatient.bind(this));
+    router.post(
+      "/patients",
+      this.requireAuth.handle.bind(this.requireAuth),
+      this.requireRole.handle("ADMIN"),
+      this.registerPatient.bind(this),
+    );
     return router;
   }
 
