@@ -1,5 +1,6 @@
 import { Container } from "inversify";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
+import type { ILogger } from "../../application/ports/logger";
 import type {
   IReadAppointmentRepository,
   IWriteAppointmentRepository,
@@ -31,6 +32,7 @@ import { RegisterConsultationUseCase } from "../../application/use-cases/registe
 import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
+import { PinoLogger } from "../logger/pino-logger";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
 import {
   DrizzleReadAppointmentRepository,
@@ -67,6 +69,7 @@ import { DoctorController } from "../web/controllers/doctor.controller";
 import { PatientController } from "../web/controllers/patient.controller";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
+import { RequestLogger } from "../web/middlewares/request-logger";
 import { RequireAuth } from "../web/middlewares/require-auth";
 import { RequireOwner } from "../web/middlewares/require-owner";
 import { RequireRole } from "../web/middlewares/require-role";
@@ -157,10 +160,14 @@ container
   .inSingletonScope();
 
 // Middleware bindings
+container.bind<RequestLogger>(SYMBOLS.RequestLogger).to(RequestLogger).inSingletonScope();
 container.bind<RequireAuth>(SYMBOLS.RequireAuth).to(RequireAuth).inSingletonScope();
 container.bind<RequireRole>(SYMBOLS.RequireRole).to(RequireRole).inSingletonScope();
 container.bind<RequireOwner>(SYMBOLS.RequireOwner).to(RequireOwner).inSingletonScope();
 container.bind<AttachDoctorUserId>(SYMBOLS.AttachDoctorUserId).to(AttachDoctorUserId).inSingletonScope();
 container.bind<AttachPatientUserId>(SYMBOLS.AttachPatientUserId).to(AttachPatientUserId).inSingletonScope();
+
+// Logger
+container.bind<ILogger>(SYMBOLS.Logger).to(PinoLogger).inSingletonScope();
 
 export { container };

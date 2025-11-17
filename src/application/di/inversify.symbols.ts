@@ -37,9 +37,12 @@ export const SYMBOLS = {
   IAuthTokenService: Symbol.for("IAuthTokenService"),
   IConferenceLinkGenerator: Symbol.for("IConferenceLinkGenerator"),
   // Middlewares
+  RequestLogger: Symbol.for("RequestLogger"),
   RequireAuth: Symbol.for("RequireAuth"),
   RequireRole: Symbol.for("RequireRole"),
   RequireOwner: Symbol.for("RequireOwner"),
   AttachDoctorUserId: Symbol.for("AttachDoctorUserId"),
   AttachPatientUserId: Symbol.for("AttachPatientUserId"),
+  // Logger
+  Logger: Symbol.for("Logger"),
 };
