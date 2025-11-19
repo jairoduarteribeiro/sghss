@@ -26,6 +26,7 @@ import type { IAuthTokenService } from "../../application/ports/services/auth-to
 import type { IConferenceLinkGenerator } from "../../application/ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../../application/ports/unit-of-work";
 import { CancelAppointmentUseCase } from "../../application/use-cases/cancel-appointment.use-case";
+import { ListAvailableSlotsUseCase } from "../../application/use-cases/list-available-slots.use-case";
 import { ListDoctorAppointmentsUseCase } from "../../application/use-cases/list-doctor-appointments.use-case";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterAppointmentUseCase } from "../../application/use-cases/register-appointment.use-case";
@@ -152,6 +153,10 @@ container
 container
   .bind<CancelAppointmentUseCase>(SYMBOLS.CancelAppointmentUseCase)
   .to(CancelAppointmentUseCase)
+  .inTransientScope();
+container
+  .bind<ListAvailableSlotsUseCase>(SYMBOLS.ListAvailableSlotsUseCase)
+  .to(ListAvailableSlotsUseCase)
   .inTransientScope();
 
 // Controller bindings
