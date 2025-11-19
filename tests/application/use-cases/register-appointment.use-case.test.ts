@@ -56,6 +56,7 @@ describe("Register Appointment - Use Case", () => {
 
   const mockWriteAppointmentRepository: IWriteAppointmentRepository = {
     save: mock(async (_appointment) => {}),
+    update: mock(async (_appointment) => {}),
     clear: mock(async () => {}),
   };
 

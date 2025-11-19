@@ -65,6 +65,17 @@ export class DrizzleWriteAppointmentRepository implements IWriteAppointmentRepos
     });
   }
 
+  async update(appointment: Appointment): Promise<void> {
+    await this.db
+      .update(appointments)
+      .set({
+        status: appointment.status,
+        modality: appointment.modality,
+        telemedicineLink: appointment.telemedicineLink,
+      })
+      .where(eq(appointments.id, appointment.id));
+  }
+
   async clear(): Promise<void> {
     await this.db.delete(appointments);
   }

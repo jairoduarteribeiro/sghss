@@ -8,5 +8,6 @@ export interface IReadAppointmentRepository {
 
 export interface IWriteAppointmentRepository {
   save(appointment: Appointment): Promise<void>;
+  update(appointment: Appointment): Promise<void>;
   clear(): Promise<void>;
 }

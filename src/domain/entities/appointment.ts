@@ -7,7 +7,7 @@ type TelemedicineLink = string | null;
 export class Appointment {
   private constructor(
     private readonly _id: Uuid,
-    private readonly _status: AppointmentStatus,
+    private _status: AppointmentStatus,
     private readonly _modality: AppointmentModality,
     private readonly _telemedicineLink: TelemedicineLink,
     private readonly _slotId: Uuid,
@@ -55,5 +55,9 @@ export class Appointment {
 
   get patientId(): string {
     return this._patientId.value;
+  }
+
+  cancel(): void {
+    this._status = "CANCELLED";
   }
 }

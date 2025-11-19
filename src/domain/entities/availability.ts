@@ -72,6 +72,10 @@ export class Availability {
     return this._doctorId.value;
   }
 
+  get slots(): Slot[] {
+    return this._slots;
+  }
+
   overlapsWith(other: Availability): boolean {
     return this._startDateTime < other._endDateTime && this._endDateTime > other._startDateTime;
   }
@@ -90,7 +94,8 @@ export class Availability {
     return slot?.status === "AVAILABLE";
   }
 
-  get slots(): Slot[] {
-    return this._slots;
+  makeSlotAvailable(slotId: Uuid): void {
+    const slot = this._slots.find((s) => s.id === slotId.value);
+    slot?.makeAvailable();
   }
 }
