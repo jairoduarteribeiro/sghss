@@ -8,7 +8,7 @@ import type {
 import { Appointment } from "../../../../domain/entities/appointment";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { appointments } from "../schema";
+import { appointments, availabilities, slots } from "../schema";
 
 @injectable()
 export class DrizzleReadAppointmentRepository implements IReadAppointmentRepository {
@@ -26,6 +26,27 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
           Uuid.fromString(row.patientId),
         )
       : null;
+  }
+
+  async findByDoctorId(doctorId: Uuid): Promise<Appointment[]> {
+    const rows = await this.db
+      .select({
+        appointment: appointments,
+      })
+      .from(appointments)
+      .innerJoin(slots, eq(appointments.slotId, slots.id))
+      .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
+      .where(eq(availabilities.doctorId, doctorId.value));
+    return rows.map(({ appointment }) =>
+      Appointment.restore(
+        Uuid.fromString(appointment.id),
+        appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
+        appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        appointment.telemedicineLink,
+        Uuid.fromString(appointment.slotId),
+        Uuid.fromString(appointment.patientId),
+      ),
+    );
   }
 }
 

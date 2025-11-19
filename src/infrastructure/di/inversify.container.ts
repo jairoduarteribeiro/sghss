@@ -25,6 +25,7 @@ import type { IReadUserRepository, IWriteUserRepository } from "../../applicatio
 import type { IAuthTokenService } from "../../application/ports/services/auth-token-service";
 import type { IConferenceLinkGenerator } from "../../application/ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../../application/ports/unit-of-work";
+import { ListDoctorAppointmentsUseCase } from "../../application/use-cases/list-doctor-appointments.use-case";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterAppointmentUseCase } from "../../application/use-cases/register-appointment.use-case";
 import { RegisterAvailabilityUseCase } from "../../application/use-cases/register-availability.use-case";
@@ -142,6 +143,10 @@ container
 container
   .bind<RegisterConsultationUseCase>(SYMBOLS.RegisterConsultationUseCase)
   .to(RegisterConsultationUseCase)
+  .inTransientScope();
+container
+  .bind<ListDoctorAppointmentsUseCase>(SYMBOLS.ListDoctorAppointmentsUseCase)
+  .to(ListDoctorAppointmentsUseCase)
   .inTransientScope();
 
 // Controller bindings
