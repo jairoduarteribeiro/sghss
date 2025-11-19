@@ -5,6 +5,7 @@ import type { ILogger } from "../../application/ports/logger";
 @injectable()
 export class PinoLogger implements ILogger {
   private readonly logger = pino({
+    level: process.env.LOG_LEVEL ?? "info",
     transport: {
       target: "pino-pretty",
       options: {
