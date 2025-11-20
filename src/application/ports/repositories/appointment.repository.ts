@@ -4,6 +4,7 @@ import type { Uuid } from "../../../domain/value-objects/uuid";
 export interface IReadAppointmentRepository {
   findById(appointmentId: Uuid): Promise<Appointment | null>;
   findByDoctorId(doctorId: Uuid): Promise<Appointment[]>;
+  findByPatientId(patientId: Uuid): Promise<Appointment[]>;
 }
 
 export interface IWriteAppointmentRepository {

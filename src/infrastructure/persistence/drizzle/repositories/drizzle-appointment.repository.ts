@@ -17,14 +17,14 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
   async findById(appointmentId: Uuid): Promise<Appointment | null> {
     const [row] = await this.db.select().from(appointments).where(eq(appointments.id, appointmentId.value));
     return row
-      ? Appointment.restore(
-          Uuid.fromString(row.id),
-          row.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-          row.modality as "IN_PERSON" | "TELEMEDICINE",
-          row.telemedicineLink,
-          Uuid.fromString(row.slotId),
-          Uuid.fromString(row.patientId),
-        )
+      ? Appointment.restore({
+          id: Uuid.fromString(row.id),
+          status: row.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
+          modality: row.modality as "IN_PERSON" | "TELEMEDICINE",
+          telemedicineLink: row.telemedicineLink,
+          slotId: Uuid.fromString(row.slotId),
+          patientId: Uuid.fromString(row.patientId),
+        })
       : null;
   }
 
@@ -38,14 +38,28 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
       .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
       .where(eq(availabilities.doctorId, doctorId.value));
     return rows.map(({ appointment }) =>
-      Appointment.restore(
-        Uuid.fromString(appointment.id),
-        appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-        appointment.modality as "IN_PERSON" | "TELEMEDICINE",
-        appointment.telemedicineLink,
-        Uuid.fromString(appointment.slotId),
-        Uuid.fromString(appointment.patientId),
-      ),
+      Appointment.restore({
+        id: Uuid.fromString(appointment.id),
+        status: appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
+        modality: appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        telemedicineLink: appointment.telemedicineLink,
+        slotId: Uuid.fromString(appointment.slotId),
+        patientId: Uuid.fromString(appointment.patientId),
+      }),
+    );
+  }
+
+  async findByPatientId(patientId: Uuid): Promise<Appointment[]> {
+    const rows = await this.db.select().from(appointments).where(eq(appointments.patientId, patientId.value));
+    return rows.map((row) =>
+      Appointment.restore({
+        id: Uuid.fromString(row.id),
+        status: row.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
+        modality: row.modality as "IN_PERSON" | "TELEMEDICINE",
+        telemedicineLink: row.telemedicineLink,
+        slotId: Uuid.fromString(row.slotId),
+        patientId: Uuid.fromString(row.patientId),
+      }),
     );
   }
 }
