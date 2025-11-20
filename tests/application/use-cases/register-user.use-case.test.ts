@@ -11,22 +11,19 @@ import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 
-const UUID7_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 describe("Register User - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterUserUseCase;
 
-  const existingUser = User.from(
-    Email.from("john.doe@example.com"),
-    await Password.from("Password123!"),
-    "PATIENT",
-  );
+  const existingUser = User.from({
+    email: Email.from("john.doe@example.com"),
+    password: await Password.from("Password123!"),
+    role: "PATIENT",
+  });
   const mockReadUserRepository: IReadUserRepository = {
-    findByEmail: mock(async (email: Email) =>
-      email.value === existingUser.email ? existingUser : null,
-    ),
+    findByEmail: mock(async (email: Email) => (email.value === existingUser.email ? existingUser : null)),
   };
   const mockWriteUserRepository: IWriteUserRepository = {
     save: mock(async (_user: User) => {}),
@@ -37,15 +34,9 @@ describe("Register User - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.unbind(SYMBOLS.IReadUserRepository);
     testContainer.unbind(SYMBOLS.IWriteUserRepository);
-    testContainer
-      .bind<IReadUserRepository>(SYMBOLS.IReadUserRepository)
-      .toConstantValue(mockReadUserRepository);
-    testContainer
-      .bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository)
-      .toConstantValue(mockWriteUserRepository);
-    useCase = testContainer.get<RegisterUserUseCase>(
-      SYMBOLS.RegisterUserUseCase,
-    );
+    testContainer.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
+    testContainer.bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository).toConstantValue(mockWriteUserRepository);
+    useCase = testContainer.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
   });
 
   afterEach(() => {

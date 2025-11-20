@@ -29,9 +29,21 @@ describe("Availability - Controller", async () => {
   let doctorToken: string;
   let otherDoctorToken: string;
 
-  const adminUser = User.from(Email.from("admin@example.com"), await Password.from("Password123!"), "ADMIN");
-  const doctorUser = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"), "DOCTOR");
-  const otherDoctorUser = User.from(Email.from("jane.doe@example.com"), await Password.from("Password123!"), "DOCTOR");
+  const adminUser = User.from({
+    email: Email.from("admin@example.com"),
+    password: await Password.from("Password123!"),
+    role: "ADMIN",
+  });
+  const doctorUser = User.from({
+    email: Email.from("john.doe@example.com"),
+    password: await Password.from("Password123!"),
+    role: "DOCTOR",
+  });
+  const otherDoctorUser = User.from({
+    email: Email.from("jane.doe@example.com"),
+    password: await Password.from("Password123!"),
+    role: "DOCTOR",
+  });
   const doctor = Doctor.from(
     Name.from("John Doe"),
     Crm.from("123456-SP"),

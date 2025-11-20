@@ -7,7 +7,10 @@ const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{
 
 describe("User - Entity", () => {
   test("Should create a User successfully", async () => {
-    const user = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"));
+    const user = User.from({
+      email: Email.from("john.doe@example.com"),
+      password: await Password.from("Password123!"),
+    });
     expect(user.id).toMatch(UUID7_REGEX);
     expect(user.email).toBe("john.doe@example.com");
     expect(user.passwordHash).not.toBe("Password123!");

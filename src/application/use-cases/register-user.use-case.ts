@@ -1,13 +1,10 @@
 import { inject, injectable } from "inversify";
-import { User } from "../../domain/entities/user";
+import { User, type UserRole } from "../../domain/entities/user";
 import { Email } from "../../domain/value-objects/email";
 import { Password } from "../../domain/value-objects/password";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { ConflictError } from "../errors/conflict.error";
-import type {
-  IReadUserRepository,
-  IWriteUserRepository,
-} from "../ports/repositories/user.repository";
+import type { IReadUserRepository, IWriteUserRepository } from "../ports/repositories/user.repository";
 
 type RegisterUserInput = {
   email: string;
@@ -27,7 +24,7 @@ export class RegisterUserUseCase {
     @inject(SYMBOLS.IReadUserRepository)
     private readonly readUserRepository: IReadUserRepository,
     @inject(SYMBOLS.IWriteUserRepository)
-    private readonly writeUserRepository: IWriteUserRepository
+    private readonly writeUserRepository: IWriteUserRepository,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
@@ -35,11 +32,11 @@ export class RegisterUserUseCase {
     if (await this.emailExists(email)) {
       throw new ConflictError("Email already in use");
     }
-    const user = User.from(
+    const user = User.from({
       email,
-      await Password.from(input.password),
-      input.role
-    );
+      password: await Password.from(input.password),
+      role: input.role as UserRole,
+    });
     await this.writeUserRepository.save(user);
     return {
       userId: user.id,

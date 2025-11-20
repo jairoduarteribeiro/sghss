@@ -14,7 +14,10 @@ describe("Login - Use Case", async () => {
   let testContainer: Container;
   let useCase: LoginUseCase;
 
-  const existingUser = User.from(Email.from("john.doe@example.com"), await Password.from("Password123!"));
+  const existingUser = User.from({
+    email: Email.from("john.doe@example.com"),
+    password: await Password.from("Password123!"),
+  });
   const mockReadUserRepository: IReadUserRepository = {
     findByEmail: mock(async (email: Email) => {
       return email.value === existingUser.email ? existingUser : null;

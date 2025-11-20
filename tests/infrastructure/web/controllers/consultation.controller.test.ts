@@ -34,7 +34,11 @@ describe("Consultation - Controller", () => {
     writeAvailabilityRepository = container.get(SYMBOLS.IWriteAvailabilityRepository);
 
     // Create an admin user and obtain token
-    const adminUser = User.from(Email.from("admin@example.com"), await Password.from("Password123!"), "ADMIN");
+    const adminUser = User.from({
+      email: Email.from("admin@example.com"),
+      password: await Password.from("Password123!"),
+      role: "ADMIN",
+    });
     await writeUserRepository.save(adminUser);
 
     app = createApp(container);

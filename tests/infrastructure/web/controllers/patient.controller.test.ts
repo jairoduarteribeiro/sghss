@@ -35,12 +35,16 @@ describe("Patient - Controller", () => {
   });
 
   beforeEach(async () => {
-    const adminUser = User.from(Email.from("admin@example.com"), await Password.from("AdminPass123!"), "ADMIN");
-    const nonAdminUser = User.from(
-      Email.from("nonadmin@example.com"),
-      await Password.from("NonAdminPass123!"),
-      "PATIENT",
-    );
+    const adminUser = User.from({
+      email: Email.from("admin@example.com"),
+      password: await Password.from("AdminPass123!"),
+      role: "ADMIN",
+    });
+    const nonAdminUser = User.from({
+      email: Email.from("nonadmin@example.com"),
+      password: await Password.from("NonAdminPass123!"),
+      role: "PATIENT",
+    });
     await writeUserRepository.save(adminUser);
     await writeUserRepository.save(nonAdminUser);
     const responseAdmin = await request.post("/auth/login").send({
