@@ -21,12 +21,12 @@ describe("Register Appointment - Use Case", () => {
   let testContainer: Container;
   let useCase: RegisterAppointmentUseCase;
 
-  const doctor = Doctor.from(
-    Name.from("John Doe"),
-    Crm.from("123456-SP"),
-    MedicalSpecialty.from("Cardiology"),
-    Uuid.generate(),
-  );
+  const doctor = Doctor.from({
+    name: Name.from("John Doe"),
+    crm: Crm.from("123456-SP"),
+    specialty: MedicalSpecialty.from("Cardiology"),
+    userId: Uuid.generate(),
+  });
   const availability = Availability.from(
     new Date("2024-07-10T09:00:00.000Z"),
     new Date("2024-07-10T11:00:00.000Z"),

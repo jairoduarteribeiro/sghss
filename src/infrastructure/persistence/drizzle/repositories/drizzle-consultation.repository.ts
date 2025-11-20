@@ -70,13 +70,13 @@ export class DrizzleReadConsultationRepository implements IReadConsultationRepos
         Uuid.fromString(row.appointment.slotId),
         Uuid.fromString(row.appointment.patientId),
       ),
-      doctor: Doctor.restore(
-        Uuid.fromString(row.doctor.id),
-        Name.from(row.doctor.name),
-        Crm.from(row.doctor.crm),
-        MedicalSpecialty.from(row.doctor.specialty),
-        Uuid.fromString(row.doctor.userId),
-      ),
+      doctor: Doctor.restore({
+        id: Uuid.fromString(row.doctor.id),
+        name: Name.from(row.doctor.name),
+        crm: Crm.from(row.doctor.crm),
+        specialty: MedicalSpecialty.from(row.doctor.specialty),
+        userId: Uuid.fromString(row.doctor.userId),
+      }),
       slot: Slot.restore(
         Uuid.fromString(row.slot.id),
         new Date(row.slot.startDateTime),

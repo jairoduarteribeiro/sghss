@@ -19,15 +19,16 @@ describe("Register Doctor - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterDoctorUseCase;
 
-  const existingDoctor = Doctor.from(
-    Name.from("David Smith"),
-    Crm.from("654321-RJ"),
-    MedicalSpecialty.from("Cardiology"),
-    Uuid.generate(),
-  );
+  const existingDoctor = Doctor.from({
+    name: Name.from("David Smith"),
+    crm: Crm.from("654321-RJ"),
+    specialty: MedicalSpecialty.from("Cardiology"),
+    userId: Uuid.generate(),
+  });
   const mockReadDoctorRepository: IReadDoctorRepository = {
     findById: mock(async (_id: Uuid) => null),
     findByCrm: mock(async (crm: Crm) => (crm.value === existingDoctor.crm ? existingDoctor : null)),
+    findAll: mock(async () => []),
   };
   const mockWriteDoctorRepository: IWriteDoctorRepository = {
     save: mock(async (_doctor: Doctor) => {}),

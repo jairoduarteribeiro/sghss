@@ -13,7 +13,7 @@ describe("Doctor - Entity", () => {
     const crm = Crm.from("123456-SP");
     const specialty = MedicalSpecialty.from("Cardiology");
     const userId = Uuid.generate();
-    const doctor = Doctor.from(name, crm, specialty, userId);
+    const doctor = Doctor.from({ name, crm, specialty, userId });
     expect(doctor.id).toMatch(UUID7_REGEX);
     expect(doctor.name).toBe(name.value);
     expect(doctor.crm).toBe(crm.value);
@@ -27,7 +27,7 @@ describe("Doctor - Entity", () => {
     const crm = Crm.from("123456-SP");
     const specialty = MedicalSpecialty.from("Cardiology");
     const userId = Uuid.generate();
-    const doctor = Doctor.restore(id, name, crm, specialty, userId);
+    const doctor = Doctor.restore({ id, name, crm, specialty, userId });
     expect(doctor.id).toBe(id.value);
     expect(doctor.name).toBe(name.value);
     expect(doctor.crm).toBe(crm.value);

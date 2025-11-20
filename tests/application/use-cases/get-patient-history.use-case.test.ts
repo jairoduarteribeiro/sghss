@@ -22,12 +22,12 @@ describe("Get Patient History - Use Case", () => {
   let useCase: GetPatientHistoryUseCase;
 
   const patientId = Uuid.generate();
-  const doctor = Doctor.from(
-    Name.from("Dr. House"),
-    Crm.from("123456-SP"),
-    MedicalSpecialty.from("Diagnostic Medicine"),
-    Uuid.generate(),
-  );
+  const doctor = Doctor.from({
+    name: Name.from("Dr. House"),
+    crm: Crm.from("123456-SP"),
+    specialty: MedicalSpecialty.from("Diagnostic Medicine"),
+    userId: Uuid.generate(),
+  });
   const slot = Slot.from(
     DateBuilder.now().plusDays(-1).withTime(9, 0).build(),
     DateBuilder.now().plusDays(-1).withTime(9, 30).build(),

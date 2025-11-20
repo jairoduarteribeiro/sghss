@@ -44,18 +44,18 @@ describe("Availability - Controller", async () => {
     password: await Password.from("Password123!"),
     role: "DOCTOR",
   });
-  const doctor = Doctor.from(
-    Name.from("John Doe"),
-    Crm.from("123456-SP"),
-    MedicalSpecialty.from("Cardiology"),
-    Uuid.fromString(doctorUser.id),
-  );
-  const otherDoctor = Doctor.from(
-    Name.from("Jane Doe"),
-    Crm.from("654321-SP"),
-    MedicalSpecialty.from("Neurology"),
-    Uuid.fromString(otherDoctorUser.id),
-  );
+  const doctor = Doctor.from({
+    name: Name.from("John Doe"),
+    crm: Crm.from("123456-SP"),
+    specialty: MedicalSpecialty.from("Cardiology"),
+    userId: Uuid.fromString(doctorUser.id),
+  });
+  const otherDoctor = Doctor.from({
+    name: Name.from("Jane Doe"),
+    crm: Crm.from("654321-SP"),
+    specialty: MedicalSpecialty.from("Neurology"),
+    userId: Uuid.fromString(otherDoctorUser.id),
+  });
 
   beforeAll(async () => {
     writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);

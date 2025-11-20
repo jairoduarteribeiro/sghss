@@ -17,24 +17,24 @@ describe("List Doctors - Use Case", () => {
   let testContainer: Container;
   let useCase: ListDoctorsUseCase;
 
-  const doctor1 = Doctor.from(
-    Name.from("Gregory House"),
-    Crm.from("111111-RJ"),
-    MedicalSpecialty.from("Diagnostic Medicine"),
-    Uuid.generate(),
-  );
-  const doctor2 = Doctor.from(
-    Name.from("James Wilson"),
-    Crm.from("222222-RJ"),
-    MedicalSpecialty.from("Oncology"),
-    Uuid.generate(),
-  );
-  const doctor3 = Doctor.from(
-    Name.from("Lisa Cuddy"),
-    Crm.from("333333-RJ"),
-    MedicalSpecialty.from("Endocrinology"),
-    Uuid.generate(),
-  );
+  const doctor1 = Doctor.from({
+    name: Name.from("Gregory House"),
+    crm: Crm.from("111111-RJ"),
+    specialty: MedicalSpecialty.from("Diagnostic Medicine"),
+    userId: Uuid.generate(),
+  });
+  const doctor2 = Doctor.from({
+    name: Name.from("James Wilson"),
+    crm: Crm.from("222222-RJ"),
+    specialty: MedicalSpecialty.from("Oncology"),
+    userId: Uuid.generate(),
+  });
+  const doctor3 = Doctor.from({
+    name: Name.from("Lisa Cuddy"),
+    crm: Crm.from("333333-RJ"),
+    specialty: MedicalSpecialty.from("Endocrinology"),
+    userId: Uuid.generate(),
+  });
   const allDoctors = [doctor1, doctor2, doctor3];
 
   const mockReadDoctorRepository: IReadDoctorRepository = {

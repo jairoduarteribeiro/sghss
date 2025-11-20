@@ -37,12 +37,12 @@ export class RegisterDoctorUseCase {
     if (await this.crmExists(crm)) {
       throw new ConflictError("Crm already in use");
     }
-    const doctor = Doctor.from(
-      Name.from(input.name),
+    const doctor = Doctor.from({
+      name: Name.from(input.name),
       crm,
-      MedicalSpecialty.from(input.specialty),
-      Uuid.fromString(input.userId),
-    );
+      specialty: MedicalSpecialty.from(input.specialty),
+      userId: Uuid.fromString(input.userId),
+    });
     await this.writeDoctorRepository.save(doctor);
     return {
       doctorId: doctor.id,

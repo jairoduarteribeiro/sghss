@@ -3,6 +3,21 @@ import type { MedicalSpecialty } from "../value-objects/medical-specialty";
 import type { Name } from "../value-objects/name";
 import { Uuid } from "../value-objects/uuid";
 
+type DoctorCreateProps = {
+  name: Name;
+  crm: Crm;
+  specialty: MedicalSpecialty;
+  userId: Uuid;
+};
+
+type DoctorRestoreProps = {
+  id: Uuid;
+  name: Name;
+  crm: Crm;
+  specialty: MedicalSpecialty;
+  userId: Uuid;
+};
+
 export class Doctor {
   private constructor(
     private readonly _id: Uuid,
@@ -12,12 +27,12 @@ export class Doctor {
     private readonly _userId: Uuid,
   ) {}
 
-  static from(name: Name, crm: Crm, specialty: MedicalSpecialty, userId: Uuid): Doctor {
-    return new Doctor(Uuid.generate(), name, crm, specialty, userId);
+  static from(props: DoctorCreateProps): Doctor {
+    return new Doctor(Uuid.generate(), props.name, props.crm, props.specialty, props.userId);
   }
 
-  static restore(id: Uuid, name: Name, crm: Crm, specialty: MedicalSpecialty, userId: Uuid): Doctor {
-    return new Doctor(id, name, crm, specialty, userId);
+  static restore(props: DoctorRestoreProps): Doctor {
+    return new Doctor(props.id, props.name, props.crm, props.specialty, props.userId);
   }
 
   get id(): string {

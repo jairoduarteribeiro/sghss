@@ -20,26 +20,26 @@ export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
   async findById(id: Uuid): Promise<Doctor | null> {
     const [row] = await this.db.select().from(doctors).where(eq(doctors.id, id.value));
     return row
-      ? Doctor.restore(
-          Uuid.fromString(row.id),
-          Name.from(row.name),
-          Crm.from(row.crm),
-          MedicalSpecialty.from(row.specialty),
-          Uuid.fromString(row.userId),
-        )
+      ? Doctor.restore({
+          id: Uuid.fromString(row.id),
+          name: Name.from(row.name),
+          crm: Crm.from(row.crm),
+          specialty: MedicalSpecialty.from(row.specialty),
+          userId: Uuid.fromString(row.userId),
+        })
       : null;
   }
 
   async findByCrm(crm: Crm): Promise<Doctor | null> {
     const [row] = await this.db.select().from(doctors).where(eq(doctors.crm, crm.value));
     return row
-      ? Doctor.restore(
-          Uuid.fromString(row.id),
-          Name.from(row.name),
-          Crm.from(row.crm),
-          MedicalSpecialty.from(row.specialty),
-          Uuid.fromString(row.userId),
-        )
+      ? Doctor.restore({
+          id: Uuid.fromString(row.id),
+          name: Name.from(row.name),
+          crm: Crm.from(row.crm),
+          specialty: MedicalSpecialty.from(row.specialty),
+          userId: Uuid.fromString(row.userId),
+        })
       : null;
   }
 
@@ -52,13 +52,13 @@ export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
       .from(doctors)
       .where(and(...conditions));
     return rows.map((row) =>
-      Doctor.restore(
-        Uuid.fromString(row.id),
-        Name.from(row.name),
-        Crm.from(row.crm),
-        MedicalSpecialty.from(row.specialty),
-        Uuid.fromString(row.userId),
-      ),
+      Doctor.restore({
+        id: Uuid.fromString(row.id),
+        name: Name.from(row.name),
+        crm: Crm.from(row.crm),
+        specialty: MedicalSpecialty.from(row.specialty),
+        userId: Uuid.fromString(row.userId),
+      }),
     );
   }
 }
