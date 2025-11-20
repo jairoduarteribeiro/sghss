@@ -1,14 +1,21 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
+  ConsultationHistoryItem,
   IReadConsultationRepository,
   IWriteConsultationRepository,
 } from "../../../../application/ports/repositories/consultation.repository";
+import { Appointment } from "../../../../domain/entities/appointment";
 import { Consultation } from "../../../../domain/entities/consultation";
+import { Doctor } from "../../../../domain/entities/doctor";
+import { Slot } from "../../../../domain/entities/slot";
+import { Crm } from "../../../../domain/value-objects/crm";
+import { MedicalSpecialty } from "../../../../domain/value-objects/medical-specialty";
+import { Name } from "../../../../domain/value-objects/name";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { consultations } from "../schema";
+import { appointments, availabilities, consultations, doctors, slots } from "../schema";
 
 @injectable()
 export class DrizzleReadConsultationRepository implements IReadConsultationRepository {
@@ -29,6 +36,55 @@ export class DrizzleReadConsultationRepository implements IReadConsultationRepos
       prescription: row.prescription,
       referral: row.referral,
     });
+  }
+
+  async findAllByPatientId(patientId: Uuid): Promise<ConsultationHistoryItem[]> {
+    const rows = await this.db
+      .select({
+        consultation: consultations,
+        appointment: appointments,
+        slot: slots,
+        doctor: doctors,
+      })
+      .from(consultations)
+      .innerJoin(appointments, eq(consultations.appointmentId, appointments.id))
+      .innerJoin(slots, eq(appointments.slotId, slots.id))
+      .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
+      .innerJoin(doctors, eq(availabilities.doctorId, doctors.id))
+      .where(eq(appointments.patientId, patientId.value))
+      .orderBy(desc(consultations.createdAt));
+    return rows.map((row) => ({
+      consultation: Consultation.restore({
+        id: Uuid.fromString(row.consultation.id),
+        appointmentId: Uuid.fromString(row.consultation.appointmentId),
+        notes: row.consultation.notes,
+        diagnosis: row.consultation.diagnosis,
+        prescription: row.consultation.prescription,
+        referral: row.consultation.referral,
+      }),
+      appointment: Appointment.restore(
+        Uuid.fromString(row.appointment.id),
+        row.appointment.status,
+        row.appointment.modality,
+        row.appointment.telemedicineLink,
+        Uuid.fromString(row.appointment.slotId),
+        Uuid.fromString(row.appointment.patientId),
+      ),
+      doctor: Doctor.restore(
+        Uuid.fromString(row.doctor.id),
+        Name.from(row.doctor.name),
+        Crm.from(row.doctor.crm),
+        MedicalSpecialty.from(row.doctor.specialty),
+        Uuid.fromString(row.doctor.userId),
+      ),
+      slot: Slot.restore(
+        Uuid.fromString(row.slot.id),
+        new Date(row.slot.startDateTime),
+        new Date(row.slot.endDateTime),
+        row.slot.status,
+        Uuid.fromString(row.slot.availabilityId),
+      ),
+    }));
   }
 }
 

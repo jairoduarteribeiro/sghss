@@ -26,6 +26,7 @@ import type { IAuthTokenService } from "../../application/ports/services/auth-to
 import type { IConferenceLinkGenerator } from "../../application/ports/services/conference-link-generator";
 import type { IUnitOfWork } from "../../application/ports/unit-of-work";
 import { CancelAppointmentUseCase } from "../../application/use-cases/cancel-appointment.use-case";
+import { GetPatientHistoryUseCase } from "../../application/use-cases/get-patient-history.use-case";
 import { ListAvailableSlotsUseCase } from "../../application/use-cases/list-available-slots.use-case";
 import { ListDoctorAppointmentsUseCase } from "../../application/use-cases/list-doctor-appointments.use-case";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
@@ -157,6 +158,10 @@ container
 container
   .bind<ListAvailableSlotsUseCase>(SYMBOLS.ListAvailableSlotsUseCase)
   .to(ListAvailableSlotsUseCase)
+  .inTransientScope();
+container
+  .bind<GetPatientHistoryUseCase>(SYMBOLS.GetPatientHistoryUseCase)
+  .to(GetPatientHistoryUseCase)
   .inTransientScope();
 
 // Controller bindings

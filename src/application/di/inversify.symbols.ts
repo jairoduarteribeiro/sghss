@@ -29,6 +29,7 @@ export const SYMBOLS = {
   ListDoctorAppointmentsUseCase: Symbol.for("ListDoctorAppointmentsUseCase"),
   CancelAppointmentUseCase: Symbol.for("CancelAppointmentUseCase"),
   ListAvailableSlotsUseCase: Symbol.for("ListAvailableSlotsUseCase"),
+  GetPatientHistoryUseCase: Symbol.for("GetPatientHistoryUseCase"),
   // Controller
   AuthController: Symbol.for("AuthController"),
   DoctorController: Symbol.for("DoctorController"),
