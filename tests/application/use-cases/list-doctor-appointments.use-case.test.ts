@@ -7,8 +7,6 @@ import { Appointment } from "../../../src/domain/entities/appointment";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 
-const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-
 describe("List Doctor Appointments - Use Case", () => {
   let testContainer: Container;
   let useCase: ListDoctorAppointmentsUseCase;
@@ -18,18 +16,18 @@ describe("List Doctor Appointments - Use Case", () => {
   const patientId2 = Uuid.generate();
   const slotId1 = Uuid.generate();
   const slotId2 = Uuid.generate();
-  const appointments: Appointment[] = [
-    Appointment.from({ slotId: slotId1, patientId: patientId1, modality: "IN_PERSON" }),
-    Appointment.from({
-      slotId: slotId2,
-      patientId: patientId2,
-      modality: "TELEMEDICINE",
-      telemedicineLink: "https://meet.vidaplus.com/abc-123",
-    }),
-  ];
+  const appointment1 = Appointment.from({ slotId: slotId1, patientId: patientId1, modality: "IN_PERSON" });
+  const appointment2 = Appointment.from({
+    slotId: slotId2,
+    patientId: patientId2,
+    modality: "TELEMEDICINE",
+    telemedicineLink: "https://meet.vidaplus.com/abc-123",
+  });
+  const appointments: Appointment[] = [appointment1, appointment2];
 
   const mockReadAppointmentRepository: IReadAppointmentRepository = {
     findById: mock(async () => null),
+    findByPatientId: mock(async () => []),
     findByDoctorId: mock(async (id: Uuid) => {
       return id.value === doctorId.value ? appointments : [];
     }),
@@ -56,11 +54,17 @@ describe("List Doctor Appointments - Use Case", () => {
     expect(mockReadAppointmentRepository.findByDoctorId).toHaveBeenCalledTimes(1);
     expect(output).toBeDefined();
     expect(output.appointments).toHaveLength(2);
-    expect(output.appointments[0]?.appointmentId).toMatch(UUID7_REGEX);
-    expect(output.appointments[0]?.status).toBe("SCHEDULED");
-    expect(output.appointments[0]?.modality).toBe("IN_PERSON");
+    expect(output.doctorId).toBe(doctorId.value);
+    expect(output.appointments[0]?.appointmentId).toBe(appointment1.id);
     expect(output.appointments[0]?.slotId).toBe(slotId1.value);
     expect(output.appointments[0]?.patientId).toBe(patientId1.value);
+    expect(output.appointments[0]?.status).toBe("SCHEDULED");
+    expect(output.appointments[0]?.modality).toBe("IN_PERSON");
+    expect(output.appointments[0]?.telemedicineLink).toBeNull();
+    expect(output.appointments[1]?.appointmentId).toBe(appointment2.id);
+    expect(output.appointments[1]?.slotId).toBe(slotId2.value);
+    expect(output.appointments[1]?.patientId).toBe(patientId2.value);
+    expect(output.appointments[1]?.status).toBe("SCHEDULED");
     expect(output.appointments[1]?.modality).toBe("TELEMEDICINE");
     expect(output.appointments[1]?.telemedicineLink).toBe("https://meet.vidaplus.com/abc-123");
   });
