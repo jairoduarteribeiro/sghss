@@ -7,6 +7,7 @@ import type {
 } from "../../../src/application/ports/repositories/doctor.repository";
 import type { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor.use-case";
 import { Doctor } from "../../../src/domain/entities/doctor";
+import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Crm } from "../../../src/domain/value-objects/crm";
 import { MedicalSpecialty } from "../../../src/domain/value-objects/medical-specialty";
 import { Name } from "../../../src/domain/value-objects/name";
@@ -19,26 +20,27 @@ describe("Register Doctor - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterDoctorUseCase;
 
+  // Create an existing doctor for testing duplicate CRM
   const existingDoctor = Doctor.from({
     name: Name.from("David Smith"),
     crm: Crm.from("654321-RJ"),
     specialty: MedicalSpecialty.from("Cardiology"),
     userId: Uuid.generate(),
   });
+
+  // Mock Repositories
   const mockReadDoctorRepository: IReadDoctorRepository = {
-    findById: mock(async (_id: Uuid) => null),
+    findById: mock(async () => null),
     findByCrm: mock(async (crm: Crm) => (crm.value === existingDoctor.crm ? existingDoctor : null)),
     findAll: mock(async () => []),
   };
   const mockWriteDoctorRepository: IWriteDoctorRepository = {
-    save: mock(async (_doctor: Doctor) => {}),
+    save: mock(async () => {}),
     clear: mock(async () => {}),
   };
 
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadDoctorRepository);
-    testContainer.unbind(SYMBOLS.IWriteDoctorRepository);
     testContainer.bind<IReadDoctorRepository>(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
     testContainer
       .bind<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository)
@@ -51,16 +53,14 @@ describe("Register Doctor - Use Case", async () => {
   });
 
   test("Should register a Doctor successfully", async () => {
-    const userId = Uuid.generate();
     const input = {
       name: "John Doe",
       crm: "123456-SP",
       specialty: "Cardiology",
-      userId: userId.value,
+      userId: Uuid.generate().value,
     };
     const output = await useCase.execute(input);
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(1);
-    expect(output).toBeDefined();
     expect(output.doctorId).toMatch(UUID7_REGEX);
     expect(output.name).toBe(input.name);
     expect(output.crm).toBe(input.crm);
@@ -85,7 +85,7 @@ describe("Register Doctor - Use Case", async () => {
       specialty: "Cardiology",
       userId: Uuid.generate().value,
     };
-    expect(useCase.execute(input)).rejects.toThrowError("CRM with invalid format");
+    expect(useCase.execute(input)).rejects.toThrowError(DomainValidationError);
     expect(mockWriteDoctorRepository.save).toHaveBeenCalledTimes(0);
   });
 });
