@@ -11,7 +11,7 @@ describe("Patient - Entity", () => {
     const name = Name.from("John Doe");
     const cpf = Cpf.from("70000000400");
     const userId = Uuid.generate();
-    const patient = Patient.from(name, cpf, userId);
+    const patient = Patient.from({ name, cpf, userId });
     expect(patient.id).toMatch(UUID7_REGEX);
     expect(patient.name).toBe(name.value);
     expect(patient.cpf).toBe(cpf.value);
@@ -23,7 +23,7 @@ describe("Patient - Entity", () => {
     const name = Name.from("John Doe");
     const cpf = Cpf.from("70000000400");
     const userId = Uuid.generate();
-    const patient = Patient.restore(id, name, cpf, userId);
+    const patient = Patient.restore({ id, name, cpf, userId });
     expect(patient.id).toBe(id.value);
     expect(patient.name).toBe(name.value);
     expect(patient.cpf).toBe(cpf.value);

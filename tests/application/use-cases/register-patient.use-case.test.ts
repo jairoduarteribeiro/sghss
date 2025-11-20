@@ -16,7 +16,11 @@ describe("Register Patient - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterPatientUseCase;
 
-  const existingPatient = Patient.from(Name.from("John Doe"), Cpf.from("70000000400"), Uuid.generate());
+  const existingPatient = Patient.from({
+    name: Name.from("John Doe"),
+    cpf: Cpf.from("70000000400"),
+    userId: Uuid.generate(),
+  });
   const mockReadPatientRepository: IReadPatientRepository = {
     findById: mock(async (_id: Uuid) => null),
     findByCpf: mock(async (cpf: Cpf) => (cpf.value === existingPatient.cpf ? existingPatient : null)),

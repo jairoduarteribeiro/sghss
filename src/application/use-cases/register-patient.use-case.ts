@@ -34,7 +34,11 @@ export class RegisterPatientUseCase {
     if (await this.cpfExists(cpf)) {
       throw new ConflictError("CPF already in use");
     }
-    const patient = Patient.from(Name.from(input.name), Cpf.from(input.cpf), Uuid.fromString(input.userId));
+    const patient = Patient.from({
+      name: Name.from(input.name),
+      cpf: Cpf.from(input.cpf),
+      userId: Uuid.fromString(input.userId),
+    });
     await this.writePatientRepository.save(patient);
     return {
       patientId: patient.id,
