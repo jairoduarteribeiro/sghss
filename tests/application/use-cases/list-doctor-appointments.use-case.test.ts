@@ -19,8 +19,13 @@ describe("List Doctor Appointments - Use Case", () => {
   const slotId1 = Uuid.generate();
   const slotId2 = Uuid.generate();
   const appointments: Appointment[] = [
-    Appointment.inPerson(slotId1, patientId1),
-    Appointment.telemedicine(slotId2, patientId2, "https://meet.vidaplus.com/abc-123"),
+    Appointment.from({ slotId: slotId1, patientId: patientId1, modality: "IN_PERSON" }),
+    Appointment.from({
+      slotId: slotId2,
+      patientId: patientId2,
+      modality: "TELEMEDICINE",
+      telemedicineLink: "https://meet.vidaplus.com/abc-123",
+    }),
   ];
 
   const mockReadAppointmentRepository: IReadAppointmentRepository = {

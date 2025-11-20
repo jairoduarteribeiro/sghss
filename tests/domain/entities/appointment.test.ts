@@ -8,7 +8,7 @@ describe("Appointment - Entity", () => {
   test("Should create an in person Appointment successfully", () => {
     const slotId = Uuid.generate();
     const patientId = Uuid.generate();
-    const appointment = Appointment.inPerson(slotId, patientId);
+    const appointment = Appointment.from({ slotId, patientId, modality: "IN_PERSON" });
     expect(appointment.id).toMatch(UUID7_REGEX);
     expect(appointment.status).toBe("SCHEDULED");
     expect(appointment.modality).toBe("IN_PERSON");
@@ -21,7 +21,7 @@ describe("Appointment - Entity", () => {
     const slotId = Uuid.generate();
     const patientId = Uuid.generate();
     const telemedicineLink = "https://vidaplus.com/meet/abc123";
-    const appointment = Appointment.telemedicine(slotId, patientId, telemedicineLink);
+    const appointment = Appointment.from({ slotId, patientId, modality: "TELEMEDICINE", telemedicineLink });
     expect(appointment.id).toMatch(UUID7_REGEX);
     expect(appointment.status).toBe("SCHEDULED");
     expect(appointment.modality).toBe("TELEMEDICINE");
@@ -37,7 +37,7 @@ describe("Appointment - Entity", () => {
     const telemedicineLink = "https://vidaplus.com/meet/xyz789";
     const slotId = Uuid.generate();
     const patientId = Uuid.generate();
-    const appointment = Appointment.restore(id, status, modality, telemedicineLink, slotId, patientId);
+    const appointment = Appointment.restore({ id, status, modality, telemedicineLink, slotId, patientId });
     expect(appointment.id).toBe(id.value);
     expect(appointment.status).toBe(status);
     expect(appointment.modality).toBe(modality);

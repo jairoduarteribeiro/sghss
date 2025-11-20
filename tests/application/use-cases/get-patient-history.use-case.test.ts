@@ -34,14 +34,14 @@ describe("Get Patient History - Use Case", () => {
     availabilityId: Uuid.generate(),
     status: "BOOKED",
   });
-  const appointment = Appointment.restore(
-    Uuid.generate(),
-    "COMPLETED",
-    "IN_PERSON",
-    null,
-    Uuid.fromString(slot.id),
+  const appointment = Appointment.restore({
+    id: Uuid.generate(),
+    status: "COMPLETED",
+    modality: "IN_PERSON",
+    telemedicineLink: null,
+    slotId: Uuid.fromString(slot.id),
     patientId,
-  );
+  });
   const consultation = Consultation.from({
     appointmentId: Uuid.fromString(appointment.id),
     diagnosis: "Lupus",

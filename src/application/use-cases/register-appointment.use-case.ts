@@ -49,8 +49,13 @@ export class RegisterAppointmentUseCase {
     const patientId = Uuid.fromString(input.patientId);
     const appointment =
       input.modality === "IN_PERSON"
-        ? Appointment.inPerson(slotId, patientId)
-        : Appointment.telemedicine(slotId, patientId, this.conferenceLinkGenerator.generate());
+        ? Appointment.from({ slotId, patientId, modality: "IN_PERSON" })
+        : Appointment.from({
+            slotId,
+            patientId,
+            modality: "TELEMEDICINE",
+            telemedicineLink: await this.conferenceLinkGenerator.generate(),
+          });
     await this.writeAppointmentRepository.save(appointment);
     return {
       appointmentId: appointment.id,

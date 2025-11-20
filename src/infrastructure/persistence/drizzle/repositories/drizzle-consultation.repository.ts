@@ -62,14 +62,14 @@ export class DrizzleReadConsultationRepository implements IReadConsultationRepos
         prescription: row.consultation.prescription,
         referral: row.consultation.referral,
       }),
-      appointment: Appointment.restore(
-        Uuid.fromString(row.appointment.id),
-        row.appointment.status,
-        row.appointment.modality,
-        row.appointment.telemedicineLink,
-        Uuid.fromString(row.appointment.slotId),
-        Uuid.fromString(row.appointment.patientId),
-      ),
+      appointment: Appointment.restore({
+        id: Uuid.fromString(row.appointment.id),
+        status: row.appointment.status,
+        modality: row.appointment.modality,
+        telemedicineLink: row.appointment.telemedicineLink,
+        slotId: Uuid.fromString(row.appointment.slotId),
+        patientId: Uuid.fromString(row.appointment.patientId),
+      }),
       doctor: Doctor.restore({
         id: Uuid.fromString(row.doctor.id),
         name: Name.from(row.doctor.name),

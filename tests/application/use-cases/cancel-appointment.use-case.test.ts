@@ -70,7 +70,7 @@ describe("Cancel Appointment - Use Case", () => {
   });
 
   beforeEach(() => {
-    appointment = Appointment.inPerson(Uuid.fromString(slot.id), patientId);
+    appointment = Appointment.from({ slotId: Uuid.fromString(slot.id), patientId, modality: "IN_PERSON" });
   });
 
   afterEach(() => {

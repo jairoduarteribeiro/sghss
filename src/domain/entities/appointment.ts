@@ -4,6 +4,19 @@ type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
 type AppointmentModality = "IN_PERSON" | "TELEMEDICINE";
 type TelemedicineLink = string | null;
 
+type AppointmentRestoreProps = {
+  id: Uuid;
+  status: AppointmentStatus;
+  modality: AppointmentModality;
+  telemedicineLink: TelemedicineLink;
+  slotId: Uuid;
+  patientId: Uuid;
+};
+
+export type AppointmentCreateProps =
+  | { slotId: Uuid; patientId: Uuid; modality: "IN_PERSON" }
+  | { slotId: Uuid; patientId: Uuid; modality: "TELEMEDICINE"; telemedicineLink: TelemedicineLink };
+
 export class Appointment {
   private constructor(
     private readonly _id: Uuid,
@@ -14,23 +27,26 @@ export class Appointment {
     private readonly _patientId: Uuid,
   ) {}
 
-  static inPerson(slotId: Uuid, patientId: Uuid): Appointment {
-    return new Appointment(Uuid.generate(), "SCHEDULED", "IN_PERSON", null, slotId, patientId);
+  static from(props: AppointmentCreateProps): Appointment {
+    return new Appointment(
+      Uuid.generate(),
+      "SCHEDULED",
+      props.modality,
+      props.modality === "TELEMEDICINE" ? props.telemedicineLink : null,
+      props.slotId,
+      props.patientId,
+    );
   }
 
-  static telemedicine(slotId: Uuid, patientId: Uuid, telemedicineLink: TelemedicineLink): Appointment {
-    return new Appointment(Uuid.generate(), "SCHEDULED", "TELEMEDICINE", telemedicineLink, slotId, patientId);
-  }
-
-  static restore(
-    id: Uuid,
-    status: AppointmentStatus,
-    modality: AppointmentModality,
-    telemedicineLink: TelemedicineLink,
-    slotId: Uuid,
-    patientId: Uuid,
-  ): Appointment {
-    return new Appointment(id, status, modality, telemedicineLink, slotId, patientId);
+  static restore(props: AppointmentRestoreProps): Appointment {
+    return new Appointment(
+      props.id,
+      props.status,
+      props.modality,
+      props.telemedicineLink,
+      props.slotId,
+      props.patientId,
+    );
   }
 
   get id(): string {
