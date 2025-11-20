@@ -33,17 +33,17 @@ describe("Register Appointment - Use Case", () => {
     doctorId: Uuid.fromString(doctor.id),
   });
   const patientId = Uuid.generate();
-  const freeSlot = Slot.from(
-    new Date("2024-07-10T10:00:00.000Z"),
-    new Date("2024-07-10T10:30:00.000Z"),
-    Uuid.fromString(availability.id),
-  );
-  const bookedSlot = Slot.from(
-    new Date("2024-07-10T10:30:00.000Z"),
-    new Date("2024-07-10T11:00:00.000Z"),
-    Uuid.fromString(availability.id),
-    "BOOKED",
-  );
+  const freeSlot = Slot.from({
+    startDateTime: new Date("2024-07-10T10:00:00.000Z"),
+    endDateTime: new Date("2024-07-10T10:30:00.000Z"),
+    availabilityId: Uuid.fromString(availability.id),
+  });
+  const bookedSlot = Slot.from({
+    startDateTime: new Date("2024-07-10T10:30:00.000Z"),
+    endDateTime: new Date("2024-07-10T11:00:00.000Z"),
+    availabilityId: Uuid.fromString(availability.id),
+    status: "BOOKED",
+  });
   availability.addSlot(freeSlot);
   availability.addSlot(bookedSlot);
 

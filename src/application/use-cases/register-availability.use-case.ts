@@ -76,7 +76,11 @@ export class RegisterAvailabilityUseCase {
     for (let time = start; time < end; time += slotDurationInMs) {
       const slotStart = new Date(time);
       const slotEnd = new Date(time + slotDurationInMs);
-      const slot = Slot.from(slotStart, slotEnd, Uuid.fromString(availability.id));
+      const slot = Slot.from({
+        startDateTime: slotStart,
+        endDateTime: slotEnd,
+        availabilityId: Uuid.fromString(availability.id),
+      });
       availability.addSlot(slot);
     }
   }

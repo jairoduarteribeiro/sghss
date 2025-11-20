@@ -28,12 +28,12 @@ describe("Get Patient History - Use Case", () => {
     specialty: MedicalSpecialty.from("Diagnostic Medicine"),
     userId: Uuid.generate(),
   });
-  const slot = Slot.from(
-    DateBuilder.now().plusDays(-1).withTime(9, 0).build(),
-    DateBuilder.now().plusDays(-1).withTime(9, 30).build(),
-    Uuid.generate(),
-    "BOOKED",
-  );
+  const slot = Slot.from({
+    startDateTime: DateBuilder.now().plusDays(-1).withTime(9, 0).build(),
+    endDateTime: DateBuilder.now().plusDays(-1).withTime(9, 30).build(),
+    availabilityId: Uuid.generate(),
+    status: "BOOKED",
+  });
   const appointment = Appointment.restore(
     Uuid.generate(),
     "COMPLETED",

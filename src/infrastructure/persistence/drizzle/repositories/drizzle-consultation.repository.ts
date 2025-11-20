@@ -77,13 +77,13 @@ export class DrizzleReadConsultationRepository implements IReadConsultationRepos
         specialty: MedicalSpecialty.from(row.doctor.specialty),
         userId: Uuid.fromString(row.doctor.userId),
       }),
-      slot: Slot.restore(
-        Uuid.fromString(row.slot.id),
-        new Date(row.slot.startDateTime),
-        new Date(row.slot.endDateTime),
-        row.slot.status,
-        Uuid.fromString(row.slot.availabilityId),
-      ),
+      slot: Slot.restore({
+        id: Uuid.fromString(row.slot.id),
+        startDateTime: new Date(row.slot.startDateTime),
+        endDateTime: new Date(row.slot.endDateTime),
+        status: row.slot.status,
+        availabilityId: Uuid.fromString(row.slot.availabilityId),
+      }),
     }));
   }
 }

@@ -31,13 +31,13 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
       });
       for (const slot of row.slots) {
         availability.addSlot(
-          Slot.restore(
-            Uuid.fromString(slot.id),
-            new Date(slot.startDateTime),
-            new Date(slot.endDateTime),
-            slot.status,
-            Uuid.fromString(slot.availabilityId),
-          ),
+          Slot.restore({
+            id: Uuid.fromString(slot.id),
+            startDateTime: new Date(slot.startDateTime),
+            endDateTime: new Date(slot.endDateTime),
+            status: slot.status,
+            availabilityId: Uuid.fromString(slot.availabilityId),
+          }),
         );
       }
       return availability;
@@ -67,13 +67,13 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
     });
     for (const slot of availabilityRow.slots) {
       availability.addSlot(
-        Slot.restore(
-          Uuid.fromString(slot.id),
-          new Date(slot.startDateTime),
-          new Date(slot.endDateTime),
-          slot.status,
-          Uuid.fromString(slot.availabilityId),
-        ),
+        Slot.restore({
+          id: Uuid.fromString(slot.id),
+          startDateTime: new Date(slot.startDateTime),
+          endDateTime: new Date(slot.endDateTime),
+          status: slot.status,
+          availabilityId: Uuid.fromString(slot.availabilityId),
+        }),
       );
     }
     return availability;

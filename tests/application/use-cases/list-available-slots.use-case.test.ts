@@ -19,27 +19,27 @@ describe("List Available Slots - Use Case", () => {
   const yesterdayStart = DateBuilder.now().plusDays(-1).withTime(8, 0).build();
   const yesterdayEnd = DateBuilder.now().plusDays(-1).withTime(12, 0).build();
   const futureAvailability = Availability.from({ startDateTime: tomorrowStart, endDateTime: tomorrowEnd, doctorId });
-  const availableSlot = Slot.from(
-    DateBuilder.from(tomorrowStart).withTime(9, 0).build(),
-    DateBuilder.from(tomorrowStart).withTime(9, 30).build(),
-    Uuid.fromString(futureAvailability.id),
-    "AVAILABLE",
-  );
-  const bookedSlot = Slot.from(
-    DateBuilder.from(tomorrowStart).withTime(10, 0).build(),
-    DateBuilder.from(tomorrowStart).withTime(10, 30).build(),
-    Uuid.fromString(futureAvailability.id),
-    "BOOKED",
-  );
+  const availableSlot = Slot.from({
+    startDateTime: DateBuilder.from(tomorrowStart).withTime(9, 0).build(),
+    endDateTime: DateBuilder.from(tomorrowStart).withTime(9, 30).build(),
+    availabilityId: Uuid.fromString(futureAvailability.id),
+    status: "AVAILABLE",
+  });
+  const bookedSlot = Slot.from({
+    startDateTime: DateBuilder.from(tomorrowStart).withTime(10, 0).build(),
+    endDateTime: DateBuilder.from(tomorrowStart).withTime(10, 30).build(),
+    availabilityId: Uuid.fromString(futureAvailability.id),
+    status: "BOOKED",
+  });
   futureAvailability.addSlot(availableSlot);
   futureAvailability.addSlot(bookedSlot);
   const pastAvailability = Availability.from({ startDateTime: yesterdayStart, endDateTime: yesterdayEnd, doctorId });
-  const pastSlot = Slot.from(
-    DateBuilder.from(yesterdayStart).withTime(9, 0).build(),
-    DateBuilder.from(yesterdayStart).withTime(9, 30).build(),
-    Uuid.fromString(pastAvailability.id),
-    "AVAILABLE",
-  );
+  const pastSlot = Slot.from({
+    startDateTime: DateBuilder.from(yesterdayStart).withTime(9, 0).build(),
+    endDateTime: DateBuilder.from(yesterdayStart).withTime(9, 30).build(),
+    availabilityId: Uuid.fromString(pastAvailability.id),
+    status: "AVAILABLE",
+  });
   pastAvailability.addSlot(pastSlot);
 
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {

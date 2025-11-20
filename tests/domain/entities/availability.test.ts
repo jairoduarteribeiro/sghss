@@ -11,7 +11,11 @@ function splitAvailabilityIntoSlotsOf30Minutes(availability: Availability): void
   while (currentStart < availability.endDateTime) {
     const currentEnd = new Date(currentStart.getTime() + slotDurationInMs);
     if (currentEnd > availability.endDateTime) break;
-    const slot = Slot.from(currentStart, currentEnd, Uuid.fromString(availability.id));
+    const slot = Slot.from({
+      startDateTime: currentStart,
+      endDateTime: currentEnd,
+      availabilityId: Uuid.fromString(availability.id),
+    });
     availability.addSlot(slot);
     currentStart = currentEnd;
   }

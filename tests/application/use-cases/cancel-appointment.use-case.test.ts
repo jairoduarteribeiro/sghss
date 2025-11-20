@@ -28,12 +28,12 @@ describe("Cancel Appointment - Use Case", () => {
     endDateTime: DateBuilder.now().plusDays(1).withTime(12, 0).build(),
     doctorId,
   });
-  const slot = Slot.from(
-    DateBuilder.now().plusDays(1).withTime(10, 0).build(),
-    DateBuilder.now().plusDays(1).withTime(10, 30).build(),
-    Uuid.fromString(availability.id),
-    "BOOKED",
-  );
+  const slot = Slot.from({
+    startDateTime: DateBuilder.now().plusDays(1).withTime(10, 0).build(),
+    endDateTime: DateBuilder.now().plusDays(1).withTime(10, 30).build(),
+    availabilityId: Uuid.fromString(availability.id),
+    status: "BOOKED",
+  });
   availability.addSlot(slot);
   let appointment: Appointment;
 
