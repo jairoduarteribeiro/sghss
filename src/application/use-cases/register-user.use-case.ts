@@ -9,7 +9,7 @@ import type { IReadUserRepository, IWriteUserRepository } from "../ports/reposit
 type RegisterUserInput = {
   email: string;
   password: string;
-  role: string;
+  role?: string;
 };
 
 type RegisterUserOutput = {
