@@ -29,6 +29,7 @@ import { CancelAppointmentUseCase } from "../../application/use-cases/cancel-app
 import { GetPatientHistoryUseCase } from "../../application/use-cases/get-patient-history.use-case";
 import { ListAvailableSlotsUseCase } from "../../application/use-cases/list-available-slots.use-case";
 import { ListDoctorAppointmentsUseCase } from "../../application/use-cases/list-doctor-appointments.use-case";
+import { ListDoctorsUseCase } from "../../application/use-cases/list-doctors.use-case";
 import { LoginUseCase } from "../../application/use-cases/login.use-case";
 import { RegisterAppointmentUseCase } from "../../application/use-cases/register-appointment.use-case";
 import { RegisterAvailabilityUseCase } from "../../application/use-cases/register-availability.use-case";
@@ -163,6 +164,7 @@ container
   .bind<GetPatientHistoryUseCase>(SYMBOLS.GetPatientHistoryUseCase)
   .to(GetPatientHistoryUseCase)
   .inTransientScope();
+container.bind<ListDoctorsUseCase>(SYMBOLS.ListDoctorsUseCase).to(ListDoctorsUseCase).inTransientScope();
 
 // Controller bindings
 container.bind<AuthController>(SYMBOLS.AuthController).to(AuthController).inTransientScope();
