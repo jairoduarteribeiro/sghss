@@ -76,4 +76,8 @@ export class Appointment {
   cancel(): void {
     this._status = "CANCELLED";
   }
+
+  complete(): void {
+    this._status = "COMPLETED";
+  }
 }

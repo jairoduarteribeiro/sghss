@@ -1,20 +1,25 @@
 import { Uuid } from "../value-objects/uuid";
 
+type ConsultationNotes = string | null;
+type ConsultationDiagnosis = string | null;
+type ConsultationPrescription = string | null;
+type ConsultationReferral = string | null;
+
 type ConsultationCreateProps = {
   appointmentId: Uuid;
-  notes?: string | null;
-  diagnosis?: string | null;
-  prescription?: string | null;
-  referral?: string | null;
+  notes?: ConsultationNotes;
+  diagnosis?: ConsultationDiagnosis;
+  prescription?: ConsultationPrescription;
+  referral?: ConsultationReferral;
 };
 
 type ConsultationRestoreProps = {
   id: Uuid;
   appointmentId: Uuid;
-  notes?: string | null;
-  diagnosis?: string | null;
-  prescription?: string | null;
-  referral?: string | null;
+  notes: ConsultationNotes;
+  diagnosis: ConsultationDiagnosis;
+  prescription: ConsultationPrescription;
+  referral: ConsultationReferral;
 };
 
 export class Consultation {
@@ -42,10 +47,10 @@ export class Consultation {
     return new Consultation(
       props.id,
       props.appointmentId,
-      props.notes ?? null,
-      props.diagnosis ?? null,
-      props.prescription ?? null,
-      props.referral ?? null,
+      props.notes,
+      props.diagnosis,
+      props.prescription,
+      props.referral,
     );
   }
 
@@ -57,19 +62,19 @@ export class Consultation {
     return this._appointmentId.value;
   }
 
-  get notes(): string | null {
+  get notes(): ConsultationNotes {
     return this._notes;
   }
 
-  get diagnosis(): string | null {
+  get diagnosis(): ConsultationDiagnosis {
     return this._diagnosis;
   }
 
-  get prescription(): string | null {
+  get prescription(): ConsultationPrescription {
     return this._prescription;
   }
 
-  get referral(): string | null {
+  get referral(): ConsultationReferral {
     return this._referral;
   }
 }

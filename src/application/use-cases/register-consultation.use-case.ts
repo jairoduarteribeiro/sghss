@@ -6,10 +6,10 @@ import type { IWriteConsultationRepository } from "../ports/repositories/consult
 
 type RegisterConsultationInput = {
   appointmentId: string;
-  notes?: string | null;
-  diagnosis?: string | null;
-  prescription?: string | null;
-  referral?: string | null;
+  notes?: string;
+  diagnosis?: string;
+  prescription?: string;
+  referral?: string;
 };
 
 type RegisterConsultationOutput = {
@@ -31,11 +31,8 @@ export class RegisterConsultationUseCase {
   async execute(input: RegisterConsultationInput): Promise<RegisterConsultationOutput> {
     const appointmentId = Uuid.fromString(input.appointmentId);
     const consultation = Consultation.from({
+      ...input,
       appointmentId,
-      notes: input.notes ?? null,
-      diagnosis: input.diagnosis ?? null,
-      prescription: input.prescription ?? null,
-      referral: input.referral ?? null,
     });
     await this.writeConsultationRepository.save(consultation);
     return {

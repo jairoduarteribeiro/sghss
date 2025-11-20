@@ -34,20 +34,17 @@ describe("Get Patient History - Use Case", () => {
     availabilityId: Uuid.generate(),
     status: "BOOKED",
   });
-  const appointment = Appointment.restore({
-    id: Uuid.generate(),
-    status: "COMPLETED",
+  const appointment = Appointment.from({
     modality: "IN_PERSON",
-    telemedicineLink: null,
     slotId: Uuid.fromString(slot.id),
     patientId,
   });
+  appointment.complete();
   const consultation = Consultation.from({
     appointmentId: Uuid.fromString(appointment.id),
     diagnosis: "Lupus",
     notes: "Patient is lying.",
     prescription: "Vicodin",
-    referral: null,
   });
   const historyItem: ConsultationHistoryItem = {
     consultation,
