@@ -2,6 +2,19 @@ import { DomainValidationError } from "../errors/domain-validation.error";
 import { Uuid } from "../value-objects/uuid";
 import type { Slot } from "./slot";
 
+type AvailabilityCreateProps = {
+  startDateTime: Date;
+  endDateTime: Date;
+  doctorId: Uuid;
+};
+
+type AvailabilityRestoreProps = {
+  id: Uuid;
+  startDateTime: Date;
+  endDateTime: Date;
+  doctorId: Uuid;
+};
+
 export class Availability {
   private constructor(
     private readonly _id: Uuid,
@@ -11,13 +24,13 @@ export class Availability {
     private readonly _slots: Slot[] = [],
   ) {}
 
-  static from(startDateTime: Date, endDateTime: Date, doctorId: Uuid): Availability {
-    Availability.validateDates(startDateTime, endDateTime);
-    return new Availability(Uuid.generate(), startDateTime, endDateTime, doctorId);
+  static from(props: AvailabilityCreateProps): Availability {
+    Availability.validateDates(props.startDateTime, props.endDateTime);
+    return new Availability(Uuid.generate(), props.startDateTime, props.endDateTime, props.doctorId);
   }
 
-  static restore(id: Uuid, startDateTime: Date, endDateTime: Date, doctorId: Uuid): Availability {
-    return new Availability(id, startDateTime, endDateTime, doctorId);
+  static restore(props: AvailabilityRestoreProps): Availability {
+    return new Availability(props.id, props.startDateTime, props.endDateTime, props.doctorId);
   }
 
   private static validateDates(startDateTime: Date, endDateTime: Date): void {

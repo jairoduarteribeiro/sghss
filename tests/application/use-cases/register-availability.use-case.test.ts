@@ -18,8 +18,16 @@ describe("Register Availability - Use Case", async () => {
 
   const existingDoctorId = Uuid.generate();
   const existingAvailabilities: Availability[] = [
-    Availability.from(new Date("2024-07-01T10:00:00.000Z"), new Date("2024-07-01T12:00:00.000Z"), existingDoctorId),
-    Availability.from(new Date("2024-07-01T14:00:00.000Z"), new Date("2024-07-01T16:00:00.000Z"), existingDoctorId),
+    Availability.from({
+      startDateTime: new Date("2024-07-01T10:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T12:00:00.000Z"),
+      doctorId: existingDoctorId,
+    }),
+    Availability.from({
+      startDateTime: new Date("2024-07-01T14:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T16:00:00.000Z"),
+      doctorId: existingDoctorId,
+    }),
   ];
 
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {

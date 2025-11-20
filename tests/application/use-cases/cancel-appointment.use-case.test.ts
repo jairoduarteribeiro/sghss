@@ -23,11 +23,11 @@ describe("Cancel Appointment - Use Case", () => {
 
   const doctorId = Uuid.generate();
   const patientId = Uuid.generate();
-  const availability = Availability.from(
-    DateBuilder.now().plusDays(1).withTime(10, 0).build(),
-    DateBuilder.now().plusDays(1).withTime(12, 0).build(),
+  const availability = Availability.from({
+    startDateTime: DateBuilder.now().plusDays(1).withTime(10, 0).build(),
+    endDateTime: DateBuilder.now().plusDays(1).withTime(12, 0).build(),
     doctorId,
-  );
+  });
   const slot = Slot.from(
     DateBuilder.now().plusDays(1).withTime(10, 0).build(),
     DateBuilder.now().plusDays(1).withTime(10, 30).build(),

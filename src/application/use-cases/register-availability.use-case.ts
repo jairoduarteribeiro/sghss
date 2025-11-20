@@ -40,7 +40,11 @@ export class RegisterAvailabilityUseCase {
   ) {}
 
   async execute(input: RegisterAvailabilityInput): Promise<RegisterAvailabilityOutput> {
-    const availability = Availability.from(input.startDateTime, input.endDateTime, Uuid.fromString(input.doctorId));
+    const availability = Availability.from({
+      startDateTime: input.startDateTime,
+      endDateTime: input.endDateTime,
+      doctorId: Uuid.fromString(input.doctorId),
+    });
     const existingAvailabilities = await this.readAvailabilityRepository.findByDoctorId(
       Uuid.fromString(input.doctorId),
     );

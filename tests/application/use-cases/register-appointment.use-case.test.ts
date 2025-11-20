@@ -27,11 +27,11 @@ describe("Register Appointment - Use Case", () => {
     specialty: MedicalSpecialty.from("Cardiology"),
     userId: Uuid.generate(),
   });
-  const availability = Availability.from(
-    new Date("2024-07-10T09:00:00.000Z"),
-    new Date("2024-07-10T11:00:00.000Z"),
-    Uuid.fromString(doctor.id),
-  );
+  const availability = Availability.from({
+    startDateTime: new Date("2024-07-10T09:00:00.000Z"),
+    endDateTime: new Date("2024-07-10T11:00:00.000Z"),
+    doctorId: Uuid.fromString(doctor.id),
+  });
   const patientId = Uuid.generate();
   const freeSlot = Slot.from(
     new Date("2024-07-10T10:00:00.000Z"),

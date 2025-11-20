@@ -18,7 +18,7 @@ describe("List Available Slots - Use Case", () => {
   const tomorrowEnd = DateBuilder.now().plusDays(1).withTime(12, 0).build();
   const yesterdayStart = DateBuilder.now().plusDays(-1).withTime(8, 0).build();
   const yesterdayEnd = DateBuilder.now().plusDays(-1).withTime(12, 0).build();
-  const futureAvailability = Availability.from(tomorrowStart, tomorrowEnd, doctorId);
+  const futureAvailability = Availability.from({ startDateTime: tomorrowStart, endDateTime: tomorrowEnd, doctorId });
   const availableSlot = Slot.from(
     DateBuilder.from(tomorrowStart).withTime(9, 0).build(),
     DateBuilder.from(tomorrowStart).withTime(9, 30).build(),
@@ -33,7 +33,7 @@ describe("List Available Slots - Use Case", () => {
   );
   futureAvailability.addSlot(availableSlot);
   futureAvailability.addSlot(bookedSlot);
-  const pastAvailability = Availability.from(yesterdayStart, yesterdayEnd, doctorId);
+  const pastAvailability = Availability.from({ startDateTime: yesterdayStart, endDateTime: yesterdayEnd, doctorId });
   const pastSlot = Slot.from(
     DateBuilder.from(yesterdayStart).withTime(9, 0).build(),
     DateBuilder.from(yesterdayStart).withTime(9, 30).build(),

@@ -23,12 +23,12 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
       },
     });
     return rows.map((row) => {
-      const availability = Availability.restore(
-        Uuid.fromString(row.id),
-        new Date(row.startDateTime),
-        new Date(row.endDateTime),
-        Uuid.fromString(row.doctorId),
-      );
+      const availability = Availability.restore({
+        id: Uuid.fromString(row.id),
+        startDateTime: new Date(row.startDateTime),
+        endDateTime: new Date(row.endDateTime),
+        doctorId: Uuid.fromString(row.doctorId),
+      });
       for (const slot of row.slots) {
         availability.addSlot(
           Slot.restore(
@@ -59,12 +59,12 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
       return null;
     }
     const availabilityRow = row.availability;
-    const availability = Availability.restore(
-      Uuid.fromString(availabilityRow.id),
-      new Date(availabilityRow.startDateTime),
-      new Date(availabilityRow.endDateTime),
-      Uuid.fromString(availabilityRow.doctorId),
-    );
+    const availability = Availability.restore({
+      id: Uuid.fromString(availabilityRow.id),
+      startDateTime: new Date(availabilityRow.startDateTime),
+      endDateTime: new Date(availabilityRow.endDateTime),
+      doctorId: Uuid.fromString(availabilityRow.doctorId),
+    });
     for (const slot of availabilityRow.slots) {
       availability.addSlot(
         Slot.restore(
