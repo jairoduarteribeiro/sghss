@@ -7,6 +7,7 @@ import type {
 } from "../../../src/application/ports/repositories/availability.repository";
 import type { RegisterAvailabilityUseCase } from "../../../src/application/use-cases/register-availability.use-case";
 import { Availability } from "../../../src/domain/entities/availability";
+import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 
@@ -16,6 +17,7 @@ describe("Register Availability - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterAvailabilityUseCase;
 
+  // Create some existing availabilities for testing overlaps
   const existingDoctorId = Uuid.generate();
   const existingAvailabilities: Availability[] = [
     Availability.from({
@@ -30,23 +32,21 @@ describe("Register Availability - Use Case", async () => {
     }),
   ];
 
+  // Mock Repositories
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (doctorId: Uuid) =>
       doctorId.value === existingDoctorId.value ? existingAvailabilities : [],
     ),
-    findBySlotId: mock(async (_slotId: Uuid) => null),
+    findBySlotId: mock(async () => null),
   };
-
   const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {
-    save: mock(async (_availability: Availability) => {}),
-    update: mock(async (_availability: Availability) => {}),
+    save: mock(async () => {}),
+    update: mock(async () => {}),
     clear: mock(async () => {}),
   };
 
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadAvailabilityRepository);
-    testContainer.unbind(SYMBOLS.IWriteAvailabilityRepository);
     testContainer
       .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
       .toConstantValue(mockReadAvailabilityRepository);
@@ -68,12 +68,11 @@ describe("Register Availability - Use Case", async () => {
     };
     const output = await useCase.execute(input);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(1);
-    expect(output).toBeDefined();
     expect(output.availabilityId).toMatch(UUID7_REGEX);
     expect(output.doctorId).toBe(existingDoctorId.value);
     expect(output.startDateTime).toBe(input.startDateTime);
     expect(output.endDateTime).toBe(input.endDateTime);
-    expect(output.slots.length).toBe(4);
+    expect(output.slots).toHaveLength(4);
     expect(output.slots[0]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
       startDateTime: new Date("2024-07-01T08:00:00.000Z"),
@@ -113,6 +112,16 @@ describe("Register Availability - Use Case", async () => {
       endDateTime: overlapping.endDateTime,
     };
     expect(useCase.execute(input)).rejects.toThrowError("The new availability overlaps with existing availabilities");
+    expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(0);
+  });
+
+  test("Should not register an Availability if endDateTime is before startDateTime", async () => {
+    const input = {
+      doctorId: existingDoctorId.value,
+      startDateTime: new Date("2024-07-01T12:00:00.000Z"),
+      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
+    };
+    expect(useCase.execute(input)).rejects.toThrowError(DomainValidationError);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(0);
   });
 });

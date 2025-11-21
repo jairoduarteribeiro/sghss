@@ -9,6 +9,9 @@ import type {
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
 
+const SLOT_DURATION_MINUTES = 30;
+const MS_IN_A_MINUTE = 60 * 1000;
+
 type SlotOutput = {
   slotId: string;
   startDateTime: Date;
@@ -48,8 +51,7 @@ export class RegisterAvailabilityUseCase {
     const existingAvailabilities = await this.readAvailabilityRepository.findByDoctorId(
       Uuid.fromString(input.doctorId),
     );
-    const hasOverlap = existingAvailabilities.some((existing) => existing.overlapsWith(availability));
-    if (hasOverlap) {
+    if (RegisterAvailabilityUseCase.hasOverlap(availability, existingAvailabilities)) {
       throw new DomainConflictError("The new availability overlaps with existing availabilities");
     }
     this.addSlotsToAvailability(availability);
@@ -68,9 +70,12 @@ export class RegisterAvailabilityUseCase {
     };
   }
 
+  private static hasOverlap(availability: Availability, existingAvailabilities: Availability[]): boolean {
+    return existingAvailabilities.some((existing) => existing.overlapsWith(availability));
+  }
+
   private addSlotsToAvailability(availability: Availability): void {
-    const slotDurationInMinutes = 30;
-    const slotDurationInMs = slotDurationInMinutes * 60 * 1000;
+    const slotDurationInMs = SLOT_DURATION_MINUTES * MS_IN_A_MINUTE;
     const start = availability.startDateTime.getTime();
     const end = availability.endDateTime.getTime();
     for (let time = start; time < end; time += slotDurationInMs) {
