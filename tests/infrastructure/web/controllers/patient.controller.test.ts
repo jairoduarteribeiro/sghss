@@ -27,9 +27,9 @@ describe("Patient - Controller", () => {
   let nonAdminToken: string;
 
   beforeAll(() => {
-    readUserRepository = container.get<IReadUserRepository>(SYMBOLS.IReadUserRepository);
-    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
-    readPatientRepository = container.get<IReadPatientRepository>(SYMBOLS.IReadPatientRepository);
+    readUserRepository = container.get(SYMBOLS.IReadUserRepository);
+    writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
+    readPatientRepository = container.get(SYMBOLS.IReadPatientRepository);
     app = createApp(container);
     request = supertest(app);
   });

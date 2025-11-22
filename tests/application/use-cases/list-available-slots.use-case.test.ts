@@ -48,7 +48,7 @@ describe("List Available Slots - Use Case", () => {
   beforeAll(() => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadAvailabilityRepository).toConstantValue(mockReadAvailabilityRepository);
-    useCase = testContainer.get<ListAvailableSlotsUseCase>(SYMBOLS.ListAvailableSlotsUseCase);
+    useCase = testContainer.get(SYMBOLS.ListAvailableSlotsUseCase);
   });
 
   afterEach(() => {

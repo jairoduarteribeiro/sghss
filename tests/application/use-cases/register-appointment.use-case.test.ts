@@ -56,7 +56,7 @@ describe("Register Appointment - Use Case", () => {
     testContainer.bind(SYMBOLS.IWriteAppointmentRepository).toConstantValue(mockWriteAppointmentRepository);
     testContainer.bind(SYMBOLS.IWriteAvailabilityRepository).toConstantValue(mockWriteAvailabilityRepository);
     testContainer.bind(SYMBOLS.IConferenceLinkGenerator).toConstantValue(mockConferenceLinkGenerator);
-    useCase = testContainer.get<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase);
+    useCase = testContainer.get(SYMBOLS.RegisterAppointmentUseCase);
   });
 
   afterEach(() => {

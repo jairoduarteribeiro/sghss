@@ -21,7 +21,7 @@ describe("Register Consultation - Use Case", () => {
   beforeAll(() => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IWriteConsultationRepository).toConstantValue(mockWriteConsultationRepository);
-    useCase = testContainer.get<RegisterConsultationUseCase>(SYMBOLS.RegisterConsultationUseCase);
+    useCase = testContainer.get(SYMBOLS.RegisterConsultationUseCase);
   });
 
   afterEach(() => {

@@ -46,7 +46,7 @@ describe("Register Availability - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadAvailabilityRepository).toConstantValue(mockReadAvailabilityRepository);
     testContainer.bind(SYMBOLS.IWriteAvailabilityRepository).toConstantValue(mockWriteAvailabilityRepository);
-    useCase = testContainer.get<RegisterAvailabilityUseCase>(SYMBOLS.RegisterAvailabilityUseCase);
+    useCase = testContainer.get(SYMBOLS.RegisterAvailabilityUseCase);
   });
 
   afterEach(() => {

@@ -61,7 +61,7 @@ describe("Get Patient History - Use Case", () => {
   beforeAll(() => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadConsultationRepository).toConstantValue(mockReadConsultationRepository);
-    useCase = testContainer.get<GetPatientHistoryUseCase>(SYMBOLS.GetPatientHistoryUseCase);
+    useCase = testContainer.get(SYMBOLS.GetPatientHistoryUseCase);
   });
 
   afterEach(() => {

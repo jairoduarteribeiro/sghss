@@ -31,10 +31,10 @@ describe("Auth (Signup) - Controller", () => {
   let writePatientRepository: IWritePatientRepository;
 
   beforeAll(() => {
-    readUserRepository = container.get<IReadUserRepository>(SYMBOLS.IReadUserRepository);
-    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
-    readPatientRepository = container.get<IReadPatientRepository>(SYMBOLS.IReadPatientRepository);
-    writePatientRepository = container.get<IWritePatientRepository>(SYMBOLS.IWritePatientRepository);
+    readUserRepository = container.get(SYMBOLS.IReadUserRepository);
+    writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
+    readPatientRepository = container.get(SYMBOLS.IReadPatientRepository);
+    writePatientRepository = container.get(SYMBOLS.IWritePatientRepository);
     app = createApp(container);
     request = supertest(app);
   });
@@ -143,7 +143,7 @@ describe("Auth (Login) - Controller", () => {
   let writeUserRepository: IWriteUserRepository;
 
   beforeAll(() => {
-    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
+    writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     app = createApp(container);
     request = supertest(app);
   });

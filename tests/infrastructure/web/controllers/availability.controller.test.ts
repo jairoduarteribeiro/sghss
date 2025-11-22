@@ -61,9 +61,9 @@ describe("Availability - Controller", async () => {
   const endDateTime = DateBuilder.tomorrow().withTime(10, 0).build();
 
   beforeAll(async () => {
-    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
-    writeDoctorRepository = container.get<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository);
-    writeAvailabilityRepository = container.get<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository);
+    writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
+    writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
+    writeAvailabilityRepository = container.get(SYMBOLS.IWriteAvailabilityRepository);
     await writeUserRepository.save(adminUser);
     await writeUserRepository.save(doctorUser);
     await writeUserRepository.save(otherDoctorUser);

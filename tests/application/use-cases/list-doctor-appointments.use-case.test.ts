@@ -36,7 +36,7 @@ describe("List Doctor Appointments - Use Case", () => {
   beforeAll(() => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadAppointmentRepository).toConstantValue(mockReadAppointmentRepository);
-    useCase = testContainer.get<ListDoctorAppointmentsUseCase>(SYMBOLS.ListDoctorAppointmentsUseCase);
+    useCase = testContainer.get(SYMBOLS.ListDoctorAppointmentsUseCase);
   });
 
   afterEach(() => {

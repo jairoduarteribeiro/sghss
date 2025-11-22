@@ -35,7 +35,7 @@ describe("Register Doctor - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
     testContainer.bind(SYMBOLS.IWriteDoctorRepository).toConstantValue(mockWriteDoctorRepository);
-    useCase = testContainer.get<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase);
+    useCase = testContainer.get(SYMBOLS.RegisterDoctorUseCase);
   });
 
   afterEach(() => {

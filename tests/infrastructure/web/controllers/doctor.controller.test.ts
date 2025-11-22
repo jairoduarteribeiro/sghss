@@ -31,10 +31,10 @@ describe("Doctor - Controller", () => {
   let nonAdminToken: string;
 
   beforeAll(() => {
-    readUserRepository = container.get<IReadUserRepository>(SYMBOLS.IReadUserRepository);
-    writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
-    readDoctorRepository = container.get<IReadDoctorRepository>(SYMBOLS.IReadDoctorRepository);
-    writeDoctorRepository = container.get<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository);
+    readUserRepository = container.get(SYMBOLS.IReadUserRepository);
+    writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
+    readDoctorRepository = container.get(SYMBOLS.IReadDoctorRepository);
+    writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
     app = createApp(container);
     request = supertest(app);
   });

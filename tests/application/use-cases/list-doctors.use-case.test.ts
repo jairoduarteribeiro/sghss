@@ -55,7 +55,7 @@ describe("List Doctors - Use Case", () => {
   beforeAll(() => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
-    useCase = testContainer.get<ListDoctorsUseCase>(SYMBOLS.ListDoctorsUseCase);
+    useCase = testContainer.get(SYMBOLS.ListDoctorsUseCase);
   });
 
   afterEach(() => {

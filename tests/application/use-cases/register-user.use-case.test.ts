@@ -31,7 +31,7 @@ describe("Register User - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
     testContainer.bind(SYMBOLS.IWriteUserRepository).toConstantValue(mockWriteUserRepository);
-    useCase = testContainer.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
+    useCase = testContainer.get(SYMBOLS.RegisterUserUseCase);
   });
 
   afterEach(() => {

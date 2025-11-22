@@ -46,7 +46,7 @@ describe("Cancel Appointment - Use Case", () => {
     testContainer.bind(SYMBOLS.IWriteAppointmentRepository).toConstantValue(mockWriteAppointmentRepository);
     testContainer.bind(SYMBOLS.IReadAvailabilityRepository).toConstantValue(mockReadAvailabilityRepository);
     testContainer.bind(SYMBOLS.IWriteAvailabilityRepository).toConstantValue(mockWriteAvailabilityRepository);
-    useCase = testContainer.get<CancelAppointmentUseCase>(SYMBOLS.CancelAppointmentUseCase);
+    useCase = testContainer.get(SYMBOLS.CancelAppointmentUseCase);
   });
 
   beforeEach(() => {

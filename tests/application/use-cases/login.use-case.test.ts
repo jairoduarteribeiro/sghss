@@ -33,7 +33,7 @@ describe("Login - Use Case", async () => {
     testContainer = new Container({ parent: container });
     testContainer.bind(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
     testContainer.bind(SYMBOLS.IAuthTokenService).toConstantValue(mockTokenService);
-    useCase = testContainer.get<LoginUseCase>(SYMBOLS.LoginUseCase);
+    useCase = testContainer.get(SYMBOLS.LoginUseCase);
   });
 
   test("Should login successfully with correct credentials", async () => {
