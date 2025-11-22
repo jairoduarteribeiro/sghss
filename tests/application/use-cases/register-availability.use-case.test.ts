@@ -1,16 +1,16 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  IReadAvailabilityRepository,
-  IWriteAvailabilityRepository,
-} from "../../../src/application/ports/repositories/availability.repository";
 import type { RegisterAvailabilityUseCase } from "../../../src/application/use-cases/register-availability.use-case";
 import { Availability } from "../../../src/domain/entities/availability";
 import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { DateBuilder } from "../../utils/date-builder";
+import {
+  createMockReadAvailabilityRepository,
+  createMockWriteAvailabilityRepository,
+} from "../../utils/mocks/repositories";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -18,7 +18,7 @@ describe("Register Availability - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterAvailabilityUseCase;
 
-  // Create some existing availabilities for testing overlaps
+  // Test Data
   const existingDoctorId = Uuid.generate();
   const tomorrow = DateBuilder.tomorrow();
   const existingAvailabilities: Availability[] = [
@@ -35,26 +35,17 @@ describe("Register Availability - Use Case", async () => {
   ];
 
   // Mock Repositories
-  const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
+  const mockReadAvailabilityRepository = createMockReadAvailabilityRepository({
     findByDoctorId: mock(async (doctorId: Uuid) =>
       doctorId.value === existingDoctorId.value ? existingAvailabilities : [],
     ),
-    findBySlotId: mock(async () => null),
-  };
-  const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {
-    save: mock(async () => {}),
-    update: mock(async () => {}),
-    clear: mock(async () => {}),
-  };
+  });
+  const mockWriteAvailabilityRepository = createMockWriteAvailabilityRepository();
 
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
-    testContainer
-      .bind<IReadAvailabilityRepository>(SYMBOLS.IReadAvailabilityRepository)
-      .toConstantValue(mockReadAvailabilityRepository);
-    testContainer
-      .bind<IWriteAvailabilityRepository>(SYMBOLS.IWriteAvailabilityRepository)
-      .toConstantValue(mockWriteAvailabilityRepository);
+    testContainer.bind(SYMBOLS.IReadAvailabilityRepository).toConstantValue(mockReadAvailabilityRepository);
+    testContainer.bind(SYMBOLS.IWriteAvailabilityRepository).toConstantValue(mockWriteAvailabilityRepository);
     useCase = testContainer.get<RegisterAvailabilityUseCase>(SYMBOLS.RegisterAvailabilityUseCase);
   });
 

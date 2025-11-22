@@ -1,10 +1,6 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  IReadDoctorRepository,
-  IWriteDoctorRepository,
-} from "../../../src/application/ports/repositories/doctor.repository";
 import type { RegisterDoctorUseCase } from "../../../src/application/use-cases/register-doctor.use-case";
 import { Doctor } from "../../../src/domain/entities/doctor";
 import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
@@ -13,6 +9,7 @@ import { MedicalSpecialty } from "../../../src/domain/value-objects/medical-spec
 import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { createMockReadDoctorRepository, createMockWriteDoctorRepository } from "../../utils/mocks/repositories";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -20,7 +17,7 @@ describe("Register Doctor - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterDoctorUseCase;
 
-  // Create an existing doctor for testing duplicate CRM
+  // Test Data
   const existingDoctor = Doctor.from({
     name: Name.from("David Smith"),
     crm: Crm.from("654321-RJ"),
@@ -29,22 +26,15 @@ describe("Register Doctor - Use Case", async () => {
   });
 
   // Mock Repositories
-  const mockReadDoctorRepository: IReadDoctorRepository = {
-    findById: mock(async () => null),
+  const mockReadDoctorRepository = createMockReadDoctorRepository({
     findByCrm: mock(async (crm: Crm) => (crm.value === existingDoctor.crm ? existingDoctor : null)),
-    findAll: mock(async () => []),
-  };
-  const mockWriteDoctorRepository: IWriteDoctorRepository = {
-    save: mock(async () => {}),
-    clear: mock(async () => {}),
-  };
+  });
+  const mockWriteDoctorRepository = createMockWriteDoctorRepository();
 
   beforeAll(async () => {
     testContainer = new Container({ parent: container });
-    testContainer.bind<IReadDoctorRepository>(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
-    testContainer
-      .bind<IWriteDoctorRepository>(SYMBOLS.IWriteDoctorRepository)
-      .toConstantValue(mockWriteDoctorRepository);
+    testContainer.bind(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
+    testContainer.bind(SYMBOLS.IWriteDoctorRepository).toConstantValue(mockWriteDoctorRepository);
     useCase = testContainer.get<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase);
   });
 

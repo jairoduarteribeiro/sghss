@@ -1,25 +1,25 @@
+// biome-ignore-all lint/style/noNonNullAssertion: test setup
 import { afterEach, beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  IReadAppointmentRepository,
-  IWriteAppointmentRepository,
-} from "../../../src/application/ports/repositories/appointment.repository";
-import type {
-  IReadAvailabilityRepository,
-  IWriteAvailabilityRepository,
-} from "../../../src/application/ports/repositories/availability.repository";
 import type { CancelAppointmentUseCase } from "../../../src/application/use-cases/cancel-appointment.use-case";
 import { Appointment } from "../../../src/domain/entities/appointment";
 import { Availability } from "../../../src/domain/entities/availability";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { DateBuilder } from "../../utils/date-builder";
+import {
+  createMockReadAppointmentRepository,
+  createMockReadAvailabilityRepository,
+  createMockWriteAppointmentRepository,
+  createMockWriteAvailabilityRepository,
+} from "../../utils/mocks/repositories";
 
 describe("Cancel Appointment - Use Case", () => {
   let testContainer: Container;
   let useCase: CancelAppointmentUseCase;
 
+  // Test Data
   const doctorId = Uuid.generate();
   const patientId = Uuid.generate();
   const availability = Availability.from({
@@ -27,37 +27,21 @@ describe("Cancel Appointment - Use Case", () => {
     endDateTime: DateBuilder.now().plusDays(1).withTime(12, 0).build(),
     doctorId,
   });
-  // biome-ignore-start lint/style/noNonNullAssertion: test setup
   const slot = availability.slots[0]!;
-  // biome-ignore-end lint/style/noNonNullAssertion: test setup
   let appointment: Appointment;
 
-  const mockReadAppointmentRepository: IReadAppointmentRepository = {
+  // Mock Repositories
+  const mockReadAppointmentRepository = createMockReadAppointmentRepository({
     findById: mock(async (id: Uuid) => (id.value === appointment.id ? appointment : null)),
-    findByDoctorId: mock(async () => []),
-    findByPatientId: mock(async () => []),
-  };
-  const mockWriteAppointmentRepository: IWriteAppointmentRepository = {
-    update: mock(async () => {}),
-    save: mock(async () => {}),
-    clear: mock(async () => {}),
-  };
-  const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
-    findByDoctorId: mock(async () => []),
+  });
+  const mockReadAvailabilityRepository = createMockReadAvailabilityRepository({
     findBySlotId: mock(async (id: Uuid) => (id.value === slot.id ? availability : null)),
-  };
-  const mockWriteAvailabilityRepository: IWriteAvailabilityRepository = {
-    save: mock(async () => {}),
-    update: mock(async () => {}),
-    clear: mock(async () => {}),
-  };
+  });
+  const mockWriteAppointmentRepository = createMockWriteAppointmentRepository();
+  const mockWriteAvailabilityRepository = createMockWriteAvailabilityRepository();
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadAppointmentRepository);
-    testContainer.unbind(SYMBOLS.IWriteAppointmentRepository);
-    testContainer.unbind(SYMBOLS.IReadAvailabilityRepository);
-    testContainer.unbind(SYMBOLS.IWriteAvailabilityRepository);
     testContainer.bind(SYMBOLS.IReadAppointmentRepository).toConstantValue(mockReadAppointmentRepository);
     testContainer.bind(SYMBOLS.IWriteAppointmentRepository).toConstantValue(mockWriteAppointmentRepository);
     testContainer.bind(SYMBOLS.IReadAvailabilityRepository).toConstantValue(mockReadAvailabilityRepository);

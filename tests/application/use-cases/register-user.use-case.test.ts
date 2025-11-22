@@ -1,16 +1,13 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  IReadUserRepository,
-  IWriteUserRepository,
-} from "../../../src/application/ports/repositories/user.repository";
 import type { RegisterUserUseCase } from "../../../src/application/use-cases/register-user.use-case";
 import { User } from "../../../src/domain/entities/user";
 import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { createMockReadUserRepository, createMockWriteUserRepository } from "../../utils/mocks/repositories";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -18,25 +15,22 @@ describe("Register User - Use Case", async () => {
   let testContainer: Container;
   let useCase: RegisterUserUseCase;
 
-  // Create an existing user to simulate email conflict
+  // Test Data
   const existingUser = User.from({
     email: Email.from("john.doe@example.com"),
     password: await Password.from("Password123!"),
   });
 
   // Mock Repositories
-  const mockReadUserRepository: IReadUserRepository = {
+  const mockReadUserRepository = createMockReadUserRepository({
     findByEmail: mock(async (email: Email) => (email.value === existingUser.email ? existingUser : null)),
-  };
-  const mockWriteUserRepository: IWriteUserRepository = {
-    save: mock(async () => {}),
-    clear: mock(async () => {}),
-  };
+  });
+  const mockWriteUserRepository = createMockWriteUserRepository();
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
-    testContainer.bind<IWriteUserRepository>(SYMBOLS.IWriteUserRepository).toConstantValue(mockWriteUserRepository);
+    testContainer.bind(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
+    testContainer.bind(SYMBOLS.IWriteUserRepository).toConstantValue(mockWriteUserRepository);
     useCase = testContainer.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
   });
 

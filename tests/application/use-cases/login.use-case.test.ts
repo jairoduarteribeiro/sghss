@@ -1,41 +1,38 @@
 import { beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type { IReadUserRepository } from "../../../src/application/ports/repositories/user.repository";
-import type { IAuthTokenService } from "../../../src/application/ports/services/auth-token-service";
 import type { LoginUseCase } from "../../../src/application/use-cases/login.use-case";
 import { User } from "../../../src/domain/entities/user";
 import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Email } from "../../../src/domain/value-objects/email";
 import { Password } from "../../../src/domain/value-objects/password";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { createMockReadUserRepository } from "../../utils/mocks/repositories";
+import { createMockTokenService } from "../../utils/mocks/services";
 
 describe("Login - Use Case", async () => {
   let testContainer: Container;
   let useCase: LoginUseCase;
 
-  // Create an existing user for login tests
+  // Test Data
   const existingUser = User.from({
     email: Email.from("john.doe@example.com"),
     password: await Password.from("Password123!"),
   });
 
-  // Mocked ReadUserRepository
-  const mockReadUserRepository: IReadUserRepository = {
-    findByEmail: mock(async (email: Email) => (email.value === existingUser.email ? existingUser : null)),
-  };
-
-  // Mocked AuthTokenService
+  // Mock Services and Repositories
   const MOCK_TOKEN = "mock.jwt.token";
-  const mockTokenService: IAuthTokenService = {
+  const mockTokenService = createMockTokenService({
     generate: mock(() => MOCK_TOKEN),
-    extract: mock(() => null),
-  };
+  });
+  const mockReadUserRepository = createMockReadUserRepository({
+    findByEmail: mock(async (email: Email) => (email.value === existingUser.email ? existingUser : null)),
+  });
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.bind<IReadUserRepository>(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
-    testContainer.bind<IAuthTokenService>(SYMBOLS.IAuthTokenService).toConstantValue(mockTokenService);
+    testContainer.bind(SYMBOLS.IReadUserRepository).toConstantValue(mockReadUserRepository);
+    testContainer.bind(SYMBOLS.IAuthTokenService).toConstantValue(mockTokenService);
     useCase = testContainer.get<LoginUseCase>(SYMBOLS.LoginUseCase);
   });
 

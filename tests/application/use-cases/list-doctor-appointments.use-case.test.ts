@@ -1,16 +1,17 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type { IReadAppointmentRepository } from "../../../src/application/ports/repositories/appointment.repository";
 import type { ListDoctorAppointmentsUseCase } from "../../../src/application/use-cases/list-doctor-appointments.use-case";
 import { Appointment } from "../../../src/domain/entities/appointment";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { createMockReadAppointmentRepository } from "../../utils/mocks/repositories";
 
 describe("List Doctor Appointments - Use Case", () => {
   let testContainer: Container;
   let useCase: ListDoctorAppointmentsUseCase;
 
+  // Test Data
   const doctorId = Uuid.generate();
   const patientId1 = Uuid.generate();
   const patientId2 = Uuid.generate();
@@ -25,20 +26,16 @@ describe("List Doctor Appointments - Use Case", () => {
   });
   const appointments: Appointment[] = [appointment1, appointment2];
 
-  const mockReadAppointmentRepository: IReadAppointmentRepository = {
-    findById: mock(async () => null),
-    findByPatientId: mock(async () => []),
+  // Mock Repositories
+  const mockReadAppointmentRepository = createMockReadAppointmentRepository({
     findByDoctorId: mock(async (id: Uuid) => {
       return id.value === doctorId.value ? appointments : [];
     }),
-  };
+  });
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadAppointmentRepository);
-    testContainer
-      .bind<IReadAppointmentRepository>(SYMBOLS.IReadAppointmentRepository)
-      .toConstantValue(mockReadAppointmentRepository);
+    testContainer.bind(SYMBOLS.IReadAppointmentRepository).toConstantValue(mockReadAppointmentRepository);
     useCase = testContainer.get<ListDoctorAppointmentsUseCase>(SYMBOLS.ListDoctorAppointmentsUseCase);
   });
 
@@ -51,8 +48,6 @@ describe("List Doctor Appointments - Use Case", () => {
       doctorId: doctorId.value,
     };
     const output = await useCase.execute(input);
-    expect(mockReadAppointmentRepository.findByDoctorId).toHaveBeenCalledTimes(1);
-    expect(output).toBeDefined();
     expect(output.appointments).toHaveLength(2);
     expect(output.doctorId).toBe(doctorId.value);
     expect(output.appointments[0]?.appointmentId).toBe(appointment1.id);

@@ -1,10 +1,7 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  DoctorFilter,
-  IReadDoctorRepository,
-} from "../../../src/application/ports/repositories/doctor.repository";
+import type { DoctorFilter } from "../../../src/application/ports/repositories/doctor.repository";
 import type { ListDoctorsUseCase } from "../../../src/application/use-cases/list-doctors.use-case";
 import { Doctor } from "../../../src/domain/entities/doctor";
 import { Crm } from "../../../src/domain/value-objects/crm";
@@ -12,11 +9,13 @@ import { MedicalSpecialty } from "../../../src/domain/value-objects/medical-spec
 import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { createMockReadDoctorRepository } from "../../utils/mocks/repositories";
 
 describe("List Doctors - Use Case", () => {
   let testContainer: Container;
   let useCase: ListDoctorsUseCase;
 
+  // Test Data
   const doctor1 = Doctor.from({
     name: Name.from("Gregory House"),
     crm: Crm.from("111111-RJ"),
@@ -37,9 +36,8 @@ describe("List Doctors - Use Case", () => {
   });
   const allDoctors = [doctor1, doctor2, doctor3];
 
-  const mockReadDoctorRepository: IReadDoctorRepository = {
-    findById: mock(async () => null),
-    findByCrm: mock(async () => null),
+  // Mock Repositories
+  const mockReadDoctorRepository = createMockReadDoctorRepository({
     findAll: mock(async (filters: DoctorFilter) => {
       return allDoctors.filter((doc) => {
         let matches = true;
@@ -52,11 +50,10 @@ describe("List Doctors - Use Case", () => {
         return matches;
       });
     }),
-  };
+  });
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadDoctorRepository);
     testContainer.bind(SYMBOLS.IReadDoctorRepository).toConstantValue(mockReadDoctorRepository);
     useCase = testContainer.get<ListDoctorsUseCase>(SYMBOLS.ListDoctorsUseCase);
   });

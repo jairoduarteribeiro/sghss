@@ -1,10 +1,6 @@
 import { afterEach, beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type {
-  ConsultationHistoryItem,
-  IReadConsultationRepository,
-} from "../../../src/application/ports/repositories/consultation.repository";
 import type { GetPatientHistoryUseCase } from "../../../src/application/use-cases/get-patient-history.use-case";
 import { Appointment } from "../../../src/domain/entities/appointment";
 import { Consultation } from "../../../src/domain/entities/consultation";
@@ -16,11 +12,13 @@ import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { DateBuilder } from "../../utils/date-builder";
+import { createMockReadConsultationRepository } from "../../utils/mocks/repositories";
 
 describe("Get Patient History - Use Case", () => {
   let testContainer: Container;
   let useCase: GetPatientHistoryUseCase;
 
+  // Test Data
   const patientId = Uuid.generate();
   const doctor = Doctor.from({
     name: Name.from("Dr. House"),
@@ -46,23 +44,22 @@ describe("Get Patient History - Use Case", () => {
     notes: "Patient is lying.",
     prescription: "Vicodin",
   });
-  const historyItem: ConsultationHistoryItem = {
+  const historyItem = {
     consultation,
     appointment,
     doctor,
     slot,
   };
 
-  const mockReadConsultationRepository: IReadConsultationRepository = {
-    findByAppointmentId: mock(async () => null),
+  // Mock Repositories
+  const mockReadConsultationRepository = createMockReadConsultationRepository({
     findAllByPatientId: mock(async (id: Uuid) => {
       return id.value === patientId.value ? [historyItem] : [];
     }),
-  };
+  });
 
   beforeAll(() => {
     testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IReadConsultationRepository);
     testContainer.bind(SYMBOLS.IReadConsultationRepository).toConstantValue(mockReadConsultationRepository);
     useCase = testContainer.get<GetPatientHistoryUseCase>(SYMBOLS.GetPatientHistoryUseCase);
   });

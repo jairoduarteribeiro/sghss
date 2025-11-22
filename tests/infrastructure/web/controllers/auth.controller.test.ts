@@ -61,12 +61,12 @@ describe("Auth (Signup) - Controller", () => {
       role: "PATIENT",
     });
     const savedUser = await readUserRepository.findByEmail(Email.from(input.email));
-    expect(savedUser).toBeDefined();
+    expect(savedUser).not.toBeNull();
     expect(savedUser?.id).toBe(response.body.userId);
     expect(savedUser?.email).toBe(input.email);
     expect(savedUser?.role).toBe("PATIENT");
     const savedPatient = await readPatientRepository.findByCpf(Cpf.from(input.cpf));
-    expect(savedPatient).toBeDefined();
+    expect(savedPatient).not.toBeNull();
     expect(savedPatient?.id).toBe(response.body.patientId);
     expect(savedPatient?.name).toBe(input.name);
     expect(savedPatient?.cpf).toBe(input.cpf);
@@ -122,8 +122,7 @@ describe("Auth (Signup) - Controller", () => {
       },
     };
     const testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.IUnitOfWork);
-    testContainer.bind<Partial<IUnitOfWork>>(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
+    testContainer.bind(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
     const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const input = {
@@ -189,7 +188,6 @@ describe("Auth (Login) - Controller", () => {
       password: "Password123!",
     };
     const loginResponse = await request.post("/auth/login").send(loginInput);
-    expect(loginResponse).toBeDefined();
     expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(loginResponse.body.message).toBe("User not found");
   });
@@ -207,7 +205,6 @@ describe("Auth (Login) - Controller", () => {
       password: "WrongPassword!",
     };
     const loginResponse = await request.post("/auth/login").send(loginInput);
-    expect(loginResponse).toBeDefined();
     expect(loginResponse.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(loginResponse.body.message).toBe("Invalid password");
   });
@@ -219,8 +216,7 @@ describe("Auth (Login) - Controller", () => {
       },
     };
     const testContainer = new Container({ parent: container });
-    testContainer.unbind(SYMBOLS.LoginUseCase);
-    testContainer.bind<Partial<LoginUseCase>>(SYMBOLS.LoginUseCase).toConstantValue(mockUseCase);
+    testContainer.bind(SYMBOLS.LoginUseCase).toConstantValue(mockUseCase);
     const mockedApp = createApp(testContainer);
     const mockedRequest = supertest(mockedApp);
     const loginInput = {
