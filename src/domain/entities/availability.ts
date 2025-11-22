@@ -1,6 +1,9 @@
 import { DomainValidationError } from "../errors/domain-validation.error";
 import { Uuid } from "../value-objects/uuid";
-import type { Slot } from "./slot";
+import { Slot } from "./slot";
+
+const SLOT_DURATION_MINUTES = 30;
+const MS_IN_A_MINUTE = 60 * 1000;
 
 type AvailabilityCreateProps = {
   startDateTime: Date;
@@ -13,6 +16,7 @@ type AvailabilityRestoreProps = {
   startDateTime: Date;
   endDateTime: Date;
   doctorId: Uuid;
+  slots: Slot[];
 };
 
 export class Availability {
@@ -26,14 +30,19 @@ export class Availability {
 
   static from(props: AvailabilityCreateProps): Availability {
     Availability.validateDates(props.startDateTime, props.endDateTime);
-    return new Availability(Uuid.generate(), props.startDateTime, props.endDateTime, props.doctorId);
+    const availabilityId = Uuid.generate();
+    const slots = Availability.generateSlots(props.startDateTime, props.endDateTime, availabilityId);
+    return new Availability(availabilityId, props.startDateTime, props.endDateTime, props.doctorId, slots);
   }
 
   static restore(props: AvailabilityRestoreProps): Availability {
-    return new Availability(props.id, props.startDateTime, props.endDateTime, props.doctorId);
+    return new Availability(props.id, props.startDateTime, props.endDateTime, props.doctorId, props.slots);
   }
 
   private static validateDates(startDateTime: Date, endDateTime: Date): void {
+    if (Availability.isStartInThePast(startDateTime)) {
+      throw new DomainValidationError("Start datetime cannot be in the past");
+    }
     if (!Availability.isStartBeforeEnd(startDateTime, endDateTime)) {
       throw new DomainValidationError("End datetime must be after start datetime");
     }
@@ -46,6 +55,11 @@ export class Availability {
     if (!Availability.isDurationAtMost4Hours(startDateTime, endDateTime)) {
       throw new DomainValidationError("Availability cannot exceed 4 hours");
     }
+  }
+
+  private static isStartInThePast(startDateTime: Date): boolean {
+    const now = new Date();
+    return startDateTime < now;
   }
 
   private static isStartBeforeEnd(startDateTime: Date, endDateTime: Date): boolean {
@@ -93,8 +107,22 @@ export class Availability {
     return this._startDateTime < other._endDateTime && this._endDateTime > other._startDateTime;
   }
 
-  addSlot(slot: Slot): void {
-    this._slots.push(slot);
+  private static generateSlots(startDateTime: Date, endDateTime: Date, availabilityId: Uuid): Slot[] {
+    const slotDurationInMs = SLOT_DURATION_MINUTES * MS_IN_A_MINUTE;
+    const start = startDateTime.getTime();
+    const end = endDateTime.getTime();
+    const slots: Slot[] = [];
+    for (let time = start; time < end; time += slotDurationInMs) {
+      const slotStart = new Date(time);
+      const slotEnd = new Date(time + slotDurationInMs);
+      const slot = Slot.from({
+        startDateTime: slotStart,
+        endDateTime: slotEnd,
+        availabilityId: availabilityId,
+      });
+      slots.push(slot);
+    }
+    return slots;
   }
 
   bookSlot(slotId: Uuid): void {

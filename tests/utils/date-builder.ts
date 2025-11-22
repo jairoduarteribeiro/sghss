@@ -9,12 +9,25 @@ export class DateBuilder {
     return new DateBuilder(new Date());
   }
 
+  static yesterday(): DateBuilder {
+    return DateBuilder.now().minusDays(1);
+  }
+
+  static tomorrow(): DateBuilder {
+    return DateBuilder.now().plusDays(1);
+  }
+
   static from(date: Date): DateBuilder {
     return new DateBuilder(date);
   }
 
   plusDays(days: number): DateBuilder {
     this.date.setDate(this.date.getDate() + days);
+    return this;
+  }
+
+  minusDays(days: number): DateBuilder {
+    this.date.setDate(this.date.getDate() - days);
     return this;
   }
 

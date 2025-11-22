@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 import { Availability } from "../../domain/entities/availability";
-import { Slot } from "../../domain/entities/slot";
 import { DomainConflictError } from "../../domain/errors/domain-conflict.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
@@ -8,9 +7,6 @@ import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
 } from "../ports/repositories/availability.repository";
-
-const SLOT_DURATION_MINUTES = 30;
-const MS_IN_A_MINUTE = 60 * 1000;
 
 type SlotOutput = {
   slotId: string;
@@ -54,7 +50,6 @@ export class RegisterAvailabilityUseCase {
     if (RegisterAvailabilityUseCase.hasOverlap(availability, existingAvailabilities)) {
       throw new DomainConflictError("The new availability overlaps with existing availabilities");
     }
-    this.addSlotsToAvailability(availability);
     await this.writeAvailabilityRepository.save(availability);
     return {
       availabilityId: availability.id,
@@ -72,21 +67,5 @@ export class RegisterAvailabilityUseCase {
 
   private static hasOverlap(availability: Availability, existingAvailabilities: Availability[]): boolean {
     return existingAvailabilities.some((existing) => existing.overlapsWith(availability));
-  }
-
-  private addSlotsToAvailability(availability: Availability): void {
-    const slotDurationInMs = SLOT_DURATION_MINUTES * MS_IN_A_MINUTE;
-    const start = availability.startDateTime.getTime();
-    const end = availability.endDateTime.getTime();
-    for (let time = start; time < end; time += slotDurationInMs) {
-      const slotStart = new Date(time);
-      const slotEnd = new Date(time + slotDurationInMs);
-      const slot = Slot.from({
-        startDateTime: slotStart,
-        endDateTime: slotEnd,
-        availabilityId: Uuid.fromString(availability.id),
-      });
-      availability.addSlot(slot);
-    }
   }
 }

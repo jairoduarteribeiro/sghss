@@ -10,6 +10,7 @@ import { Availability } from "../../../src/domain/entities/availability";
 import { DomainValidationError } from "../../../src/domain/errors/domain-validation.error";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { DateBuilder } from "../../utils/date-builder";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -19,15 +20,16 @@ describe("Register Availability - Use Case", async () => {
 
   // Create some existing availabilities for testing overlaps
   const existingDoctorId = Uuid.generate();
+  const tomorrow = DateBuilder.tomorrow();
   const existingAvailabilities: Availability[] = [
     Availability.from({
-      startDateTime: new Date("2024-07-01T10:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T12:00:00.000Z"),
+      startDateTime: tomorrow.withTime(10, 0).build(),
+      endDateTime: tomorrow.withTime(12, 0).build(),
       doctorId: existingDoctorId,
     }),
     Availability.from({
-      startDateTime: new Date("2024-07-01T14:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T16:00:00.000Z"),
+      startDateTime: tomorrow.withTime(14, 0).build(),
+      endDateTime: tomorrow.withTime(16, 0).build(),
       doctorId: existingDoctorId,
     }),
   ];
@@ -63,8 +65,8 @@ describe("Register Availability - Use Case", async () => {
   test("Should register an Availability successfully", async () => {
     const input = {
       doctorId: existingDoctorId.value,
-      startDateTime: new Date("2024-07-01T08:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
+      startDateTime: tomorrow.withTime(8, 0).build(),
+      endDateTime: tomorrow.withTime(10, 0).build(),
     };
     const output = await useCase.execute(input);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(1);
@@ -75,36 +77,36 @@ describe("Register Availability - Use Case", async () => {
     expect(output.slots).toHaveLength(4);
     expect(output.slots[0]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T08:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T08:30:00.000Z"),
+      startDateTime: tomorrow.withTime(8, 0).build(),
+      endDateTime: tomorrow.withTime(8, 30).build(),
       status: "AVAILABLE",
     });
     expect(output.slots[1]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T08:30:00.000Z"),
-      endDateTime: new Date("2024-07-01T09:00:00.000Z"),
+      startDateTime: tomorrow.withTime(8, 30).build(),
+      endDateTime: tomorrow.withTime(9, 0).build(),
       status: "AVAILABLE",
     });
     expect(output.slots[2]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T09:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T09:30:00.000Z"),
+      startDateTime: tomorrow.withTime(9, 0).build(),
+      endDateTime: tomorrow.withTime(9, 30).build(),
       status: "AVAILABLE",
     });
     expect(output.slots[3]).toEqual({
       slotId: expect.stringMatching(UUID7_REGEX),
-      startDateTime: new Date("2024-07-01T09:30:00.000Z"),
-      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
+      startDateTime: tomorrow.withTime(9, 30).build(),
+      endDateTime: tomorrow.withTime(10, 0).build(),
       status: "AVAILABLE",
     });
   });
 
   test.each([
-    { startDateTime: new Date("2024-07-01T09:00:00.000Z"), endDateTime: new Date("2024-07-01T11:00:00.000Z") },
-    { startDateTime: new Date("2024-07-01T11:00:00.000Z"), endDateTime: new Date("2024-07-01T13:00:00.000Z") },
-    { startDateTime: new Date("2024-07-01T11:00:00.000Z"), endDateTime: new Date("2024-07-01T15:00:00.000Z") },
-    { startDateTime: new Date("2024-07-01T13:00:00.000Z"), endDateTime: new Date("2024-07-01T15:00:00.000Z") },
-    { startDateTime: new Date("2024-07-01T15:00:00.000Z"), endDateTime: new Date("2024-07-01T17:00:00.000Z") },
+    { startDateTime: tomorrow.withTime(9, 0).build(), endDateTime: tomorrow.withTime(11, 0).build() },
+    { startDateTime: tomorrow.withTime(11, 0).build(), endDateTime: tomorrow.withTime(13, 0).build() },
+    { startDateTime: tomorrow.withTime(11, 0).build(), endDateTime: tomorrow.withTime(15, 0).build() },
+    { startDateTime: tomorrow.withTime(13, 0).build(), endDateTime: tomorrow.withTime(15, 0).build() },
+    { startDateTime: tomorrow.withTime(15, 0).build(), endDateTime: tomorrow.withTime(17, 0).build() },
   ])("Should not register an Availability if it overlaps with existing ones - %s", async (overlapping) => {
     const input = {
       doctorId: existingDoctorId.value,
@@ -118,8 +120,8 @@ describe("Register Availability - Use Case", async () => {
   test("Should not register an Availability if endDateTime is before startDateTime", async () => {
     const input = {
       doctorId: existingDoctorId.value,
-      startDateTime: new Date("2024-07-01T12:00:00.000Z"),
-      endDateTime: new Date("2024-07-01T10:00:00.000Z"),
+      startDateTime: tomorrow.withTime(12, 0).build(),
+      endDateTime: tomorrow.withTime(10, 0).build(),
     };
     expect(useCase.execute(input)).rejects.toThrowError(DomainValidationError);
     expect(mockWriteAvailabilityRepository.save).toHaveBeenCalledTimes(0);

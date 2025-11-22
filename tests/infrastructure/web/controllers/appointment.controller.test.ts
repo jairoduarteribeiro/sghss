@@ -10,6 +10,7 @@ import { Password } from "../../../../src/domain/value-objects/password";
 import { container } from "../../../../src/infrastructure/di/inversify.container";
 import { createApp } from "../../../../src/infrastructure/web/http";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
+import { DateBuilder } from "../../../utils/date-builder";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -90,10 +91,12 @@ describe("Appointment - Controller", async () => {
 
   beforeEach(async () => {
     // Create an availability and obtain slotId of the first slot
+    const startDateTime = DateBuilder.tomorrow().withTime(10, 0).build();
+    const endDateTime = DateBuilder.tomorrow().withTime(12, 0).build();
     const availabilityInput = {
       doctorId: doctorId,
-      startDateTime: "2024-08-01T10:00:00.000Z",
-      endDateTime: "2024-08-01T12:00:00.000Z",
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
     };
     const response = await request
       .post("/availabilities")

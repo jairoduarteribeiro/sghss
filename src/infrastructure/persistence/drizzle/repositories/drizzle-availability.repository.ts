@@ -23,24 +23,22 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
       },
     });
     return rows.map((row) => {
-      const availability = Availability.restore({
+      const slots = row.slots.map((slot) =>
+        Slot.restore({
+          id: Uuid.fromString(slot.id),
+          startDateTime: new Date(slot.startDateTime),
+          endDateTime: new Date(slot.endDateTime),
+          status: slot.status,
+          availabilityId: Uuid.fromString(slot.availabilityId),
+        }),
+      );
+      return Availability.restore({
         id: Uuid.fromString(row.id),
         startDateTime: new Date(row.startDateTime),
         endDateTime: new Date(row.endDateTime),
         doctorId: Uuid.fromString(row.doctorId),
+        slots: slots,
       });
-      for (const slot of row.slots) {
-        availability.addSlot(
-          Slot.restore({
-            id: Uuid.fromString(slot.id),
-            startDateTime: new Date(slot.startDateTime),
-            endDateTime: new Date(slot.endDateTime),
-            status: slot.status,
-            availabilityId: Uuid.fromString(slot.availabilityId),
-          }),
-        );
-      }
-      return availability;
     });
   }
 
@@ -59,24 +57,22 @@ export class DrizzleReadAvailabilityRepository implements IReadAvailabilityRepos
       return null;
     }
     const availabilityRow = row.availability;
-    const availability = Availability.restore({
+    const availabilitySlots = availabilityRow.slots.map((slot) =>
+      Slot.restore({
+        id: Uuid.fromString(slot.id),
+        startDateTime: new Date(slot.startDateTime),
+        endDateTime: new Date(slot.endDateTime),
+        status: slot.status,
+        availabilityId: Uuid.fromString(slot.availabilityId),
+      }),
+    );
+    return Availability.restore({
       id: Uuid.fromString(availabilityRow.id),
       startDateTime: new Date(availabilityRow.startDateTime),
       endDateTime: new Date(availabilityRow.endDateTime),
       doctorId: Uuid.fromString(availabilityRow.doctorId),
+      slots: availabilitySlots,
     });
-    for (const slot of availabilityRow.slots) {
-      availability.addSlot(
-        Slot.restore({
-          id: Uuid.fromString(slot.id),
-          startDateTime: new Date(slot.startDateTime),
-          endDateTime: new Date(slot.endDateTime),
-          status: slot.status,
-          availabilityId: Uuid.fromString(slot.availabilityId),
-        }),
-      );
-    }
-    return availability;
   }
 }
 

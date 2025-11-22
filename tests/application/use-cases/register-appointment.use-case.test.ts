@@ -10,12 +10,12 @@ import type { IConferenceLinkGenerator } from "../../../src/application/ports/se
 import type { RegisterAppointmentUseCase } from "../../../src/application/use-cases/register-appointment.use-case";
 import { Availability } from "../../../src/domain/entities/availability";
 import { Doctor } from "../../../src/domain/entities/doctor";
-import { Slot } from "../../../src/domain/entities/slot";
 import { Crm } from "../../../src/domain/value-objects/crm";
 import { MedicalSpecialty } from "../../../src/domain/value-objects/medical-specialty";
 import { Name } from "../../../src/domain/value-objects/name";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
+import { DateBuilder } from "../../utils/date-builder";
 
 describe("Register Appointment - Use Case", () => {
   let testContainer: Container;
@@ -27,25 +27,18 @@ describe("Register Appointment - Use Case", () => {
     specialty: MedicalSpecialty.from("Cardiology"),
     userId: Uuid.generate(),
   });
+  const tomorrow = DateBuilder.tomorrow();
   const availability = Availability.from({
-    startDateTime: new Date("2024-07-10T09:00:00.000Z"),
-    endDateTime: new Date("2024-07-10T11:00:00.000Z"),
+    startDateTime: tomorrow.withTime(10, 0).build(),
+    endDateTime: tomorrow.withTime(11, 0).build(),
     doctorId: Uuid.fromString(doctor.id),
   });
   const patientId = Uuid.generate();
-  const freeSlot = Slot.from({
-    startDateTime: new Date("2024-07-10T10:00:00.000Z"),
-    endDateTime: new Date("2024-07-10T10:30:00.000Z"),
-    availabilityId: Uuid.fromString(availability.id),
-  });
-  const bookedSlot = Slot.from({
-    startDateTime: new Date("2024-07-10T10:30:00.000Z"),
-    endDateTime: new Date("2024-07-10T11:00:00.000Z"),
-    availabilityId: Uuid.fromString(availability.id),
-    status: "BOOKED",
-  });
-  availability.addSlot(freeSlot);
-  availability.addSlot(bookedSlot);
+  // biome-ignore-start lint/style/noNonNullAssertion: test setup
+  const freeSlot = availability.slots[0]!;
+  const bookedSlot = availability.slots[1]!;
+  // biome-ignore-end lint/style/noNonNullAssertion: test setup
+  bookedSlot.book();
 
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (_doctorId: Uuid) => []),

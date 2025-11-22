@@ -16,6 +16,7 @@ import { Uuid } from "../../../../src/domain/value-objects/uuid";
 import { container } from "../../../../src/infrastructure/di/inversify.container";
 import { createApp } from "../../../../src/infrastructure/web/http";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
+import { DateBuilder } from "../../../utils/date-builder";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -56,6 +57,8 @@ describe("Availability - Controller", async () => {
     specialty: MedicalSpecialty.from("Neurology"),
     userId: Uuid.fromString(otherDoctorUser.id),
   });
+  const startDateTime = DateBuilder.tomorrow().withTime(8, 0).build();
+  const endDateTime = DateBuilder.tomorrow().withTime(10, 0).build();
 
   beforeAll(async () => {
     writeUserRepository = container.get<IWriteUserRepository>(SYMBOLS.IWriteUserRepository);
@@ -93,8 +96,8 @@ describe("Availability - Controller", async () => {
   test("POST /availabilities should return 201 with valid input", async () => {
     const input = {
       doctorId: doctor.id,
-      startDateTime: "2024-07-01T08:00:00.000Z",
-      endDateTime: "2024-07-01T10:00:00.000Z",
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
     };
     const response = await request.post("/availabilities").set("Authorization", `Bearer ${doctorToken}`).send(input);
     expect(response.status).toBe(HttpStatus.CREATED);
@@ -108,8 +111,8 @@ describe("Availability - Controller", async () => {
   test("POST /availabilities should return 201 when using admin token", async () => {
     const input = {
       doctorId: doctor.id,
-      startDateTime: "2024-07-01T08:00:00.000Z",
-      endDateTime: "2024-07-01T10:00:00.000Z",
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
     };
     const response = await request.post("/availabilities").set("Authorization", `Bearer ${adminToken}`).send(input);
     expect(response.status).toBe(HttpStatus.CREATED);
@@ -123,8 +126,8 @@ describe("Availability - Controller", async () => {
   test("POST /availabilities should return 401 when the token is missing", async () => {
     const input = {
       doctorId: doctor.id,
-      startDateTime: "2024-07-01T08:00:00.000Z",
-      endDateTime: "2024-07-01T10:00:00.000Z",
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
     };
     const response = await request.post("/availabilities").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -134,8 +137,8 @@ describe("Availability - Controller", async () => {
   test("POST /availabilities should return 403 when a doctor tries to register availability for another doctor", async () => {
     const input = {
       doctorId: doctor.id,
-      startDateTime: "2024-07-01T08:00:00.000Z",
-      endDateTime: "2024-07-01T10:00:00.000Z",
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
     };
     const response = await request
       .post("/availabilities")

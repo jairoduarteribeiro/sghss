@@ -14,33 +14,29 @@ describe("List Available Slots - Use Case", () => {
   let useCase: ListAvailableSlotsUseCase;
 
   const doctorId = Uuid.generate();
-  const tomorrowStart = DateBuilder.now().plusDays(1).withTime(8, 0).build();
-  const tomorrowEnd = DateBuilder.now().plusDays(1).withTime(12, 0).build();
-  const yesterdayStart = DateBuilder.now().plusDays(-1).withTime(8, 0).build();
-  const yesterdayEnd = DateBuilder.now().plusDays(-1).withTime(12, 0).build();
+  const tomorrowStart = DateBuilder.tomorrow().withTime(8, 0).build();
+  const tomorrowEnd = DateBuilder.tomorrow().withTime(9, 0).build();
+  const yesterdayStart = DateBuilder.yesterday().withTime(8, 0).build();
+  const yesterdayEnd = DateBuilder.yesterday().withTime(8, 30).build();
   const futureAvailability = Availability.from({ startDateTime: tomorrowStart, endDateTime: tomorrowEnd, doctorId });
-  const availableSlot = Slot.from({
-    startDateTime: DateBuilder.from(tomorrowStart).withTime(9, 0).build(),
-    endDateTime: DateBuilder.from(tomorrowStart).withTime(9, 30).build(),
-    availabilityId: Uuid.fromString(futureAvailability.id),
-    status: "AVAILABLE",
-  });
-  const bookedSlot = Slot.from({
-    startDateTime: DateBuilder.from(tomorrowStart).withTime(10, 0).build(),
-    endDateTime: DateBuilder.from(tomorrowStart).withTime(10, 30).build(),
-    availabilityId: Uuid.fromString(futureAvailability.id),
-    status: "BOOKED",
-  });
-  futureAvailability.addSlot(availableSlot);
-  futureAvailability.addSlot(bookedSlot);
-  const pastAvailability = Availability.from({ startDateTime: yesterdayStart, endDateTime: yesterdayEnd, doctorId });
+  // biome-ignore-start lint/style/noNonNullAssertion: test setup
+  const availableSlot = futureAvailability.slots[0]!;
+  const bookedSlot = futureAvailability.slots[1]!;
+  // biome-ignore-end lint/style/noNonNullAssertion: test setup
+  bookedSlot.book();
+  const pastAvailabilityId = Uuid.generate();
   const pastSlot = Slot.from({
-    startDateTime: DateBuilder.from(yesterdayStart).withTime(9, 0).build(),
-    endDateTime: DateBuilder.from(yesterdayStart).withTime(9, 30).build(),
-    availabilityId: Uuid.fromString(pastAvailability.id),
-    status: "AVAILABLE",
+    startDateTime: DateBuilder.from(yesterdayStart).withTime(8, 0).build(),
+    endDateTime: DateBuilder.from(yesterdayStart).withTime(8, 30).build(),
+    availabilityId: pastAvailabilityId,
   });
-  pastAvailability.addSlot(pastSlot);
+  const pastAvailability = Availability.restore({
+    id: pastAvailabilityId,
+    startDateTime: yesterdayStart,
+    endDateTime: yesterdayEnd,
+    doctorId,
+    slots: [pastSlot],
+  });
 
   const mockReadAvailabilityRepository: IReadAvailabilityRepository = {
     findByDoctorId: mock(async (id: Uuid) =>

@@ -12,7 +12,6 @@ import type {
 import type { CancelAppointmentUseCase } from "../../../src/application/use-cases/cancel-appointment.use-case";
 import { Appointment } from "../../../src/domain/entities/appointment";
 import { Availability } from "../../../src/domain/entities/availability";
-import { Slot } from "../../../src/domain/entities/slot";
 import { Uuid } from "../../../src/domain/value-objects/uuid";
 import { container } from "../../../src/infrastructure/di/inversify.container";
 import { DateBuilder } from "../../utils/date-builder";
@@ -28,18 +27,15 @@ describe("Cancel Appointment - Use Case", () => {
     endDateTime: DateBuilder.now().plusDays(1).withTime(12, 0).build(),
     doctorId,
   });
-  const slot = Slot.from({
-    startDateTime: DateBuilder.now().plusDays(1).withTime(10, 0).build(),
-    endDateTime: DateBuilder.now().plusDays(1).withTime(10, 30).build(),
-    availabilityId: Uuid.fromString(availability.id),
-    status: "BOOKED",
-  });
-  availability.addSlot(slot);
+  // biome-ignore-start lint/style/noNonNullAssertion: test setup
+  const slot = availability.slots[0]!;
+  // biome-ignore-end lint/style/noNonNullAssertion: test setup
   let appointment: Appointment;
 
   const mockReadAppointmentRepository: IReadAppointmentRepository = {
     findById: mock(async (id: Uuid) => (id.value === appointment.id ? appointment : null)),
     findByDoctorId: mock(async () => []),
+    findByPatientId: mock(async () => []),
   };
   const mockWriteAppointmentRepository: IWriteAppointmentRepository = {
     update: mock(async () => {}),
@@ -71,10 +67,10 @@ describe("Cancel Appointment - Use Case", () => {
 
   beforeEach(() => {
     appointment = Appointment.from({ slotId: Uuid.fromString(slot.id), patientId, modality: "IN_PERSON" });
+    slot.book();
   });
 
   afterEach(() => {
-    slot.book();
     mock.clearAllMocks();
   });
 
