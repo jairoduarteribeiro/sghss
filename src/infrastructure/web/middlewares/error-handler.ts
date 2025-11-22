@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { ConflictError } from "../../../application/errors/conflict.error";
 import { InvalidCredentialsError } from "../../../application/errors/invalid-credentials.error";
+import { NotFoundError } from "../../../application/errors/not-found.error";
 import { DomainConflictError } from "../../../domain/errors/domain-conflict.error";
 import { DomainValidationError } from "../../../domain/errors/domain-validation.error";
 import { HttpStatus } from "../http-status.constants";
@@ -18,6 +19,9 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   }
   if (err instanceof InvalidCredentialsError) {
     return res.status(HttpStatus.UNAUTHORIZED).json({ message: err.message });
+  }
+  if (err instanceof NotFoundError) {
+    return res.status(HttpStatus.NOT_FOUND).json({ message: err.message });
   }
   return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
 }

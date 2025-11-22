@@ -133,4 +133,15 @@ describe("Register Appointment - Use Case", () => {
     expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(0);
     expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
   });
+
+  test("Should not register an appointment if the availability is not found", async () => {
+    const input = {
+      slotId: Uuid.generate().value,
+      patientId: patientId.value,
+      modality: "IN_PERSON" as const,
+    };
+    expect(useCase.execute(input)).rejects.toThrowError("Not found any availability for the given slot ID");
+    expect(mockWriteAppointmentRepository.save).toHaveBeenCalledTimes(0);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
+  });
 });
