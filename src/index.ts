@@ -1,8 +1,7 @@
 import "reflect-metadata";
-import { createApp } from "./infrastructure/web/http";
+import { SYMBOLS } from "./application/di/inversify.symbols";
+import type { AppBootstrap } from "./infrastructure/bootstrap";
 import { container } from "./infrastructure/di/inversify.container";
 
-const port = 3000;
-const app = createApp(container);
-
-app.listen(port, () => console.log(`Server listening on port ${port}...`));
+const bootstrap = container.get<AppBootstrap>(SYMBOLS.AppBootstrap);
+bootstrap.start();

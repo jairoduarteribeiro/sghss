@@ -120,6 +120,7 @@ export const createMockReadUserRepository = (overrides?: Partial<IReadUserReposi
 
 export const createMockWriteUserRepository = (overrides?: Partial<IWriteUserRepository>): IWriteUserRepository => ({
   save: mock(async () => {}),
+  deleteByEmail: mock(async () => {}),
   clear: mock(async () => {}),
   ...overrides,
 });

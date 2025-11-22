@@ -38,6 +38,7 @@ import { RegisterConsultationUseCase } from "../../application/use-cases/registe
 import { RegisterDoctorUseCase } from "../../application/use-cases/register-doctor.use-case";
 import { RegisterPatientUseCase } from "../../application/use-cases/register-patient.use-case";
 import { RegisterUserUseCase } from "../../application/use-cases/register-user.use-case";
+import { AppBootstrap } from "../bootstrap";
 import { PinoLogger } from "../logger/pino-logger";
 import { type DbClient, db } from "../persistence/drizzle/drizzle-client";
 import {
@@ -196,5 +197,8 @@ container.bind<AttachPatientUserId>(SYMBOLS.AttachPatientUserId).to(AttachPatien
 
 // Logger
 container.bind<ILogger>(SYMBOLS.Logger).to(PinoLogger).inSingletonScope();
+
+// Application Bootstrap
+container.bind<AppBootstrap>(SYMBOLS.AppBootstrap).to(AppBootstrap).inSingletonScope();
 
 export { container };

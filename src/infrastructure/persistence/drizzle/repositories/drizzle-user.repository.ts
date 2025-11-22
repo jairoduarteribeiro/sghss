@@ -42,6 +42,10 @@ export class DrizzleWriteUserRepository implements IWriteUserRepository {
     });
   }
 
+  async deleteByEmail(email: Email): Promise<void> {
+    await this.db.delete(users).where(eq(users.email, email.value));
+  }
+
   async clear(): Promise<void> {
     await this.db.delete(users);
   }
