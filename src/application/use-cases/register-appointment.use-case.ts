@@ -1,8 +1,8 @@
 import { inject } from "inversify";
 import { Appointment } from "../../domain/entities/appointment";
-import { DomainConflictError } from "../../domain/errors/domain-conflict.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
+import { ConflictError } from "../errors/conflict.error";
 import { NotFoundError } from "../errors/not-found.error";
 import type { IWriteAppointmentRepository } from "../ports/repositories/appointment.repository";
 import type {
@@ -46,7 +46,7 @@ export class RegisterAppointmentUseCase {
       throw new NotFoundError("Not found any availability for the given slot ID");
     }
     if (!availability.isSlotAvailable(slotId)) {
-      throw new DomainConflictError("The slot is already booked");
+      throw new ConflictError("The slot is already booked");
     }
     availability.bookSlot(slotId);
     await this.writeAvailabilityRepository.update(availability);

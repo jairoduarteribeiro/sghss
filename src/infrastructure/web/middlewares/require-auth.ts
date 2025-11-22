@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
+import { UnauthorizedError } from "../../../application/errors/unauthorized.error";
 import type { IAuthTokenService } from "../../../application/ports/services/auth-token-service";
-import { HttpStatus } from "../http-status.constants";
 
 declare global {
   namespace Express {
@@ -22,22 +22,13 @@ export class RequireAuth {
     private readonly authTokenService: IAuthTokenService,
   ) {}
 
-  handle(req: Request, res: Response, next: NextFunction): void {
+  handle(req: Request, _res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Authentication token is missing or invalid" });
-      return;
-    }
+    if (!authHeader) throw new UnauthorizedError("Authentication token is missing or invalid");
     const token = authHeader.split(" ")[1];
-    if (!token) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Authentication token is missing or invalid" });
-      return;
-    }
+    if (!token) throw new UnauthorizedError("Authentication token is missing or invalid");
     const payload = this.authTokenService.extract(token);
-    if (!payload) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ message: "Invalid or expired token" });
-      return;
-    }
+    if (!payload) throw new UnauthorizedError("Invalid or expired token");
     req.user = { id: payload.userId, role: payload.role };
     next();
   }

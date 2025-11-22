@@ -1,9 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
+import { BadRequestError } from "../../../application/errors/bad-request.error";
+import { NotFoundError } from "../../../application/errors/not-found.error";
 import type { IReadDoctorRepository } from "../../../application/ports/repositories/doctor.repository";
 import { Uuid } from "../../../domain/value-objects/uuid";
-import { HttpStatus } from "../http-status.constants";
 
 @injectable()
 export class AttachDoctorUserId {
@@ -13,17 +14,11 @@ export class AttachDoctorUserId {
   ) {}
 
   handle() {
-    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
       const { doctorId } = req.body;
-      if (!doctorId) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: "Missing field: doctorId" });
-        return;
-      }
+      if (!doctorId) throw new BadRequestError("Missing field: doctorId");
       const doctor = await this.readDoctorRepository.findById(Uuid.fromString(doctorId));
-      if (!doctor) {
-        res.status(HttpStatus.NOT_FOUND).json({ message: "Doctor not found" });
-        return;
-      }
+      if (!doctor) throw new NotFoundError("Doctor not found");
       req.body.userId = doctor.userId;
       next();
     };

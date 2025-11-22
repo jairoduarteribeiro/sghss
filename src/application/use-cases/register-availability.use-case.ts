@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { Availability } from "../../domain/entities/availability";
-import { DomainConflictError } from "../../domain/errors/domain-conflict.error";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
+import { ConflictError } from "../errors/conflict.error";
 import type {
   IReadAvailabilityRepository,
   IWriteAvailabilityRepository,
@@ -48,7 +48,7 @@ export class RegisterAvailabilityUseCase {
       Uuid.fromString(input.doctorId),
     );
     if (RegisterAvailabilityUseCase.hasOverlap(availability, existingAvailabilities)) {
-      throw new DomainConflictError("The new availability overlaps with existing availabilities");
+      throw new ConflictError("The new availability overlaps with existing availabilities");
     }
     await this.writeAvailabilityRepository.save(availability);
     return {
