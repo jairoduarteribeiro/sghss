@@ -251,6 +251,12 @@ describe("Appointment - Controller", async () => {
     expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
 
+  test("GET /appointments/my-appointments should return 403 when using a non-patient token", async () => {
+    const response = await request.get("/appointments/my-appointments").set("Authorization", `Bearer ${doctorToken}`);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("Only patient users can access this resource");
+  });
+
   test("GET /appointments/doctor-appointments should return list of appointments for the logged doctor", async () => {
     const input1 = { slotId: slot1.id, patientId, modality: "IN_PERSON" };
     await request.post("/appointments").set("Authorization", `Bearer ${patientToken}`).send(input1);
@@ -282,5 +288,13 @@ describe("Appointment - Controller", async () => {
     const response = await request.get("/appointments/doctor-appointments");
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
+
+  test("GET /appointments/doctor-appointments should return 403 when using a non-doctor token", async () => {
+    const response = await request
+      .get("/appointments/doctor-appointments")
+      .set("Authorization", `Bearer ${patientToken}`);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("Only doctor users can access this resource");
   });
 });
