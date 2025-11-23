@@ -44,7 +44,7 @@ export class AvailabilityController {
       this.requireOwner.handle({ allowAdmin: true }),
       this.registerAvailability.bind(this),
     );
-    router.get("/availabilities", this.getAvailableSlots.bind(this));
+    router.get("/availabilities", this.requireAuth.handle.bind(this.requireAuth), this.getAvailableSlots.bind(this));
     return router;
   }
 
