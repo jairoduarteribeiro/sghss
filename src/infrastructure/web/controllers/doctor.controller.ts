@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import { z } from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
+import type { ListDoctorsUseCase } from "../../../application/use-cases/list-doctors.use-case";
 import type { RegisterDoctorUseCase } from "../../../application/use-cases/register-doctor.use-case";
 import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { HttpStatus } from "../http-status.constants";
@@ -17,6 +18,11 @@ const registerDoctorSchema = z.object({
   password: z.string(),
 });
 
+const listDoctorsSchema = z.object({
+  name: z.string().optional(),
+  specialty: z.string().optional(),
+});
+
 @injectable()
 export class DoctorController {
   constructor(
@@ -26,6 +32,8 @@ export class DoctorController {
     private readonly requireAuth: RequireAuth,
     @inject(SYMBOLS.RequireRole)
     private readonly requireRole: RequireRole,
+    @inject(SYMBOLS.ListDoctorsUseCase)
+    private readonly listDoctorsUseCase: ListDoctorsUseCase,
   ) {}
 
   router(): Router {
@@ -36,6 +44,7 @@ export class DoctorController {
       this.requireRole.handle("ADMIN"),
       this.registerDoctor.bind(this),
     );
+    router.get("/doctors", this.listDoctors.bind(this));
     return router;
   }
 
@@ -61,5 +70,14 @@ export class DoctorController {
       };
     });
     res.status(HttpStatus.CREATED).json(output);
+  }
+
+  private async listDoctors(req: Request, res: Response) {
+    const query = listDoctorsSchema.parse(req.query);
+    const output = await this.listDoctorsUseCase.execute({
+      name: query.name,
+      specialty: query.specialty,
+    });
+    res.status(HttpStatus.OK).json(output);
   }
 }
