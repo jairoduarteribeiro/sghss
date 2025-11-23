@@ -39,6 +39,18 @@ export class DrizzleReadPatientRepository implements IReadPatientRepository {
         })
       : null;
   }
+
+  async findByUserId(userId: Uuid): Promise<Patient | null> {
+    const [row] = await this.db.select().from(patients).where(eq(patients.userId, userId.value));
+    return row
+      ? Patient.restore({
+          id: Uuid.fromString(row.id),
+          name: Name.from(row.name),
+          cpf: Cpf.from(row.cpf),
+          userId: Uuid.fromString(row.userId),
+        })
+      : null;
+  }
 }
 
 @injectable()
