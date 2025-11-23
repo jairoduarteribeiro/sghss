@@ -2,14 +2,12 @@ import { afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:te
 import type { Express } from "express";
 import supertest from "supertest";
 import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
-import type {
-  IReadDoctorRepository,
-  IWriteDoctorRepository,
-} from "../../../../src/application/ports/repositories/doctor.repository";
+import type { IReadDoctorRepository } from "../../../../src/application/ports/repositories/doctor.repository";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "../../../../src/application/ports/repositories/user.repository";
+import type { IAuthTokenService } from "../../../../src/application/ports/services/auth-token-service";
 import { User } from "../../../../src/domain/entities/user";
 import { Crm } from "../../../../src/domain/value-objects/crm";
 import { Email } from "../../../../src/domain/value-objects/email";
@@ -23,18 +21,37 @@ const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{
 describe("Doctor - Controller", () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
+
+  // Repositories
   let readUserRepository: IReadUserRepository;
   let writeUserRepository: IWriteUserRepository;
   let readDoctorRepository: IReadDoctorRepository;
-  let writeDoctorRepository: IWriteDoctorRepository;
+  let authTokenService: IAuthTokenService;
+
+  // Auth tokens
   let adminToken: string;
   let nonAdminToken: string;
 
-  beforeAll(() => {
+  const createUserAndGetToken = async (role: "ADMIN" | "DOCTOR" | "PATIENT") => {
+    const email = Email.from(`${role.toLowerCase()}${Date.now()}@example.com`);
+    const password = await Password.from("Password123!");
+    const user = User.from({ email, password, role });
+    await writeUserRepository.save(user);
+    const token = authTokenService.generate({ userId: user.id, role: user.role });
+    return { user, token };
+  };
+
+  beforeAll(async () => {
     readUserRepository = container.get(SYMBOLS.IReadUserRepository);
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     readDoctorRepository = container.get(SYMBOLS.IReadDoctorRepository);
-    writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
+    authTokenService = container.get(SYMBOLS.IAuthTokenService);
+
+    const adminData = await createUserAndGetToken("ADMIN");
+    adminToken = adminData.token;
+    const nonAdminData = await createUserAndGetToken("PATIENT");
+    nonAdminToken = nonAdminData.token;
+
     app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
   });
@@ -65,7 +82,7 @@ describe("Doctor - Controller", () => {
   });
 
   afterEach(async () => {
-    await Promise.all([writeDoctorRepository.clear(), writeUserRepository.clear()]);
+    await writeUserRepository.clear();
   });
 
   test("POST /doctors should return 201 with valid input", async () => {
@@ -111,5 +128,18 @@ describe("Doctor - Controller", () => {
     const response = await request.post("/doctors").set("Authorization", `Bearer ${nonAdminToken}`).send(input);
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe("Only admin users can access this resource");
+  });
+
+  test("POST /doctors should return 401 when no auth token is provided", async () => {
+    const input = {
+      name: "Jane Smith",
+      crm: "666666-SP",
+      specialty: "Cardiology",
+      email: "jane.smith@example.com",
+      password: "Password123!",
+    };
+    const response = await request.post("/doctors").send(input);
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
 });
