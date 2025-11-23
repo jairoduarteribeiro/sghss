@@ -51,6 +51,7 @@ describe("Appointment - Controller", async () => {
   let slot1: Slot;
   let slot2: Slot;
   let slot3: Slot;
+  let slot4: Slot;
 
   const createUserAndGetToken = async (role: "ADMIN" | "DOCTOR" | "PATIENT") => {
     const email = Email.from(`${role.toLowerCase()}${Date.now()}@example.com`);
@@ -140,6 +141,13 @@ describe("Appointment - Controller", async () => {
       startDateTime: new Date(slots[2].startDateTime),
       endDateTime: new Date(slots[2].endDateTime),
       status: slots[2].status,
+    });
+    slot4 = Slot.restore({
+      id: Uuid.fromString(slots[3].slotId),
+      availabilityId: Uuid.fromString(slots[3].availabilityId),
+      startDateTime: new Date(slots[3].startDateTime),
+      endDateTime: new Date(slots[3].endDateTime),
+      status: slots[3].status,
     });
   });
 
@@ -323,6 +331,62 @@ describe("Appointment - Controller", async () => {
     const cancelResponse = await request
       .patch(`/appointments/${appointmentId}/cancel`)
       .set("Authorization", `Bearer ${patientToken}`);
+    expect(cancelResponse.status).toBe(HttpStatus.NO_CONTENT);
+    const updatedAppointment = await readAppointmentRepository.findById(Uuid.fromString(appointmentId));
+    expect(updatedAppointment).not.toBeNull();
+    expect(updatedAppointment?.status).toBe("CANCELLED");
+  });
+
+  test("PATCH /appointments/:id/cancel should return 401 when the token is missing", async () => {
+    const input = {
+      slotId: slot3.id,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const createResponse = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${patientToken}`)
+      .send(input);
+    const appointmentId = createResponse.body.appointmentId;
+    const cancelResponse = await request.patch(`/appointments/${appointmentId}/cancel`);
+    expect(cancelResponse.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(cancelResponse.body.message).toBe("Authentication token is missing or invalid");
+  });
+
+  test("PATCH /appointments/:id/cancel should return 403 when using a token of a different patient", async () => {
+    const otherPatientData = await createUserAndGetToken("PATIENT");
+    const otherPatientToken = otherPatientData.token;
+    const input = {
+      slotId: slot3.id,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const createResponse = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${patientToken}`)
+      .send(input);
+    const appointmentId = createResponse.body.appointmentId;
+    const cancelResponse = await request
+      .patch(`/appointments/${appointmentId}/cancel`)
+      .set("Authorization", `Bearer ${otherPatientToken}`);
+    expect(cancelResponse.status).toBe(HttpStatus.FORBIDDEN);
+    expect(cancelResponse.body.message).toBe("You do not have permission to cancel this appointment");
+  });
+
+  test("PATCH /appointments/:id/cancel should allow admin to cancel any appointment", async () => {
+    const input = {
+      slotId: slot4.id,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const createResponse = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${patientToken}`)
+      .send(input);
+    const appointmentId = createResponse.body.appointmentId;
+    const cancelResponse = await request
+      .patch(`/appointments/${appointmentId}/cancel`)
+      .set("Authorization", `Bearer ${adminToken}`);
     expect(cancelResponse.status).toBe(HttpStatus.NO_CONTENT);
     const updatedAppointment = await readAppointmentRepository.findById(Uuid.fromString(appointmentId));
     expect(updatedAppointment).not.toBeNull();
