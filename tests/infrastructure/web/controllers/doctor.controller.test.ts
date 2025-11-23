@@ -182,4 +182,58 @@ describe("Doctor - Controller", () => {
     expect(doctors[1].crm).toBe(doc2.crm);
     expect(doctors[1].specialty).toBe(doc2.specialty);
   });
+
+  test("GET /doctors should return filtered list of doctors by specialty", async () => {
+    const doc1User = await createUserAndGetToken("DOCTOR");
+    const doc2User = await createUserAndGetToken("DOCTOR");
+    const doc1 = Doctor.from({
+      name: Name.from("Dr. Strange"),
+      crm: Crm.from("333333-SP"),
+      specialty: MedicalSpecialty.from("Neurology"),
+      userId: Uuid.fromString(doc1User.user.id),
+    });
+    const doc2 = Doctor.from({
+      name: Name.from("Dr. Banner"),
+      crm: Crm.from("444444-SP"),
+      specialty: MedicalSpecialty.from("Radiology"),
+      userId: Uuid.fromString(doc2User.user.id),
+    });
+    await writeDoctorRepository.save(doc1);
+    await writeDoctorRepository.save(doc2);
+    const response = await request.get("/doctors").query({ specialty: "Neurology" });
+    expect(response.status).toBe(HttpStatus.OK);
+    const doctors = response.body.doctors;
+    expect(doctors).toHaveLength(1);
+    expect(doctors[0].id).toBe(doc1.id);
+    expect(doctors[0].name).toBe(doc1.name);
+    expect(doctors[0].crm).toBe(doc1.crm);
+    expect(doctors[0].specialty).toBe(doc1.specialty);
+  });
+
+  test("GET /doctors should return filtered list of doctors by name", async () => {
+    const doc1User = await createUserAndGetToken("DOCTOR");
+    const doc2User = await createUserAndGetToken("DOCTOR");
+    const doc1 = Doctor.from({
+      name: Name.from("Dr. Meredith Grey"),
+      crm: Crm.from("555555-SP"),
+      specialty: MedicalSpecialty.from("Surgery"),
+      userId: Uuid.fromString(doc1User.user.id),
+    });
+    const doc2 = Doctor.from({
+      name: Name.from("Dr. Derek Shepherd"),
+      crm: Crm.from("666666-SP"),
+      specialty: MedicalSpecialty.from("Neurosurgery"),
+      userId: Uuid.fromString(doc2User.user.id),
+    });
+    await writeDoctorRepository.save(doc1);
+    await writeDoctorRepository.save(doc2);
+    const response = await request.get("/doctors").query({ name: "Meredith Grey" });
+    expect(response.status).toBe(HttpStatus.OK);
+    const doctors = response.body.doctors;
+    expect(doctors).toHaveLength(1);
+    expect(doctors[0].id).toBe(doc1.id);
+    expect(doctors[0].name).toBe(doc1.name);
+    expect(doctors[0].crm).toBe(doc1.crm);
+    expect(doctors[0].specialty).toBe(doc1.specialty);
+  });
 });
