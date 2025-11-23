@@ -85,6 +85,7 @@ export const createMockWriteConsultationRepository = (
 export const createMockReadDoctorRepository = (overrides?: Partial<IReadDoctorRepository>): IReadDoctorRepository => ({
   findById: mock(async () => null),
   findByCrm: mock(async () => null),
+  findByUserId: mock(async () => null),
   findAll: mock(async () => []),
   ...overrides,
 });

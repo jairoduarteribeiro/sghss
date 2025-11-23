@@ -244,4 +244,31 @@ describe("Appointment - Controller", async () => {
     expect(appointment2.doctorName).toBe("Jane Smith");
     expect(appointment2.specialty).toBe("Dermatology");
   });
+
+  test("GET /appointments/doctor-appointments should return list of appointments for the logged doctor", async () => {
+    const input1 = { slotId: slot1.id, patientId, modality: "IN_PERSON" };
+    await request.post("/appointments").set("Authorization", `Bearer ${patientToken}`).send(input1);
+    const input2 = { slotId: slot2.id, patientId, modality: "TELEMEDICINE" };
+    await request.post("/appointments").set("Authorization", `Bearer ${patientToken}`).send(input2);
+    const response = await request
+      .get("/appointments/doctor-appointments")
+      .set("Authorization", `Bearer ${doctorToken}`);
+    expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body.doctorId).toBe(doctorId);
+    expect(response.body.appointments).toHaveLength(2);
+    const appointment1 = response.body.appointments[0];
+    expect(appointment1.appointmentId).toMatch(UUID7_REGEX);
+    expect(appointment1.status).toBe("SCHEDULED");
+    expect(appointment1.modality).toBe("IN_PERSON");
+    expect(appointment1.telemedicineLink).toBeNull();
+    expect(appointment1.startDateTime).toBe(slot1.startDateTime.toISOString());
+    expect(appointment1.patientName).toBe("John Doe");
+    const appointment2 = response.body.appointments[1];
+    expect(appointment2.appointmentId).toMatch(UUID7_REGEX);
+    expect(appointment2.status).toBe("SCHEDULED");
+    expect(appointment2.modality).toBe("TELEMEDICINE");
+    expect(appointment2.telemedicineLink).not.toBeNull();
+    expect(appointment2.startDateTime).toBe(slot2.startDateTime.toISOString());
+    expect(appointment2.patientName).toBe("John Doe");
+  });
 });

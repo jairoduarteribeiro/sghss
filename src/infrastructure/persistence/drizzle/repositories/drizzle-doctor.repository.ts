@@ -43,6 +43,19 @@ export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
       : null;
   }
 
+  async findByUserId(userId: Uuid): Promise<Doctor | null> {
+    const [row] = await this.db.select().from(doctors).where(eq(doctors.userId, userId.value));
+    return row
+      ? Doctor.restore({
+          id: Uuid.fromString(row.id),
+          name: Name.from(row.name),
+          crm: Crm.from(row.crm),
+          specialty: MedicalSpecialty.from(row.specialty),
+          userId: Uuid.fromString(row.userId),
+        })
+      : null;
+  }
+
   async findAll(filter: { name?: string; specialty?: string }): Promise<Doctor[]> {
     const conditions: SQL[] = [];
     if (filter.name) conditions.push(eq(doctors.name, filter.name));

@@ -10,6 +10,7 @@ export type DoctorFilter = {
 export interface IReadDoctorRepository {
   findById(id: Uuid): Promise<Doctor | null>;
   findByCrm(crm: Crm): Promise<Doctor | null>;
+  findByUserId(userId: Uuid): Promise<Doctor | null>;
   findAll(filter: DoctorFilter): Promise<Doctor[]>;
 }
 
