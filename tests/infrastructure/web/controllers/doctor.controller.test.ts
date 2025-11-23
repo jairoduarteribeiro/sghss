@@ -2,16 +2,23 @@ import { afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:te
 import type { Express } from "express";
 import supertest from "supertest";
 import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
-import type { IReadDoctorRepository } from "../../../../src/application/ports/repositories/doctor.repository";
+import type {
+  IReadDoctorRepository,
+  IWriteDoctorRepository,
+} from "../../../../src/application/ports/repositories/doctor.repository";
 import type {
   IReadUserRepository,
   IWriteUserRepository,
 } from "../../../../src/application/ports/repositories/user.repository";
 import type { IAuthTokenService } from "../../../../src/application/ports/services/auth-token-service";
+import { Doctor } from "../../../../src/domain/entities/doctor";
 import { User } from "../../../../src/domain/entities/user";
 import { Crm } from "../../../../src/domain/value-objects/crm";
 import { Email } from "../../../../src/domain/value-objects/email";
+import { MedicalSpecialty } from "../../../../src/domain/value-objects/medical-specialty";
+import { Name } from "../../../../src/domain/value-objects/name";
 import { Password } from "../../../../src/domain/value-objects/password";
+import { Uuid } from "../../../../src/domain/value-objects/uuid";
 import { container } from "../../../../src/infrastructure/di/inversify.container";
 import type { ExpressApp } from "../../../../src/infrastructure/web/express-app";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
@@ -26,6 +33,7 @@ describe("Doctor - Controller", () => {
   let readUserRepository: IReadUserRepository;
   let writeUserRepository: IWriteUserRepository;
   let readDoctorRepository: IReadDoctorRepository;
+  let writeDoctorRepository: IWriteDoctorRepository;
   let authTokenService: IAuthTokenService;
 
   // Auth tokens
@@ -45,6 +53,7 @@ describe("Doctor - Controller", () => {
     readUserRepository = container.get(SYMBOLS.IReadUserRepository);
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     readDoctorRepository = container.get(SYMBOLS.IReadDoctorRepository);
+    writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
     authTokenService = container.get(SYMBOLS.IAuthTokenService);
 
     const adminData = await createUserAndGetToken("ADMIN");
@@ -141,5 +150,36 @@ describe("Doctor - Controller", () => {
     const response = await request.post("/doctors").send(input);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
+
+  test("GET /doctors should return a list of all doctors", async () => {
+    const doc1User = await createUserAndGetToken("DOCTOR");
+    const doc2User = await createUserAndGetToken("DOCTOR");
+    const doc1 = Doctor.from({
+      name: Name.from("Dr. House"),
+      crm: Crm.from("111111-SP"),
+      specialty: MedicalSpecialty.from("Diagnostic"),
+      userId: Uuid.fromString(doc1User.user.id),
+    });
+    const doc2 = Doctor.from({
+      name: Name.from("Dr. Wilson"),
+      crm: Crm.from("222222-SP"),
+      specialty: MedicalSpecialty.from("Oncology"),
+      userId: Uuid.fromString(doc2User.user.id),
+    });
+    await writeDoctorRepository.save(doc1);
+    await writeDoctorRepository.save(doc2);
+    const response = await request.get("/doctors");
+    expect(response.status).toBe(HttpStatus.OK);
+    const doctors = response.body.doctors;
+    expect(doctors).toHaveLength(2);
+    expect(doctors[0].id).toBe(doc1.id);
+    expect(doctors[0].name).toBe(doc1.name);
+    expect(doctors[0].crm).toBe(doc1.crm);
+    expect(doctors[0].specialty).toBe(doc1.specialty);
+    expect(doctors[1].id).toBe(doc2.id);
+    expect(doctors[1].name).toBe(doc2.name);
+    expect(doctors[1].crm).toBe(doc2.crm);
+    expect(doctors[1].specialty).toBe(doc2.specialty);
   });
 });
