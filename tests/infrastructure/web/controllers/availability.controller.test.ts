@@ -149,4 +149,37 @@ describe("Availability - Controller", async () => {
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe("You are not authorized to access this resource");
   });
+
+  test("GET /availabilities should return 200 with availabilities for a doctor", async () => {
+    const input = {
+      doctorId,
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
+    };
+    await request.post("/availabilities").set("Authorization", `Bearer ${doctorToken}`).send(input);
+    const response = await request
+      .get("/availabilities")
+      .set("Authorization", `Bearer ${doctorToken}`)
+      .query({ doctorId });
+    expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body.doctorId).toBe(doctorId);
+    const availableSlots = response.body.availableSlots;
+    expect(availableSlots).toHaveLength(4);
+    expect(availableSlots[0].slotId).toMatch(UUID7_REGEX);
+    expect(availableSlots[0].startDateTime).toBe(tomorrow.withTime(8, 0).build().toISOString());
+    expect(availableSlots[0].endDateTime).toBe(tomorrow.withTime(8, 30).build().toISOString());
+    expect(availableSlots[0].status).toBe("AVAILABLE");
+    expect(availableSlots[1].slotId).toMatch(UUID7_REGEX);
+    expect(availableSlots[1].startDateTime).toBe(tomorrow.withTime(8, 30).build().toISOString());
+    expect(availableSlots[1].endDateTime).toBe(tomorrow.withTime(9, 0).build().toISOString());
+    expect(availableSlots[1].status).toBe("AVAILABLE");
+    expect(availableSlots[2].slotId).toMatch(UUID7_REGEX);
+    expect(availableSlots[2].startDateTime).toBe(tomorrow.withTime(9, 0).build().toISOString());
+    expect(availableSlots[2].endDateTime).toBe(tomorrow.withTime(9, 30).build().toISOString());
+    expect(availableSlots[2].status).toBe("AVAILABLE");
+    expect(availableSlots[3].slotId).toMatch(UUID7_REGEX);
+    expect(availableSlots[3].startDateTime).toBe(tomorrow.withTime(9, 30).build().toISOString());
+    expect(availableSlots[3].endDateTime).toBe(tomorrow.withTime(10, 0).build().toISOString());
+    expect(availableSlots[3].status).toBe("AVAILABLE");
+  });
 });
