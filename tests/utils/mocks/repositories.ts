@@ -31,6 +31,7 @@ export const createMockReadAppointmentRepository = (
   findById: mock(async () => null),
   findByPatientId: mock(async () => []),
   findByDoctorId: mock(async () => []),
+  findByPatientIdWithDetails: mock(async () => []),
   ...overrides,
 });
 
