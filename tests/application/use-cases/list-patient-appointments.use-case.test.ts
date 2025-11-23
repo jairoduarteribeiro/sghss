@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, mock, test } from "bun:test";
 import { Container } from "inversify";
 import { SYMBOLS } from "../../../src/application/di/inversify.symbols";
-import type { AppointmentWithDetails } from "../../../src/application/ports/repositories/appointment.repository";
+import type { PatientAppointmentWithDetails } from "../../../src/application/ports/repositories/appointment.repository";
 import type { ListPatientAppointmentsUseCase } from "../../../src/application/use-cases/list-patient-appointments.use-case";
 import { Appointment } from "../../../src/domain/entities/appointment";
 import { Doctor } from "../../../src/domain/entities/doctor";
@@ -50,7 +50,7 @@ describe("List Patient Appointments - Use Case", () => {
   });
 
   // Mock Repositories
-  const dbResults: AppointmentWithDetails[] = [
+  const dbResults: PatientAppointmentWithDetails[] = [
     {
       appointment: appointment1,
       slot: slot1,

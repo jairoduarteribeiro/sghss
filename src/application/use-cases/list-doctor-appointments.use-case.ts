@@ -9,11 +9,12 @@ type ListDoctorAppointmentsInput = {
 
 type AppointmentOutput = {
   appointmentId: string;
-  slotId: string;
-  patientId: string;
+  startDateTime: string;
+  endDateTime: string;
   status: string;
   modality: string;
   telemedicineLink: string | null;
+  patientName: string;
 };
 
 type ListDoctorAppointmentsOutput = {
@@ -30,14 +31,15 @@ export class ListDoctorAppointmentsUseCase {
 
   async execute(input: ListDoctorAppointmentsInput): Promise<ListDoctorAppointmentsOutput> {
     const doctorId = Uuid.fromString(input.doctorId);
-    const appointments = await this.readAppointmentRepository.findByDoctorId(doctorId);
-    const output: AppointmentOutput[] = appointments.map((appointment) => ({
+    const appointments = await this.readAppointmentRepository.findByDoctorIdWithDetails(doctorId);
+    const output = appointments.map(({ appointment, slot, patient }) => ({
       appointmentId: appointment.id,
-      slotId: appointment.slotId,
-      patientId: appointment.patientId,
+      startDateTime: slot.startDateTime.toISOString(),
+      endDateTime: slot.endDateTime.toISOString(),
       status: appointment.status,
       modality: appointment.modality,
       telemedicineLink: appointment.telemedicineLink,
+      patientName: patient.name,
     }));
     return {
       doctorId: input.doctorId,

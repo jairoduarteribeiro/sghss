@@ -2,19 +2,22 @@ import { eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
-  AppointmentWithDetails,
+  DoctorAppointmentWithDetails,
   IReadAppointmentRepository,
   IWriteAppointmentRepository,
+  PatientAppointmentWithDetails,
 } from "../../../../application/ports/repositories/appointment.repository";
 import { Appointment } from "../../../../domain/entities/appointment";
 import { Doctor } from "../../../../domain/entities/doctor";
+import { Patient } from "../../../../domain/entities/patient";
 import { Slot } from "../../../../domain/entities/slot";
+import { Cpf } from "../../../../domain/value-objects/cpf";
 import { Crm } from "../../../../domain/value-objects/crm";
 import { MedicalSpecialty } from "../../../../domain/value-objects/medical-specialty";
 import { Name } from "../../../../domain/value-objects/name";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { appointments, availabilities, doctors, slots } from "../schema";
+import { appointments, availabilities, doctors, patients, slots } from "../schema";
 
 @injectable()
 export class DrizzleReadAppointmentRepository implements IReadAppointmentRepository {
@@ -69,7 +72,7 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     );
   }
 
-  async findByPatientIdWithDetails(patientId: Uuid): Promise<AppointmentWithDetails[]> {
+  async findByPatientIdWithDetails(patientId: Uuid): Promise<PatientAppointmentWithDetails[]> {
     const rows = await this.db
       .select({
         appointment: appointments,
@@ -103,6 +106,43 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
         crm: Crm.from(doctor.crm),
         specialty: MedicalSpecialty.from(doctor.specialty),
         userId: Uuid.fromString(doctor.userId),
+      }),
+    }));
+  }
+
+  async findByDoctorIdWithDetails(doctorId: Uuid): Promise<DoctorAppointmentWithDetails[]> {
+    const rows = await this.db
+      .select({
+        appointment: appointments,
+        slot: slots,
+        patient: patients,
+      })
+      .from(appointments)
+      .innerJoin(slots, eq(appointments.slotId, slots.id))
+      .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .where(eq(availabilities.doctorId, doctorId.value));
+    return rows.map(({ appointment, slot, patient }) => ({
+      appointment: Appointment.restore({
+        id: Uuid.fromString(appointment.id),
+        status: appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
+        modality: appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        telemedicineLink: appointment.telemedicineLink,
+        slotId: Uuid.fromString(appointment.slotId),
+        patientId: Uuid.fromString(appointment.patientId),
+      }),
+      slot: Slot.restore({
+        id: Uuid.fromString(slot.id),
+        startDateTime: new Date(slot.startDateTime),
+        endDateTime: new Date(slot.endDateTime),
+        status: slot.status as "AVAILABLE" | "BOOKED" | "CANCELLED",
+        availabilityId: Uuid.fromString(slot.availabilityId),
+      }),
+      patient: Patient.restore({
+        id: Uuid.fromString(patient.id),
+        name: Name.from(patient.name),
+        cpf: Cpf.from(patient.cpf),
+        userId: Uuid.fromString(patient.userId),
       }),
     }));
   }

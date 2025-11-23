@@ -1,19 +1,27 @@
 import type { Appointment } from "../../../domain/entities/appointment";
 import type { Doctor } from "../../../domain/entities/doctor";
+import type { Patient } from "../../../domain/entities/patient";
 import type { Slot } from "../../../domain/entities/slot";
 import type { Uuid } from "../../../domain/value-objects/uuid";
 
-export type AppointmentWithDetails = {
+export type PatientAppointmentWithDetails = {
   appointment: Appointment;
   slot: Slot;
   doctor: Doctor;
+};
+
+export type DoctorAppointmentWithDetails = {
+  appointment: Appointment;
+  slot: Slot;
+  patient: Patient;
 };
 
 export interface IReadAppointmentRepository {
   findById(appointmentId: Uuid): Promise<Appointment | null>;
   findByDoctorId(doctorId: Uuid): Promise<Appointment[]>;
   findByPatientId(patientId: Uuid): Promise<Appointment[]>;
-  findByPatientIdWithDetails(patientId: Uuid): Promise<AppointmentWithDetails[]>;
+  findByPatientIdWithDetails(patientId: Uuid): Promise<PatientAppointmentWithDetails[]>;
+  findByDoctorIdWithDetails(doctorId: Uuid): Promise<DoctorAppointmentWithDetails[]>;
 }
 
 export interface IWriteAppointmentRepository {
