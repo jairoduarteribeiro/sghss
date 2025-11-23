@@ -6,6 +6,7 @@ import { NotFoundError } from "../../../application/errors/not-found.error";
 import type { IReadDoctorRepository } from "../../../application/ports/repositories/doctor.repository";
 import type { IReadPatientRepository } from "../../../application/ports/repositories/patient.repository";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
+import type { CancelAppointmentUseCase } from "../../../application/use-cases/cancel-appointment.use-case";
 import type { ListDoctorAppointmentsUseCase } from "../../../application/use-cases/list-doctor-appointments.use-case";
 import type { ListPatientAppointmentsUseCase } from "../../../application/use-cases/list-patient-appointments.use-case";
 import type { RegisterAppointmentUseCase } from "../../../application/use-cases/register-appointment.use-case";
@@ -20,6 +21,10 @@ const registerAppointmentSchema = z.object({
   slotId: z.uuidv7(),
   patientId: z.uuidv7(),
   modality: z.enum(["IN_PERSON", "TELEMEDICINE"]),
+});
+
+const cancelAppointmentSchema = z.object({
+  appointmentId: z.uuidv7(),
 });
 
 @injectable()
@@ -66,6 +71,12 @@ export class AppointmentController {
       this.requireRole.handle("DOCTOR"),
       this.getDoctorAppointments.bind(this),
     );
+    router.patch(
+      "/appointments/:appointmentId/cancel",
+      this.requireAuth.handle.bind(this.requireAuth),
+      // this.requireOwner.handle({ allowAdmin: true }),
+      this.cancelAppointment.bind(this),
+    );
     return router;
   }
 
@@ -103,5 +114,14 @@ export class AppointmentController {
     }
     const output = await this.listDoctorAppointmentsUseCase.execute({ doctorId: doctor.id });
     res.status(HttpStatus.OK).send(output);
+  }
+
+  private async cancelAppointment(req: Request, res: Response) {
+    const { appointmentId } = cancelAppointmentSchema.parse(req.params);
+    await this.unitOfWork.transaction(async (container) => {
+      const cancelUseCase = container.get<CancelAppointmentUseCase>(SYMBOLS.CancelAppointmentUseCase);
+      await cancelUseCase.execute({ appointmentId });
+    });
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }
