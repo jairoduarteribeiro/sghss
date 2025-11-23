@@ -182,4 +182,20 @@ describe("Availability - Controller", async () => {
     expect(availableSlots[3].endDateTime).toBe(tomorrow.withTime(10, 0).build().toISOString());
     expect(availableSlots[3].status).toBe("AVAILABLE");
   });
+
+  test("GET /availabilities should return 200 with no availabilities for a doctor with none registered", async () => {
+    const response = await request
+      .get("/availabilities")
+      .set("Authorization", `Bearer ${doctorToken}`)
+      .query({ doctorId });
+    expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body.doctorId).toBe(doctorId);
+    expect(response.body.availableSlots).toHaveLength(0);
+  });
+
+  test("GET /availabilities should return 401 when the token is missing", async () => {
+    const response = await request.get("/availabilities").query({ doctorId });
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
 });
