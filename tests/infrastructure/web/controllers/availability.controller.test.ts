@@ -5,6 +5,7 @@ import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
 import type { IWriteAvailabilityRepository } from "../../../../src/application/ports/repositories/availability.repository";
 import type { IWriteDoctorRepository } from "../../../../src/application/ports/repositories/doctor.repository";
 import type { IWriteUserRepository } from "../../../../src/application/ports/repositories/user.repository";
+import type { IAuthTokenService } from "../../../../src/application/ports/services/auth-token-service";
 import { Doctor } from "../../../../src/domain/entities/doctor";
 import { User } from "../../../../src/domain/entities/user";
 import { Crm } from "../../../../src/domain/value-objects/crm";
@@ -23,66 +24,67 @@ const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{
 describe("Availability - Controller", async () => {
   let app: Express;
   let request: ReturnType<typeof supertest>;
+
+  // Repositories and services
   let writeUserRepository: IWriteUserRepository;
   let writeDoctorRepository: IWriteDoctorRepository;
   let writeAvailabilityRepository: IWriteAvailabilityRepository;
+  let authTokenService: IAuthTokenService;
+
+  // Auth tokens & IDs
   let adminToken: string;
   let doctorToken: string;
   let otherDoctorToken: string;
+  let doctorId: string;
 
-  const adminUser = User.from({
-    email: Email.from("admin@example.com"),
-    password: await Password.from("Password123!"),
-    role: "ADMIN",
-  });
-  const doctorUser = User.from({
-    email: Email.from("john.doe@example.com"),
-    password: await Password.from("Password123!"),
-    role: "DOCTOR",
-  });
-  const otherDoctorUser = User.from({
-    email: Email.from("jane.doe@example.com"),
-    password: await Password.from("Password123!"),
-    role: "DOCTOR",
-  });
-  const doctor = Doctor.from({
-    name: Name.from("John Doe"),
-    crm: Crm.from("123456-SP"),
-    specialty: MedicalSpecialty.from("Cardiology"),
-    userId: Uuid.fromString(doctorUser.id),
-  });
-  const otherDoctor = Doctor.from({
-    name: Name.from("Jane Doe"),
-    crm: Crm.from("654321-SP"),
-    specialty: MedicalSpecialty.from("Neurology"),
-    userId: Uuid.fromString(otherDoctorUser.id),
-  });
-  const startDateTime = DateBuilder.tomorrow().withTime(8, 0).build();
-  const endDateTime = DateBuilder.tomorrow().withTime(10, 0).build();
+  const createUserAndGetToken = async (role: "ADMIN" | "DOCTOR" | "PATIENT") => {
+    const email = Email.from(`${role.toLowerCase()}${Date.now()}@example.com`);
+    const password = await Password.from("Password123!");
+    const user = User.from({ email, password, role });
+    await writeUserRepository.save(user);
+    const token = authTokenService.generate({ userId: user.id, role: user.role });
+    return { user, token };
+  };
+
+  const tomorrow = DateBuilder.tomorrow();
+  const startDateTime = tomorrow.withTime(8, 0).build();
+  const endDateTime = tomorrow.withTime(10, 0).build();
 
   beforeAll(async () => {
+    // Get repositories and services
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
     writeAvailabilityRepository = container.get(SYMBOLS.IWriteAvailabilityRepository);
-    await writeUserRepository.save(adminUser);
-    await writeUserRepository.save(doctorUser);
-    await writeUserRepository.save(otherDoctorUser);
+    authTokenService = container.get(SYMBOLS.IAuthTokenService);
+
+    // Create users and get tokens
+    const adminData = await createUserAndGetToken("ADMIN");
+    adminToken = adminData.token;
+
+    const doctorData = await createUserAndGetToken("DOCTOR");
+    doctorToken = doctorData.token;
+    const doctor = Doctor.from({
+      name: Name.from("John Doe"),
+      crm: Crm.from("123456-SP"),
+      specialty: MedicalSpecialty.from("Cardiology"),
+      userId: Uuid.fromString(doctorData.user.id),
+    });
     await writeDoctorRepository.save(doctor);
+    doctorId = doctor.id;
+
+    const otherDoctorData = await createUserAndGetToken("DOCTOR");
+    otherDoctorToken = otherDoctorData.token;
+    const otherDoctor = Doctor.from({
+      name: Name.from("Jane Doe"),
+      crm: Crm.from("654321-SP"),
+      specialty: MedicalSpecialty.from("Neurology"),
+      userId: Uuid.fromString(otherDoctorData.user.id),
+    });
     await writeDoctorRepository.save(otherDoctor);
+
+    // Build app and request
     app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
-    const responseAdminLogin = await request
-      .post("/auth/login")
-      .send({ email: adminUser.email, password: "Password123!" });
-    const responseDoctorLogin = await request
-      .post("/auth/login")
-      .send({ email: doctorUser.email, password: "Password123!" });
-    const responseOtherDoctorLogin = await request
-      .post("/auth/login")
-      .send({ email: otherDoctorUser.email, password: "Password123!" });
-    doctorToken = responseDoctorLogin.body.token;
-    otherDoctorToken = responseOtherDoctorLogin.body.token;
-    adminToken = responseAdminLogin.body.token;
   });
 
   afterEach(async () => {
@@ -95,7 +97,7 @@ describe("Availability - Controller", async () => {
 
   test("POST /availabilities should return 201 with valid input", async () => {
     const input = {
-      doctorId: doctor.id,
+      doctorId,
       startDateTime: startDateTime.toISOString(),
       endDateTime: endDateTime.toISOString(),
     };
@@ -110,7 +112,7 @@ describe("Availability - Controller", async () => {
 
   test("POST /availabilities should return 201 when using admin token", async () => {
     const input = {
-      doctorId: doctor.id,
+      doctorId,
       startDateTime: startDateTime.toISOString(),
       endDateTime: endDateTime.toISOString(),
     };
@@ -125,7 +127,7 @@ describe("Availability - Controller", async () => {
 
   test("POST /availabilities should return 401 when the token is missing", async () => {
     const input = {
-      doctorId: doctor.id,
+      doctorId,
       startDateTime: startDateTime.toISOString(),
       endDateTime: endDateTime.toISOString(),
     };
@@ -136,7 +138,7 @@ describe("Availability - Controller", async () => {
 
   test("POST /availabilities should return 403 when a doctor tries to register availability for another doctor", async () => {
     const input = {
-      doctorId: doctor.id,
+      doctorId,
       startDateTime: startDateTime.toISOString(),
       endDateTime: endDateTime.toISOString(),
     };
