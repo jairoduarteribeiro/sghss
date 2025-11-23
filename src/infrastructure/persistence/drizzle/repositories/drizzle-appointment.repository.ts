@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
@@ -83,7 +83,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
       .innerJoin(slots, eq(appointments.slotId, slots.id))
       .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
       .innerJoin(doctors, eq(availabilities.doctorId, doctors.id))
-      .where(eq(appointments.patientId, patientId.value));
+      .where(eq(appointments.patientId, patientId.value))
+      .orderBy(asc(slots.startDateTime));
     return rows.map(({ appointment, slot, doctor }) => ({
       appointment: Appointment.restore({
         id: Uuid.fromString(appointment.id),
@@ -121,7 +122,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
       .innerJoin(slots, eq(appointments.slotId, slots.id))
       .innerJoin(availabilities, eq(slots.availabilityId, availabilities.id))
       .innerJoin(patients, eq(appointments.patientId, patients.id))
-      .where(eq(availabilities.doctorId, doctorId.value));
+      .where(eq(availabilities.doctorId, doctorId.value))
+      .orderBy(asc(slots.startDateTime));
     return rows.map(({ appointment, slot, patient }) => ({
       appointment: Appointment.restore({
         id: Uuid.fromString(appointment.id),
