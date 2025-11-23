@@ -245,6 +245,12 @@ describe("Appointment - Controller", async () => {
     expect(appointment2.specialty).toBe("Dermatology");
   });
 
+  test("GET /appointments/my-appointments should return 401 when the token is missing", async () => {
+    const response = await request.get("/appointments/my-appointments");
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
+
   test("GET /appointments/doctor-appointments should return list of appointments for the logged doctor", async () => {
     const input1 = { slotId: slot1.id, patientId, modality: "IN_PERSON" };
     await request.post("/appointments").set("Authorization", `Bearer ${patientToken}`).send(input1);
@@ -270,5 +276,11 @@ describe("Appointment - Controller", async () => {
     expect(appointment2.telemedicineLink).not.toBeNull();
     expect(appointment2.startDateTime).toBe(slot2.startDateTime.toISOString());
     expect(appointment2.patientName).toBe("John Doe");
+  });
+
+  test("GET /appointments/doctor-appointments should return 401 when the token is missing", async () => {
+    const response = await request.get("/appointments/doctor-appointments");
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
 });
