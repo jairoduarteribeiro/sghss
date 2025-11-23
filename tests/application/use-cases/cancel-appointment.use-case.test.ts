@@ -27,15 +27,18 @@ describe("Cancel Appointment - Use Case", () => {
     endDateTime: DateBuilder.now().plusDays(1).withTime(12, 0).build(),
     doctorId,
   });
-  const slot = availability.slots[0]!;
-  let appointment: Appointment;
+  const firstAvailableSlot = availability.slots[0]!;
+  const secondAvailableSlot = availability.slots[1]!;
+  let appointments: Appointment[];
 
   // Mock Repositories
   const mockReadAppointmentRepository = createMockReadAppointmentRepository({
-    findById: mock(async (id: Uuid) => (id.value === appointment.id ? appointment : null)),
+    findById: mock(async (id: Uuid) => appointments.find((appt) => appt.id === id.value) || null),
   });
   const mockReadAvailabilityRepository = createMockReadAvailabilityRepository({
-    findBySlotId: mock(async (id: Uuid) => (id.value === slot.id ? availability : null)),
+    findBySlotId: mock(async (id: Uuid) =>
+      availability.slots.some((slot) => slot.id === id.value) ? availability : null,
+    ),
   });
   const mockWriteAppointmentRepository = createMockWriteAppointmentRepository();
   const mockWriteAvailabilityRepository = createMockWriteAvailabilityRepository();
@@ -50,8 +53,14 @@ describe("Cancel Appointment - Use Case", () => {
   });
 
   beforeEach(() => {
-    appointment = Appointment.from({ slotId: Uuid.fromString(slot.id), patientId, modality: "IN_PERSON" });
-    slot.book();
+    firstAvailableSlot.book();
+    secondAvailableSlot.book();
+    appointments = [
+      Appointment.from({ slotId: Uuid.fromString(firstAvailableSlot.id), patientId, modality: "IN_PERSON" }),
+      Appointment.from({ slotId: Uuid.fromString(secondAvailableSlot.id), patientId, modality: "IN_PERSON" }),
+      Appointment.from({ slotId: Uuid.generate(), patientId, modality: "IN_PERSON" }),
+    ];
+    appointments[1]?.complete();
   });
 
   afterEach(() => {
@@ -59,13 +68,44 @@ describe("Cancel Appointment - Use Case", () => {
   });
 
   test("Should cancel an appointment and release the slot successfully", async () => {
+    const scheduledAppointment = appointments[0]!;
     const input = {
-      appointmentId: appointment.id,
+      appointmentId: scheduledAppointment.id,
     };
     await useCase.execute(input);
     expect(mockWriteAppointmentRepository.update).toHaveBeenCalledTimes(1);
-    expect(appointment.status).toBe("CANCELLED");
+    expect(scheduledAppointment.status).toBe("CANCELLED");
     expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(1);
-    expect(slot.status).toBe("AVAILABLE");
+    expect(firstAvailableSlot.status).toBe("AVAILABLE");
+  });
+
+  test("Should throw NotFoundError if appointment does not exist", async () => {
+    const input = {
+      appointmentId: Uuid.generate().value,
+    };
+    expect(useCase.execute(input)).rejects.toThrowError("Appointment not found");
+    expect(mockWriteAppointmentRepository.update).toHaveBeenCalledTimes(0);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
+  });
+
+  test("Should throw a DomainError if trying to cancel a completed appointment", async () => {
+    const completedAppointment = appointments[1]!;
+    const input = {
+      appointmentId: completedAppointment.id,
+    };
+    expect(useCase.execute(input)).rejects.toThrowError("Only scheduled appointments can be cancelled");
+    expect(mockWriteAppointmentRepository.update).toHaveBeenCalledTimes(0);
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
+  });
+
+  test("Should not update availability if no matching slot is found", async () => {
+    const orphanAppointment = appointments[2]!;
+    const input = {
+      appointmentId: orphanAppointment.id,
+    };
+    await useCase.execute(input);
+    expect(mockWriteAppointmentRepository.update).toHaveBeenCalledTimes(1);
+    expect(orphanAppointment.status).toBe("CANCELLED");
+    expect(mockWriteAvailabilityRepository.update).toHaveBeenCalledTimes(0);
   });
 });

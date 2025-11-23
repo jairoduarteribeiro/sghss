@@ -1,3 +1,4 @@
+import { DomainError } from "../errors/domain.error";
 import { Uuid } from "../value-objects/uuid";
 
 type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
@@ -74,6 +75,7 @@ export class Appointment {
   }
 
   cancel(): void {
+    if (this._status !== "SCHEDULED") throw new DomainError("Only scheduled appointments can be cancelled");
     this._status = "CANCELLED";
   }
 
