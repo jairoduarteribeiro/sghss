@@ -1,6 +1,5 @@
 import type { Server } from "node:http";
 import type { Express } from "express";
-import type { Container } from "inversify";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../application/di/inversify.symbols";
 import type { ILogger } from "../application/ports/logger";
@@ -8,7 +7,7 @@ import type { IReadUserRepository, IWriteUserRepository } from "../application/p
 import { User } from "../domain/entities/user";
 import { Email } from "../domain/value-objects/email";
 import { Password } from "../domain/value-objects/password";
-import { createApp } from "./web/http";
+import type { ExpressApp } from "./web/express-app";
 
 @injectable()
 export class AppBootstrap {
@@ -19,7 +18,7 @@ export class AppBootstrap {
   private readonly PORT = 3000;
 
   constructor(
-    @inject(SYMBOLS.Container) private readonly container: Container,
+    @inject(SYMBOLS.HttpApp) private readonly httpApp: ExpressApp,
     @inject(SYMBOLS.Logger) private readonly logger: ILogger,
     @inject(SYMBOLS.IReadUserRepository) private readonly readUserRepo: IReadUserRepository,
     @inject(SYMBOLS.IWriteUserRepository) private readonly writeUserRepo: IWriteUserRepository,
@@ -27,7 +26,7 @@ export class AppBootstrap {
 
   async start(): Promise<void> {
     try {
-      const app = createApp(this.container);
+      const app = this.httpApp.build();
       await this.seedAdmin();
       this.listen(app);
       this.registerShutdownListeners();

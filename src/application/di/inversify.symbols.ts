@@ -51,6 +51,8 @@ export const SYMBOLS = {
   AttachPatientUserId: Symbol.for("AttachPatientUserId"),
   // Logger
   Logger: Symbol.for("Logger"),
+  // HTTP Application
+  HttpApp: Symbol.for("HttpApp"),
   // Application Bootstrap
   AppBootstrap: Symbol.for("AppBootstrap"),
 };

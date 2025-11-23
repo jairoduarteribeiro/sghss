@@ -9,7 +9,7 @@ import { Email } from "../../../../src/domain/value-objects/email";
 import { Password } from "../../../../src/domain/value-objects/password";
 
 import { container } from "../../../../src/infrastructure/di/inversify.container";
-import { createApp } from "../../../../src/infrastructure/web/http";
+import type { ExpressApp } from "../../../../src/infrastructure/web/express-app";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
 import { DateBuilder } from "../../../utils/date-builder";
 
@@ -42,7 +42,7 @@ describe("Consultation - Controller", () => {
     });
     await writeUserRepository.save(adminUser);
 
-    app = createApp(container);
+    app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
 
     const adminLoginResponse = await request.post("/auth/login").send({

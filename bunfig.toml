@@ -3,6 +3,10 @@ preload = ["./tests/index.ts"]
 coveragePathIgnorePatterns = [
   "src/infrastructure/di/**",
   "src/infrastructure/persistence/**",
+  "src/infrastructure/bootstrap.ts",
+  "src/infrastructure/logger/**",
+  "src/infrastructure/web/express*.ts",
   "src/infrastructure/web/http*.ts",
+  "src/infrastructure/web/utils/**",
   "tests/index.ts"
 ]

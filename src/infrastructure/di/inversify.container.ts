@@ -74,6 +74,7 @@ import { AvailabilityController } from "../web/controllers/availability.controll
 import { ConsultationController } from "../web/controllers/consultation.controller";
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { PatientController } from "../web/controllers/patient.controller";
+import { ExpressApp } from "../web/express-app";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
 import { RequestLogger } from "../web/middlewares/request-logger";
@@ -197,6 +198,9 @@ container.bind<AttachPatientUserId>(SYMBOLS.AttachPatientUserId).to(AttachPatien
 
 // Logger
 container.bind<ILogger>(SYMBOLS.Logger).to(PinoLogger).inSingletonScope();
+
+// HTTP Application
+container.bind<ExpressApp>(SYMBOLS.HttpApp).to(ExpressApp).inSingletonScope();
 
 // Application Bootstrap
 container.bind<AppBootstrap>(SYMBOLS.AppBootstrap).to(AppBootstrap).inSingletonScope();

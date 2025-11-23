@@ -15,7 +15,7 @@ import { Crm } from "../../../../src/domain/value-objects/crm";
 import { Email } from "../../../../src/domain/value-objects/email";
 import { Password } from "../../../../src/domain/value-objects/password";
 import { container } from "../../../../src/infrastructure/di/inversify.container";
-import { createApp } from "../../../../src/infrastructure/web/http";
+import type { ExpressApp } from "../../../../src/infrastructure/web/express-app";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -35,7 +35,7 @@ describe("Doctor - Controller", () => {
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     readDoctorRepository = container.get(SYMBOLS.IReadDoctorRepository);
     writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
-    app = createApp(container);
+    app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
   });
 

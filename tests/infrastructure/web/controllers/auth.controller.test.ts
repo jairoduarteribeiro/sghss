@@ -16,11 +16,29 @@ import type { LoginUseCase } from "../../../../src/application/use-cases/login.u
 import { Cpf } from "../../../../src/domain/value-objects/cpf";
 import { Email } from "../../../../src/domain/value-objects/email";
 import { container } from "../../../../src/infrastructure/di/inversify.container";
-import { createApp } from "../../../../src/infrastructure/web/http";
+import { ExpressApp } from "../../../../src/infrastructure/web/express-app";
 import { HttpStatus } from "../../../../src/infrastructure/web/http-status.constants";
 
 const UUID7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+
+const createAppWithMockedError = (): Express => {
+  const mockUnitOfWork: Partial<IUnitOfWork> = {
+    transaction: async <T>(_fn: (container: Container) => Promise<T>) => {
+      throw new Error("Unexpected error");
+    },
+  };
+  const mockLoginUseCase: Partial<LoginUseCase> = {
+    execute: () => {
+      throw new Error("Unexpected error");
+    },
+  };
+  const testContainer = new Container({ parent: container });
+  testContainer.bind(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
+  testContainer.bind(SYMBOLS.LoginUseCase).toConstantValue(mockLoginUseCase);
+  testContainer.bind(SYMBOLS.HttpApp).to(ExpressApp).inTransientScope();
+  return testContainer.get<ExpressApp>(SYMBOLS.HttpApp).build();
+};
 
 describe("Auth (Signup) - Controller", () => {
   let app: Express;
@@ -35,7 +53,7 @@ describe("Auth (Signup) - Controller", () => {
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
     readPatientRepository = container.get(SYMBOLS.IReadPatientRepository);
     writePatientRepository = container.get(SYMBOLS.IWritePatientRepository);
-    app = createApp(container);
+    app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
   });
 
@@ -116,14 +134,7 @@ describe("Auth (Signup) - Controller", () => {
   });
 
   test("POST /auth/signup should return 500 on unexpected errors", async () => {
-    const mockUnitOfWork: Partial<IUnitOfWork> = {
-      transaction: async <T>(_fn: (container: Container) => Promise<T>) => {
-        throw new Error("Unexpected error");
-      },
-    };
-    const testContainer = new Container({ parent: container });
-    testContainer.bind(SYMBOLS.IUnitOfWork).toConstantValue(mockUnitOfWork);
-    const mockedApp = createApp(testContainer);
+    const mockedApp = createAppWithMockedError();
     const mockedRequest = supertest(mockedApp);
     const input = {
       name: "John Doe",
@@ -144,7 +155,7 @@ describe("Auth (Login) - Controller", () => {
 
   beforeAll(() => {
     writeUserRepository = container.get(SYMBOLS.IWriteUserRepository);
-    app = createApp(container);
+    app = container.get<ExpressApp>(SYMBOLS.HttpApp).build();
     request = supertest(app);
   });
 
@@ -210,14 +221,7 @@ describe("Auth (Login) - Controller", () => {
   });
 
   test("POST /auth/login should return 500 on unexpected errors", async () => {
-    const mockUseCase: Partial<LoginUseCase> = {
-      execute: () => {
-        throw new Error("Unexpected error");
-      },
-    };
-    const testContainer = new Container({ parent: container });
-    testContainer.bind(SYMBOLS.LoginUseCase).toConstantValue(mockUseCase);
-    const mockedApp = createApp(testContainer);
+    const mockedApp = createAppWithMockedError();
     const mockedRequest = supertest(mockedApp);
     const loginInput = {
       email: "john.doe@example.com",
