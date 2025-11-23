@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } fr
 import type { Express } from "express";
 import supertest from "supertest";
 import { SYMBOLS } from "../../../../src/application/di/inversify.symbols";
+import type { IReadAppointmentRepository } from "../../../../src/application/ports/repositories/appointment.repository";
 import type { IWriteAvailabilityRepository } from "../../../../src/application/ports/repositories/availability.repository";
 import type { IWriteDoctorRepository } from "../../../../src/application/ports/repositories/doctor.repository";
 import type { IWritePatientRepository } from "../../../../src/application/ports/repositories/patient.repository";
@@ -34,6 +35,7 @@ describe("Appointment - Controller", async () => {
   let writeAvailabilityRepository: IWriteAvailabilityRepository;
   let writeDoctorRepository: IWriteDoctorRepository;
   let writePatientRepository: IWritePatientRepository;
+  let readAppointmentRepository: IReadAppointmentRepository;
   let authTokenService: IAuthTokenService;
 
   // Tokens
@@ -48,6 +50,7 @@ describe("Appointment - Controller", async () => {
   // Slots
   let slot1: Slot;
   let slot2: Slot;
+  let slot3: Slot;
 
   const createUserAndGetToken = async (role: "ADMIN" | "DOCTOR" | "PATIENT") => {
     const email = Email.from(`${role.toLowerCase()}${Date.now()}@example.com`);
@@ -67,6 +70,7 @@ describe("Appointment - Controller", async () => {
     writeAvailabilityRepository = container.get(SYMBOLS.IWriteAvailabilityRepository);
     writeDoctorRepository = container.get(SYMBOLS.IWriteDoctorRepository);
     writePatientRepository = container.get(SYMBOLS.IWritePatientRepository);
+    readAppointmentRepository = container.get(SYMBOLS.IReadAppointmentRepository);
     authTokenService = container.get(SYMBOLS.IAuthTokenService);
 
     // Create an admin user and obtain token
@@ -129,6 +133,13 @@ describe("Appointment - Controller", async () => {
       startDateTime: new Date(slots[1].startDateTime),
       endDateTime: new Date(slots[1].endDateTime),
       status: slots[1].status,
+    });
+    slot3 = Slot.restore({
+      id: Uuid.fromString(slots[2].slotId),
+      availabilityId: Uuid.fromString(slots[2].availabilityId),
+      startDateTime: new Date(slots[2].startDateTime),
+      endDateTime: new Date(slots[2].endDateTime),
+      status: slots[2].status,
     });
   });
 
@@ -296,5 +307,25 @@ describe("Appointment - Controller", async () => {
       .set("Authorization", `Bearer ${patientToken}`);
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe("Only doctor users can access this resource");
+  });
+
+  test("PATCH /appointments/:id/cancel should cancel an appointment successfully", async () => {
+    const input = {
+      slotId: slot3.id,
+      patientId,
+      modality: "IN_PERSON",
+    };
+    const createResponse = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${patientToken}`)
+      .send(input);
+    const appointmentId = createResponse.body.appointmentId;
+    const cancelResponse = await request
+      .patch(`/appointments/${appointmentId}/cancel`)
+      .set("Authorization", `Bearer ${patientToken}`);
+    expect(cancelResponse.status).toBe(HttpStatus.NO_CONTENT);
+    const updatedAppointment = await readAppointmentRepository.findById(Uuid.fromString(appointmentId));
+    expect(updatedAppointment).not.toBeNull();
+    expect(updatedAppointment?.status).toBe("CANCELLED");
   });
 });
