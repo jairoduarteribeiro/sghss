@@ -122,4 +122,28 @@ describe("List Doctors - Use Case", () => {
     const output = await useCase.execute({ name: "House", specialty: "Oncology" });
     expect(output.doctors).toHaveLength(0);
   });
+
+  test("Should filter doctors case-insensitive", async () => {
+    const output = await useCase.execute({ name: "house" });
+    expect(output.doctors).toHaveLength(1);
+    expect(output.doctors[0]?.name).toBe("Gregory House");
+  });
+
+  test("Should filter doctors by partial name match", async () => {
+    const output = await useCase.execute({ name: "Wil" });
+    expect(output.doctors).toHaveLength(1);
+    expect(output.doctors[0]?.name).toBe("James Wilson");
+  });
+
+  test("Should filter doctors case-insensitive by specialty", async () => {
+    const output = await useCase.execute({ specialty: "endocrinology" });
+    expect(output.doctors).toHaveLength(1);
+    expect(output.doctors[0]?.specialty).toBe("Endocrinology");
+  });
+
+  test("Should filter doctors by partial specialty match", async () => {
+    const output = await useCase.execute({ specialty: "Endo" });
+    expect(output.doctors).toHaveLength(1);
+    expect(output.doctors[0]?.specialty).toBe("Endocrinology");
+  });
 });
