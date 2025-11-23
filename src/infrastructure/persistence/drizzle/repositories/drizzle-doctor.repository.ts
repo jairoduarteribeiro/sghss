@@ -1,4 +1,4 @@
-import { and, eq, type SQL } from "drizzle-orm";
+import { and, eq, ilike, type SQL } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import { SYMBOLS } from "../../../../application/di/inversify.symbols";
 import type {
@@ -58,8 +58,8 @@ export class DrizzleReadDoctorRepository implements IReadDoctorRepository {
 
   async findAll(filter: { name?: string; specialty?: string }): Promise<Doctor[]> {
     const conditions: SQL[] = [];
-    if (filter.name) conditions.push(eq(doctors.name, filter.name));
-    if (filter.specialty) conditions.push(eq(doctors.specialty, filter.specialty));
+    if (filter.name) conditions.push(ilike(doctors.name, `%${filter.name}%`));
+    if (filter.specialty) conditions.push(ilike(doctors.specialty, `%${filter.specialty}%`));
     const rows = await this.db
       .select()
       .from(doctors)
