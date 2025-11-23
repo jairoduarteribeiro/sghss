@@ -236,4 +236,19 @@ describe("Doctor - Controller", () => {
     expect(doctors[0].crm).toBe(doc1.crm);
     expect(doctors[0].specialty).toBe(doc1.specialty);
   });
+
+  test("GET /doctors should return empty list when no doctors match the filter", async () => {
+    const doc1User = await createUserAndGetToken("DOCTOR");
+    const doc1 = Doctor.from({
+      name: Name.from("Dr. Alex Karev"),
+      crm: Crm.from("777777-SP"),
+      specialty: MedicalSpecialty.from("Pediatrics"),
+      userId: Uuid.fromString(doc1User.user.id),
+    });
+    await writeDoctorRepository.save(doc1);
+    const response = await request.get("/doctors").query({ specialty: "Dermatology" });
+    expect(response.status).toBe(HttpStatus.OK);
+    const doctors = response.body.doctors;
+    expect(doctors).toHaveLength(0);
+  });
 });
