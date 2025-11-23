@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import { z } from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
+import type { ListAvailableSlotsUseCase } from "../../../application/use-cases/list-available-slots.use-case";
 import type { RegisterAvailabilityUseCase } from "../../../application/use-cases/register-availability.use-case";
 import { HttpStatus } from "../http-status.constants";
 import type { AttachDoctorUserId } from "../middlewares/attach-doctor-user-id";
@@ -13,6 +14,10 @@ const registerAvailabilitySchema = z.object({
   doctorId: z.uuidv7(),
   startDateTime: z.coerce.date(),
   endDateTime: z.coerce.date(),
+});
+
+const getAvailableSlotsSchema = z.object({
+  doctorId: z.uuidv7(),
 });
 
 @injectable()
@@ -26,6 +31,8 @@ export class AvailabilityController {
     private readonly attachDoctorUserId: AttachDoctorUserId,
     @inject(SYMBOLS.RequireOwner)
     private readonly requireOwner: RequireOwner,
+    @inject(SYMBOLS.ListAvailableSlotsUseCase)
+    private readonly listAvailableSlotsUseCase: ListAvailableSlotsUseCase,
   ) {}
 
   router(): Router {
@@ -37,6 +44,7 @@ export class AvailabilityController {
       this.requireOwner.handle({ allowAdmin: true }),
       this.registerAvailability.bind(this),
     );
+    router.get("/availabilities", this.getAvailableSlots.bind(this));
     return router;
   }
 
@@ -56,5 +64,11 @@ export class AvailabilityController {
       };
     });
     res.status(HttpStatus.CREATED).send(output);
+  }
+
+  private async getAvailableSlots(req: Request, res: Response) {
+    const { doctorId } = getAvailableSlotsSchema.parse(req.query);
+    const output = await this.listAvailableSlotsUseCase.execute({ doctorId });
+    res.status(HttpStatus.OK).send(output);
   }
 }
