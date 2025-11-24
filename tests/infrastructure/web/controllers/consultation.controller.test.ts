@@ -193,6 +193,31 @@ describe("Consultation - Controller", () => {
     expect(history[1].referral).toBeNull();
   });
 
+  test("GET /patients/:patientId/history should return history for doctor accessing patient's history", async () => {
+    const consultationInput = {
+      appointmentId: appointmentId1,
+      notes: "Patient complains about chest pain.",
+      diagnosis: "Possible angina.",
+      prescription: "Aspirin 100mg daily.",
+      referral: "Cardiology specialist exam.",
+    };
+    await request.post("/consultations").set("Authorization", `Bearer ${doctorToken}`).send(consultationInput);
+    const response = await request.get(`/patients/${patientId}/history`).set("Authorization", `Bearer ${doctorToken}`);
+    expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body.patientId).toBe(patientId);
+    const history = response.body.history;
+    expect(history).toHaveLength(1);
+    expect(history[0].consultationId).toMatch(UUID7_REGEX);
+    expect(history[0].appointmentDate).toBeDefined();
+    expect(history[0].status).toBe("COMPLETED");
+    expect(history[0].doctorName).toBe("Dr. Jane Smith");
+    expect(history[0].specialty).toBe("Cardiology");
+    expect(history[0].diagnosis).toBe(consultationInput.diagnosis);
+    expect(history[0].prescription).toBe(consultationInput.prescription);
+    expect(history[0].notes).toBe(consultationInput.notes);
+    expect(history[0].referral).toBe(consultationInput.referral);
+  });
+
   test("GET /patients/:patientId/history should return 401 when the token is missing", async () => {
     const response = await request.get(`/patients/${patientId}/history`);
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -210,6 +235,15 @@ describe("Consultation - Controller", () => {
     const response = await request
       .get(`/patients/${patientId}/history`)
       .set("Authorization", `Bearer ${otherPatientData.token}`);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("You are not authorized to access this resource");
+  });
+
+  test("GET /patients/:patientId/history should return 403 when an admin user tries to access patient's history", async () => {
+    const adminData = await createUserAndGetToken("ADMIN");
+    const response = await request
+      .get(`/patients/${patientId}/history`)
+      .set("Authorization", `Bearer ${adminData.token}`);
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
     expect(response.body.message).toBe("You are not authorized to access this resource");
   });
