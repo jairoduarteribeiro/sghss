@@ -11,12 +11,12 @@ type RequireOwnerOptions = {
 @injectable()
 export class RequireOwner {
   handle({ allowAdmin }: RequireOwnerOptions = { allowAdmin: false }) {
-    return (req: Request, _res: Response, next: NextFunction) => {
+    return (req: Request, res: Response, next: NextFunction) => {
       if (!req.user) throw new UnauthorizedError("Authentication required");
-      const { id, role } = req.user;
-      const ownerId = req.body.userId as string;
+      const { id: userId, role } = req.user;
+      const ownerId = res.locals.ownerId as string;
       if (!ownerId) throw new BadRequestError("Missing owner field: userId");
-      if (id !== ownerId && !(allowAdmin && role === "ADMIN"))
+      if (userId !== ownerId && !(allowAdmin && role === "ADMIN"))
         throw new ForbiddenError("You are not authorized to access this resource");
       next();
     };

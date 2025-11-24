@@ -14,12 +14,12 @@ export class AttachPatientUserId {
   ) {}
 
   handle() {
-    return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-      const { patientId } = req.body;
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const { patientId } = req.body || req.params;
       if (!patientId) throw new BadRequestError("Missing field: patientId");
       const patient = await this.readPatientRepository.findById(Uuid.fromString(patientId));
       if (!patient) throw new NotFoundError("Patient not found");
-      req.body.userId = patient.userId;
+      res.locals.ownerId = patient.userId;
       next();
     };
   }
