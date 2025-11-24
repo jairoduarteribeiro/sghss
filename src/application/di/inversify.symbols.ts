@@ -49,6 +49,7 @@ export const SYMBOLS = {
   RequireOwner: Symbol.for("RequireOwner"),
   AttachDoctorUserId: Symbol.for("AttachDoctorUserId"),
   AttachPatientUserId: Symbol.for("AttachPatientUserId"),
+  AttachAppointmentPatientOwner: Symbol.for("AttachAppointmentPatientOwner"),
   // Logger
   Logger: Symbol.for("Logger"),
   // HTTP Application

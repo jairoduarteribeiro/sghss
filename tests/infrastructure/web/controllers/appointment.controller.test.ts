@@ -370,7 +370,7 @@ describe("Appointment - Controller", async () => {
       .patch(`/appointments/${appointmentId}/cancel`)
       .set("Authorization", `Bearer ${otherPatientToken}`);
     expect(cancelResponse.status).toBe(HttpStatus.FORBIDDEN);
-    expect(cancelResponse.body.message).toBe("You do not have permission to cancel this appointment");
+    expect(cancelResponse.body.message).toBe("You are not authorized to access this resource");
   });
 
   test("PATCH /appointments/:id/cancel should allow admin to cancel any appointment", async () => {

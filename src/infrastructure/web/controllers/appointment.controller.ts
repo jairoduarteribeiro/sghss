@@ -2,9 +2,7 @@ import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
 import z from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
-import { ForbiddenError } from "../../../application/errors/forbidden.error";
 import { NotFoundError } from "../../../application/errors/not-found.error";
-import type { IReadAppointmentRepository } from "../../../application/ports/repositories/appointment.repository";
 import type { IReadDoctorRepository } from "../../../application/ports/repositories/doctor.repository";
 import type { IReadPatientRepository } from "../../../application/ports/repositories/patient.repository";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
@@ -14,6 +12,7 @@ import type { ListPatientAppointmentsUseCase } from "../../../application/use-ca
 import type { RegisterAppointmentUseCase } from "../../../application/use-cases/register-appointment.use-case";
 import { Uuid } from "../../../domain/value-objects/uuid";
 import { HttpStatus } from "../http-status.constants";
+import type { AttachAppointmentPatientOwner } from "../middlewares/attach-appointment-patient-owner";
 import type { AttachPatientUserId } from "../middlewares/attach-patient-user-id";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireOwner } from "../middlewares/require-owner";
@@ -40,6 +39,8 @@ export class AppointmentController {
     private readonly requireRole: RequireRole,
     @inject(SYMBOLS.AttachPatientUserId)
     private readonly attachPatientUserId: AttachPatientUserId,
+    @inject(SYMBOLS.AttachAppointmentPatientOwner)
+    private readonly attachAppointmentPatientOwner: AttachAppointmentPatientOwner,
     @inject(SYMBOLS.RequireOwner)
     private readonly requireOwner: RequireOwner,
     @inject(SYMBOLS.IReadPatientRepository)
@@ -50,8 +51,6 @@ export class AppointmentController {
     private readonly listPatientAppointmentsUseCase: ListPatientAppointmentsUseCase,
     @inject(SYMBOLS.ListDoctorAppointmentsUseCase)
     private readonly listDoctorAppointmentsUseCase: ListDoctorAppointmentsUseCase,
-    @inject(SYMBOLS.IReadAppointmentRepository)
-    private readonly readAppointmentRepository: IReadAppointmentRepository,
   ) {}
 
   router(): Router {
@@ -78,6 +77,8 @@ export class AppointmentController {
     router.patch(
       "/appointments/:appointmentId/cancel",
       this.requireAuth.handle.bind(this.requireAuth),
+      this.attachAppointmentPatientOwner.handle(),
+      this.requireOwner.handle({ allowAdmin: true }),
       this.cancelAppointment.bind(this),
     );
     return router;
@@ -121,14 +122,6 @@ export class AppointmentController {
 
   private async cancelAppointment(req: Request, res: Response) {
     const { appointmentId } = cancelAppointmentSchema.parse(req.params);
-    const { id: userId, role } = req.user as { id: string; role: string };
-    if (role !== "ADMIN") {
-      const patient = await this.readPatientRepository.findByUserId(Uuid.fromString(userId));
-      const appointment = await this.readAppointmentRepository.findById(Uuid.fromString(appointmentId));
-      if (appointment?.patientId !== patient?.id) {
-        throw new ForbiddenError("You do not have permission to cancel this appointment");
-      }
-    }
     await this.unitOfWork.transaction(async (container) => {
       const cancelUseCase = container.get<CancelAppointmentUseCase>(SYMBOLS.CancelAppointmentUseCase);
       await cancelUseCase.execute({ appointmentId });

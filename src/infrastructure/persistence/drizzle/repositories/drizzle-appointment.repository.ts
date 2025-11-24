@@ -6,18 +6,22 @@ import type {
   IReadAppointmentRepository,
   IWriteAppointmentRepository,
   PatientAppointmentWithDetails,
+  PatientWithUser,
 } from "../../../../application/ports/repositories/appointment.repository";
 import { Appointment } from "../../../../domain/entities/appointment";
 import { Doctor } from "../../../../domain/entities/doctor";
 import { Patient } from "../../../../domain/entities/patient";
 import { Slot } from "../../../../domain/entities/slot";
+import { User } from "../../../../domain/entities/user";
 import { Cpf } from "../../../../domain/value-objects/cpf";
 import { Crm } from "../../../../domain/value-objects/crm";
+import { Email } from "../../../../domain/value-objects/email";
 import { MedicalSpecialty } from "../../../../domain/value-objects/medical-specialty";
 import { Name } from "../../../../domain/value-objects/name";
+import { Password } from "../../../../domain/value-objects/password";
 import { Uuid } from "../../../../domain/value-objects/uuid";
 import type { DbClient } from "../drizzle-client";
-import { appointments, availabilities, doctors, patients, slots } from "../schema";
+import { appointments, availabilities, doctors, patients, slots, users } from "../schema";
 
 @injectable()
 export class DrizzleReadAppointmentRepository implements IReadAppointmentRepository {
@@ -147,6 +151,34 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
         userId: Uuid.fromString(patient.userId),
       }),
     }));
+  }
+
+  async findPatientOwner(appointmentId: Uuid): Promise<PatientWithUser | null> {
+    const [row] = await this.db
+      .select({
+        patient: patients,
+        user: users,
+      })
+      .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .innerJoin(users, eq(patients.userId, users.id))
+      .where(eq(appointments.id, appointmentId.value));
+    return row
+      ? {
+          patient: Patient.restore({
+            id: Uuid.fromString(row.patient.id),
+            name: Name.from(row.patient.name),
+            cpf: Cpf.from(row.patient.cpf),
+            userId: Uuid.fromString(row.patient.userId),
+          }),
+          user: User.restore({
+            id: Uuid.fromString(row.user.id),
+            email: Email.from(row.user.email),
+            password: Password.fromHash(row.user.passwordHash),
+            role: row.user.role as "ADMIN" | "DOCTOR" | "PATIENT",
+          }),
+        }
+      : null;
   }
 }
 

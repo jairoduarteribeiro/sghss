@@ -75,6 +75,7 @@ import { ConsultationController } from "../web/controllers/consultation.controll
 import { DoctorController } from "../web/controllers/doctor.controller";
 import { PatientController } from "../web/controllers/patient.controller";
 import { ExpressApp } from "../web/express-app";
+import { AttachAppointmentPatientOwner } from "../web/middlewares/attach-appointment-patient-owner";
 import { AttachDoctorUserId } from "../web/middlewares/attach-doctor-user-id";
 import { AttachPatientUserId } from "../web/middlewares/attach-patient-user-id";
 import { RequestLogger } from "../web/middlewares/request-logger";
@@ -195,6 +196,10 @@ container.bind<RequireRole>(SYMBOLS.RequireRole).to(RequireRole).inSingletonScop
 container.bind<RequireOwner>(SYMBOLS.RequireOwner).to(RequireOwner).inSingletonScope();
 container.bind<AttachDoctorUserId>(SYMBOLS.AttachDoctorUserId).to(AttachDoctorUserId).inSingletonScope();
 container.bind<AttachPatientUserId>(SYMBOLS.AttachPatientUserId).to(AttachPatientUserId).inSingletonScope();
+container
+  .bind<AttachAppointmentPatientOwner>(SYMBOLS.AttachAppointmentPatientOwner)
+  .to(AttachAppointmentPatientOwner)
+  .inSingletonScope();
 
 // Logger
 container.bind<ILogger>(SYMBOLS.Logger).to(PinoLogger).inSingletonScope();
