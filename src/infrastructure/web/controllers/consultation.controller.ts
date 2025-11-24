@@ -6,6 +6,7 @@ import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { GetPatientHistoryUseCase } from "../../../application/use-cases/get-patient-history.use-case";
 import type { RegisterConsultationUseCase } from "../../../application/use-cases/register-consultation.use-case";
 import { HttpStatus } from "../http-status.constants";
+import type { RequireAuth } from "../middlewares/require-auth";
 
 const registerConsultationSchema = z.object({
   appointmentId: z.uuidv7(),
@@ -23,6 +24,8 @@ export class ConsultationController {
   constructor(
     @inject(SYMBOLS.IUnitOfWork)
     private readonly unitOfWork: IUnitOfWork,
+    @inject(SYMBOLS.RequireAuth)
+    private readonly requireAuth: RequireAuth,
     @inject(SYMBOLS.GetPatientHistoryUseCase)
     private readonly getPatientHistoryUseCase: GetPatientHistoryUseCase,
   ) {}
@@ -30,7 +33,11 @@ export class ConsultationController {
   router(): Router {
     const router = Router();
     router.post("/consultations", this.registerConsultation.bind(this));
-    router.get("/patients/:patientId/history", this.getPatientHistory.bind(this));
+    router.get(
+      "/patients/:patientId/history",
+      this.requireAuth.handle.bind(this.requireAuth),
+      this.getPatientHistory.bind(this),
+    );
     return router;
   }
 
