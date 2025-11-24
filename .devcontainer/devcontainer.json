@@ -3,6 +3,7 @@
   "dockerComposeFile": "compose.yml",
   "service": "web",
   "workspaceFolder": "/workspaces/sghss",
+  "forwardPorts": [3000],
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true
@@ -15,12 +16,7 @@
   "postStartCommand": "bun install --frozen-lockfile",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "biomejs.biome",
-        "mhutchie.git-graph",
-        "ms-azuretools.vscode-containers",
-        "oven.bun-vscode"
-      ],
+      "extensions": ["biomejs.biome", "mhutchie.git-graph", "ms-azuretools.vscode-containers", "oven.bun-vscode"],
       "settings": {
         "editor.codeActionsOnSave": {
           "source.fixAll.biome": "explicit"

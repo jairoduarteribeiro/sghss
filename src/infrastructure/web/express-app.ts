@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import { inject, injectable } from "inversify";
+import swaggerUi from "swagger-ui-express";
 import { SYMBOLS } from "../../application/di/inversify.symbols";
 import type { AppointmentController } from "./controllers/appointment.controller";
 import type { AuthController } from "./controllers/auth.controller";
@@ -9,6 +10,8 @@ import type { DoctorController } from "./controllers/doctor.controller";
 import type { PatientController } from "./controllers/patient.controller";
 import { errorHandler } from "./middlewares/error-handler";
 import type { RequestLogger } from "./middlewares/request-logger";
+import { generateOpenApiDocument } from "./swagger/open-api-registry";
+import "./swagger/auth.swagger";
 
 @injectable()
 export class ExpressApp {
@@ -24,7 +27,9 @@ export class ExpressApp {
 
   build(): Express {
     const app = express();
+    const document = generateOpenApiDocument();
     app.use(express.json());
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(document));
     app.use(this.requestLogger.handle());
     app.use("/auth", this.authController.router());
     app.use(this.doctorController.router());
