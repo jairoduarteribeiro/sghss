@@ -192,4 +192,10 @@ describe("Consultation - Controller", () => {
     expect(history[1].notes).toBe("Flu symptoms");
     expect(history[1].referral).toBeNull();
   });
+
+  test("GET /patients/:patientId/history should return 401 when the token is missing", async () => {
+    const response = await request.get(`/patients/${patientId}/history`);
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+    expect(response.body.message).toBe("Authentication token is missing or invalid");
+  });
 });
