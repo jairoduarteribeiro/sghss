@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import z from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import { NotFoundError } from "../../../application/errors/not-found.error";
 import type { IReadDoctorRepository } from "../../../application/ports/repositories/doctor.repository";
@@ -17,16 +16,14 @@ import type { AttachPatientUserId } from "../middlewares/attach-patient-user-id"
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireOwner } from "../middlewares/require-owner";
 import type { RequireRole } from "../middlewares/require-role";
-
-const registerAppointmentSchema = z.object({
-  slotId: z.uuidv7(),
-  patientId: z.uuidv7(),
-  modality: z.enum(["IN_PERSON", "TELEMEDICINE"]),
-});
-
-const cancelAppointmentSchema = z.object({
-  appointmentId: z.uuidv7(),
-});
+import {
+  cancelAppointmentRequestSchema,
+  getDoctorAppointmentsResponseSchema,
+  getPatientAppointmentsResponseSchema,
+  registerAppointmentRequestSchema,
+  registerAppointmentResponseSchema,
+} from "../schemas/appointment.schema";
+import { sendNoContent, sendSuccess } from "../utils/http-helper";
 
 @injectable()
 export class AppointmentController {
@@ -85,19 +82,16 @@ export class AppointmentController {
   }
 
   private async registerAppointment(req: Request, res: Response) {
-    const body = registerAppointmentSchema.parse(req.body);
+    const body = registerAppointmentRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerAppointmentUseCase = container.get<RegisterAppointmentUseCase>(SYMBOLS.RegisterAppointmentUseCase);
-      const appointmentOutput = await registerAppointmentUseCase.execute({
+      return await registerAppointmentUseCase.execute({
         slotId: body.slotId,
         patientId: body.patientId,
         modality: body.modality,
       });
-      return {
-        ...appointmentOutput,
-      };
     });
-    res.status(HttpStatus.CREATED).send(output);
+    sendSuccess(res, output, registerAppointmentResponseSchema, HttpStatus.CREATED);
   }
 
   private async getPatientAppointments(req: Request, res: Response) {
@@ -107,7 +101,7 @@ export class AppointmentController {
       throw new NotFoundError("Patient not found for the authenticated user");
     }
     const output = await this.listPatientAppointmentsUseCase.execute({ patientId: patient.id });
-    res.status(HttpStatus.OK).send(output);
+    sendSuccess(res, output, getPatientAppointmentsResponseSchema, HttpStatus.OK);
   }
 
   private async getDoctorAppointments(req: Request, res: Response) {
@@ -117,15 +111,15 @@ export class AppointmentController {
       throw new NotFoundError("Doctor not found for the authenticated user");
     }
     const output = await this.listDoctorAppointmentsUseCase.execute({ doctorId: doctor.id });
-    res.status(HttpStatus.OK).send(output);
+    sendSuccess(res, output, getDoctorAppointmentsResponseSchema, HttpStatus.OK);
   }
 
   private async cancelAppointment(req: Request, res: Response) {
-    const { appointmentId } = cancelAppointmentSchema.parse(req.params);
+    const { appointmentId } = cancelAppointmentRequestSchema.parse(req.params);
     await this.unitOfWork.transaction(async (container) => {
       const cancelUseCase = container.get<CancelAppointmentUseCase>(SYMBOLS.CancelAppointmentUseCase);
       await cancelUseCase.execute({ appointmentId });
     });
-    res.status(HttpStatus.NO_CONTENT).send();
+    sendNoContent(res);
   }
 }

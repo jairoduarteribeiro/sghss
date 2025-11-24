@@ -9,8 +9,8 @@ type ListDoctorAppointmentsInput = {
 
 type AppointmentOutput = {
   appointmentId: string;
-  startDateTime: string;
-  endDateTime: string;
+  startDateTime: Date;
+  endDateTime: Date;
   status: string;
   modality: string;
   telemedicineLink: string | null;
@@ -34,8 +34,8 @@ export class ListDoctorAppointmentsUseCase {
     const appointments = await this.readAppointmentRepository.findByDoctorIdWithDetails(doctorId);
     const output = appointments.map(({ appointment, slot, patient }) => ({
       appointmentId: appointment.id,
-      startDateTime: slot.startDateTime.toISOString(),
-      endDateTime: slot.endDateTime.toISOString(),
+      startDateTime: slot.startDateTime,
+      endDateTime: slot.endDateTime,
       status: appointment.status,
       modality: appointment.modality,
       telemedicineLink: appointment.telemedicineLink,

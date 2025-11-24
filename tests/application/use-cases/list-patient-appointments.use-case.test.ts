@@ -84,6 +84,7 @@ describe("List Patient Appointments - Use Case", () => {
     expect(output.appointments[0]?.modality).toBe("IN_PERSON");
     expect(output.appointments[0]?.telemedicineLink).toBeNull();
     expect(output.appointments[0]?.startDateTime).toEqual(slot1.startDateTime);
+    expect(output.appointments[0]?.endDateTime).toEqual(slot1.endDateTime);
     expect(output.appointments[0]?.doctorName).toBe(doctor.name);
     expect(output.appointments[0]?.specialty).toBe(doctor.specialty);
     expect(output.appointments[1]?.appointmentId).toBe(appointment2.id);
@@ -91,6 +92,7 @@ describe("List Patient Appointments - Use Case", () => {
     expect(output.appointments[1]?.modality).toBe("TELEMEDICINE");
     expect(output.appointments[1]?.telemedicineLink).toBe("https://meet.vidaplus.com/xyz-789");
     expect(output.appointments[1]?.startDateTime).toEqual(slot2.startDateTime);
+    expect(output.appointments[1]?.endDateTime).toEqual(slot2.endDateTime);
     expect(output.appointments[1]?.doctorName).toBe(doctor.name);
     expect(output.appointments[1]?.specialty).toBe(doctor.specialty);
   });

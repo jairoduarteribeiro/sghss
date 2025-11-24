@@ -13,6 +13,7 @@ type AppointmentOutput = {
   modality: string;
   telemedicineLink: string | null;
   startDateTime: Date;
+  endDateTime: Date;
   doctorName: string;
   specialty: string;
 };
@@ -38,6 +39,7 @@ export class ListPatientAppointmentsUseCase {
       modality: appointment.modality,
       telemedicineLink: appointment.telemedicineLink,
       startDateTime: slot.startDateTime,
+      endDateTime: slot.endDateTime,
       doctorName: doctor.name,
       specialty: doctor.specialty,
     }));

@@ -1,24 +1,18 @@
 import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import { z } from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { LoginUseCase } from "../../../application/use-cases/login.use-case";
 import type { RegisterPatientUseCase } from "../../../application/use-cases/register-patient.use-case";
 import type { RegisterUserUseCase } from "../../../application/use-cases/register-user.use-case";
 import { HttpStatus } from "../http-status.constants";
-
-const signupSchema = z.object({
-  name: z.string(),
-  cpf: z.string(),
-  email: z.email(),
-  password: z.string(),
-});
-
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string(),
-});
+import {
+  loginRequestSchema,
+  loginResponseSchema,
+  signupRequestSchema,
+  signupResponseSchema,
+} from "../schemas/auth.schema";
+import { sendSuccess } from "../utils/http-helper";
 
 @injectable()
 export class AuthController {
@@ -37,7 +31,7 @@ export class AuthController {
   }
 
   private async signup(req: Request, res: Response) {
-    const body = signupSchema.parse(req.body);
+    const body = signupRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
       const registerPatientUseCase = container.get<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase);
@@ -56,12 +50,12 @@ export class AuthController {
         ...patientOutput,
       };
     });
-    res.status(HttpStatus.CREATED).json(output);
+    sendSuccess(res, output, signupResponseSchema, HttpStatus.CREATED);
   }
 
   private async login(req: Request, res: Response) {
-    const body = loginSchema.parse(req.body);
+    const body = loginRequestSchema.parse(req.body);
     const output = await this.loginUseCase.execute(body);
-    res.status(HttpStatus.OK).json(output);
+    sendSuccess(res, output, loginResponseSchema, HttpStatus.OK);
   }
 }

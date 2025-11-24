@@ -11,7 +11,7 @@ type SlotOutput = {
   slotId: string;
   startDateTime: Date;
   endDateTime: Date;
-  status: string;
+  status: "AVAILABLE" | "BOOKED" | "CANCELLED";
 };
 
 type ListAvailableSlotsOutput = {

@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import { z } from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { ListAvailableSlotsUseCase } from "../../../application/use-cases/list-available-slots.use-case";
@@ -9,16 +8,13 @@ import { HttpStatus } from "../http-status.constants";
 import type { AttachDoctorUserId } from "../middlewares/attach-doctor-user-id";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireOwner } from "../middlewares/require-owner";
-
-const registerAvailabilitySchema = z.object({
-  doctorId: z.uuidv7(),
-  startDateTime: z.coerce.date(),
-  endDateTime: z.coerce.date(),
-});
-
-const getAvailableSlotsSchema = z.object({
-  doctorId: z.uuidv7(),
-});
+import {
+  getAvailableSlotsRequestSchema,
+  getAvailableSlotsResponseSchema,
+  registerAvailabilityRequestSchema,
+  registerAvailabilityResponseSchema,
+} from "../schemas/availability.schema";
+import { sendSuccess } from "../utils/http-helper";
 
 @injectable()
 export class AvailabilityController {
@@ -49,26 +45,23 @@ export class AvailabilityController {
   }
 
   private async registerAvailability(req: Request, res: Response) {
-    const body = registerAvailabilitySchema.parse(req.body);
+    const body = registerAvailabilityRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerAvailabilityUseCase = container.get<RegisterAvailabilityUseCase>(
         SYMBOLS.RegisterAvailabilityUseCase,
       );
-      const availabilityOutput = await registerAvailabilityUseCase.execute({
+      return await registerAvailabilityUseCase.execute({
         doctorId: body.doctorId,
         startDateTime: body.startDateTime,
         endDateTime: body.endDateTime,
       });
-      return {
-        ...availabilityOutput,
-      };
     });
-    res.status(HttpStatus.CREATED).send(output);
+    sendSuccess(res, output, registerAvailabilityResponseSchema, HttpStatus.CREATED);
   }
 
   private async getAvailableSlots(req: Request, res: Response) {
-    const { doctorId } = getAvailableSlotsSchema.parse(req.query);
+    const { doctorId } = getAvailableSlotsRequestSchema.parse(req.query);
     const output = await this.listAvailableSlotsUseCase.execute({ doctorId });
-    res.status(HttpStatus.OK).send(output);
+    sendSuccess(res, output, getAvailableSlotsResponseSchema, HttpStatus.OK);
   }
 }

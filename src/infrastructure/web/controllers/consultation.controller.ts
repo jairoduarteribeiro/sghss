@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from "express";
 import { inject } from "inversify";
-import z from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { GetPatientHistoryUseCase } from "../../../application/use-cases/get-patient-history.use-case";
@@ -9,18 +8,13 @@ import { HttpStatus } from "../http-status.constants";
 import type { AttachPatientUserId } from "../middlewares/attach-patient-user-id";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireOwner } from "../middlewares/require-owner";
-
-const registerConsultationSchema = z.object({
-  appointmentId: z.uuidv7(),
-  notes: z.string().optional(),
-  diagnosis: z.string().optional(),
-  prescription: z.string().optional(),
-  referral: z.string().optional(),
-});
-
-const getPatientHistorySchema = z.object({
-  patientId: z.uuidv7(),
-});
+import {
+  getPatientHistoryRequestSchema,
+  getPatientHistoryResponseSchema,
+  registerConsultationRequestSchema,
+  registerConsultationResponseSchema,
+} from "../schemas/consultation.schema";
+import { sendSuccess } from "../utils/http-helper";
 
 export class ConsultationController {
   constructor(
@@ -50,28 +44,25 @@ export class ConsultationController {
   }
 
   private async registerConsultation(req: Request, res: Response) {
-    const body = registerConsultationSchema.parse(req.body);
+    const body = registerConsultationRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerConsultationUseCase = container.get<RegisterConsultationUseCase>(
         SYMBOLS.RegisterConsultationUseCase,
       );
-      const registerConsultationOutput = await registerConsultationUseCase.execute({
+      return await registerConsultationUseCase.execute({
         appointmentId: body.appointmentId,
         notes: body.notes,
         diagnosis: body.diagnosis,
         prescription: body.prescription,
         referral: body.referral,
       });
-      return {
-        ...registerConsultationOutput,
-      };
     });
-    res.status(HttpStatus.CREATED).send(output);
+    sendSuccess(res, output, registerConsultationResponseSchema, HttpStatus.CREATED);
   }
 
   private async getPatientHistory(req: Request, res: Response) {
-    const { patientId } = getPatientHistorySchema.parse(req.params);
+    const { patientId } = getPatientHistoryRequestSchema.parse(req.params);
     const output = await this.getPatientHistoryUseCase.execute({ patientId });
-    res.status(HttpStatus.OK).send(output);
+    sendSuccess(res, output, getPatientHistoryResponseSchema, HttpStatus.OK);
   }
 }

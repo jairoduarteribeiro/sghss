@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import z from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { RegisterPatientUseCase } from "../../../application/use-cases/register-patient.use-case";
@@ -8,13 +7,8 @@ import type { RegisterUserUseCase } from "../../../application/use-cases/registe
 import { HttpStatus } from "../http-status.constants";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireRole } from "../middlewares/require-role";
-
-const registerPatientSchema = z.object({
-  name: z.string(),
-  cpf: z.string(),
-  email: z.email(),
-  password: z.string(),
-});
+import { registerPatientRequestSchema, registerPatientResponseSchema } from "../schemas/patient.schema";
+import { sendSuccess } from "../utils/http-helper";
 
 @injectable()
 export class PatientController {
@@ -39,7 +33,7 @@ export class PatientController {
   }
 
   private async registerPatient(req: Request, res: Response) {
-    const body = registerPatientSchema.parse(req.body);
+    const body = registerPatientRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
       const registerPatientUseCase = container.get<RegisterPatientUseCase>(SYMBOLS.RegisterPatientUseCase);
@@ -58,6 +52,6 @@ export class PatientController {
         ...patientOutput,
       };
     });
-    res.status(HttpStatus.CREATED).json(output);
+    sendSuccess(res, output, registerPatientResponseSchema, HttpStatus.CREATED);
   }
 }

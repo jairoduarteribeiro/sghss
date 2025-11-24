@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from "express";
 import { inject, injectable } from "inversify";
-import { z } from "zod";
 import { SYMBOLS } from "../../../application/di/inversify.symbols";
 import type { IUnitOfWork } from "../../../application/ports/unit-of-work";
 import type { ListDoctorsUseCase } from "../../../application/use-cases/list-doctors.use-case";
@@ -9,19 +8,13 @@ import type { RegisterUserUseCase } from "../../../application/use-cases/registe
 import { HttpStatus } from "../http-status.constants";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireRole } from "../middlewares/require-role";
-
-const registerDoctorSchema = z.object({
-  name: z.string(),
-  crm: z.string(),
-  specialty: z.string(),
-  email: z.email(),
-  password: z.string(),
-});
-
-const listDoctorsSchema = z.object({
-  name: z.string().optional(),
-  specialty: z.string().optional(),
-});
+import {
+  listDoctorsRequestSchema,
+  listDoctorsResponseSchema,
+  registerDoctorRequestSchema,
+  registerDoctorResponseSchema,
+} from "../schemas/doctor.schema";
+import { sendSuccess } from "../utils/http-helper";
 
 @injectable()
 export class DoctorController {
@@ -49,7 +42,7 @@ export class DoctorController {
   }
 
   private async registerDoctor(req: Request, res: Response) {
-    const body = registerDoctorSchema.parse(req.body);
+    const body = registerDoctorRequestSchema.parse(req.body);
     const output = await this.unitOfWork.transaction(async (container) => {
       const registerUserUseCase = container.get<RegisterUserUseCase>(SYMBOLS.RegisterUserUseCase);
       const registerDoctorUseCase = container.get<RegisterDoctorUseCase>(SYMBOLS.RegisterDoctorUseCase);
@@ -69,15 +62,15 @@ export class DoctorController {
         ...doctorOutput,
       };
     });
-    res.status(HttpStatus.CREATED).json(output);
+    sendSuccess(res, output, registerDoctorResponseSchema, HttpStatus.CREATED);
   }
 
   private async listDoctors(req: Request, res: Response) {
-    const query = listDoctorsSchema.parse(req.query);
+    const query = listDoctorsRequestSchema.parse(req.query);
     const output = await this.listDoctorsUseCase.execute({
       name: query.name,
       specialty: query.specialty,
     });
-    res.status(HttpStatus.OK).json(output);
+    sendSuccess(res, output, listDoctorsResponseSchema, HttpStatus.OK);
   }
 }
