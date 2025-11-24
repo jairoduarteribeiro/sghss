@@ -23,7 +23,7 @@ import {
   registerAppointmentRequestSchema,
   registerAppointmentResponseSchema,
 } from "../schemas/appointment.schema";
-import { sendNoContent, sendSuccess } from "../utils/http-helper";
+import { sendNoContent, sendResponse } from "../utils/http-helper";
 
 @injectable()
 export class AppointmentController {
@@ -91,7 +91,7 @@ export class AppointmentController {
         modality: body.modality,
       });
     });
-    sendSuccess(res, output, registerAppointmentResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, registerAppointmentResponseSchema, HttpStatus.CREATED);
   }
 
   private async getPatientAppointments(req: Request, res: Response) {
@@ -101,7 +101,7 @@ export class AppointmentController {
       throw new NotFoundError("Patient not found for the authenticated user");
     }
     const output = await this.listPatientAppointmentsUseCase.execute({ patientId: patient.id });
-    sendSuccess(res, output, getPatientAppointmentsResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, getPatientAppointmentsResponseSchema, HttpStatus.OK);
   }
 
   private async getDoctorAppointments(req: Request, res: Response) {
@@ -111,7 +111,7 @@ export class AppointmentController {
       throw new NotFoundError("Doctor not found for the authenticated user");
     }
     const output = await this.listDoctorAppointmentsUseCase.execute({ doctorId: doctor.id });
-    sendSuccess(res, output, getDoctorAppointmentsResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, getDoctorAppointmentsResponseSchema, HttpStatus.OK);
   }
 
   private async cancelAppointment(req: Request, res: Response) {

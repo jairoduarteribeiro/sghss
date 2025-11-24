@@ -14,7 +14,7 @@ import {
   registerAvailabilityRequestSchema,
   registerAvailabilityResponseSchema,
 } from "../schemas/availability.schema";
-import { sendSuccess } from "../utils/http-helper";
+import { sendResponse } from "../utils/http-helper";
 
 @injectable()
 export class AvailabilityController {
@@ -56,12 +56,12 @@ export class AvailabilityController {
         endDateTime: body.endDateTime,
       });
     });
-    sendSuccess(res, output, registerAvailabilityResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, registerAvailabilityResponseSchema, HttpStatus.CREATED);
   }
 
   private async getAvailableSlots(req: Request, res: Response) {
     const { doctorId } = getAvailableSlotsRequestSchema.parse(req.query);
     const output = await this.listAvailableSlotsUseCase.execute({ doctorId });
-    sendSuccess(res, output, getAvailableSlotsResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, getAvailableSlotsResponseSchema, HttpStatus.OK);
   }
 }

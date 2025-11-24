@@ -14,7 +14,7 @@ import {
   registerConsultationRequestSchema,
   registerConsultationResponseSchema,
 } from "../schemas/consultation.schema";
-import { sendSuccess } from "../utils/http-helper";
+import { sendResponse } from "../utils/http-helper";
 
 export class ConsultationController {
   constructor(
@@ -57,12 +57,12 @@ export class ConsultationController {
         referral: body.referral,
       });
     });
-    sendSuccess(res, output, registerConsultationResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, registerConsultationResponseSchema, HttpStatus.CREATED);
   }
 
   private async getPatientHistory(req: Request, res: Response) {
     const { patientId } = getPatientHistoryRequestSchema.parse(req.params);
     const output = await this.getPatientHistoryUseCase.execute({ patientId });
-    sendSuccess(res, output, getPatientHistoryResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, getPatientHistoryResponseSchema, HttpStatus.OK);
   }
 }

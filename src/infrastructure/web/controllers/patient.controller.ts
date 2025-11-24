@@ -8,7 +8,7 @@ import { HttpStatus } from "../http-status.constants";
 import type { RequireAuth } from "../middlewares/require-auth";
 import type { RequireRole } from "../middlewares/require-role";
 import { registerPatientRequestSchema, registerPatientResponseSchema } from "../schemas/patient.schema";
-import { sendSuccess } from "../utils/http-helper";
+import { sendResponse } from "../utils/http-helper";
 
 @injectable()
 export class PatientController {
@@ -52,6 +52,6 @@ export class PatientController {
         ...patientOutput,
       };
     });
-    sendSuccess(res, output, registerPatientResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, registerPatientResponseSchema, HttpStatus.CREATED);
   }
 }

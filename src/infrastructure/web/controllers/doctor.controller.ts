@@ -14,7 +14,7 @@ import {
   registerDoctorRequestSchema,
   registerDoctorResponseSchema,
 } from "../schemas/doctor.schema";
-import { sendSuccess } from "../utils/http-helper";
+import { sendResponse } from "../utils/http-helper";
 
 @injectable()
 export class DoctorController {
@@ -62,7 +62,7 @@ export class DoctorController {
         ...doctorOutput,
       };
     });
-    sendSuccess(res, output, registerDoctorResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, registerDoctorResponseSchema, HttpStatus.CREATED);
   }
 
   private async listDoctors(req: Request, res: Response) {
@@ -71,6 +71,6 @@ export class DoctorController {
       name: query.name,
       specialty: query.specialty,
     });
-    sendSuccess(res, output, listDoctorsResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, listDoctorsResponseSchema, HttpStatus.OK);
   }
 }

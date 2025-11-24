@@ -12,7 +12,7 @@ import {
   signupRequestSchema,
   signupResponseSchema,
 } from "../schemas/auth.schema";
-import { sendSuccess } from "../utils/http-helper";
+import { sendResponse } from "../utils/http-helper";
 
 @injectable()
 export class AuthController {
@@ -50,12 +50,12 @@ export class AuthController {
         ...patientOutput,
       };
     });
-    sendSuccess(res, output, signupResponseSchema, HttpStatus.CREATED);
+    sendResponse(res, output, signupResponseSchema, HttpStatus.CREATED);
   }
 
   private async login(req: Request, res: Response) {
     const body = loginRequestSchema.parse(req.body);
     const output = await this.loginUseCase.execute(body);
-    sendSuccess(res, output, loginResponseSchema, HttpStatus.OK);
+    sendResponse(res, output, loginResponseSchema, HttpStatus.OK);
   }
 }
