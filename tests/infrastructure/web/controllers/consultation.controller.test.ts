@@ -198,4 +198,19 @@ describe("Consultation - Controller", () => {
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
     expect(response.body.message).toBe("Authentication token is missing or invalid");
   });
+
+  test("GET /patients/:patientId/history should return 403 when accessing another patient's history", async () => {
+    const otherPatientData = await createUserAndGetToken("PATIENT");
+    const otherPatient = Patient.from({
+      name: Name.from("Other Patient"),
+      cpf: Cpf.from("12984180038"),
+      userId: Uuid.fromString(otherPatientData.user.id),
+    });
+    await writePatientRepository.save(otherPatient);
+    const response = await request
+      .get(`/patients/${patientId}/history`)
+      .set("Authorization", `Bearer ${otherPatientData.token}`);
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+    expect(response.body.message).toBe("You are not authorized to access this resource");
+  });
 });
