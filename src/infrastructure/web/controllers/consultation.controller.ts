@@ -43,7 +43,7 @@ export class ConsultationController {
       "/patients/:patientId/history",
       this.requireAuth.handle.bind(this.requireAuth),
       this.attachPatientUserId.handle(),
-      this.requireOwner.handle(),
+      this.requireOwner.handle({ allowAdmin: false, allowDoctor: true }),
       this.getPatientHistory.bind(this),
     );
     return router;
