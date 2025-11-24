@@ -2,7 +2,8 @@ import type { Email } from "../value-objects/email";
 import type { Password } from "../value-objects/password";
 import { Uuid } from "../value-objects/uuid";
 
-export type UserRole = "PATIENT" | "DOCTOR" | "ADMIN";
+export const USER_ROLES = ["PATIENT", "DOCTOR", "ADMIN"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
 
 type UserRestoreProps = {
   id: Uuid;

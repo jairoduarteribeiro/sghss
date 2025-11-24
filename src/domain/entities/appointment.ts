@@ -1,9 +1,12 @@
 import { DomainError } from "../errors/domain.error";
 import { Uuid } from "../value-objects/uuid";
 
-type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED";
-type AppointmentModality = "IN_PERSON" | "TELEMEDICINE";
-type TelemedicineLink = string | null;
+export const APPOINTMENT_STATUS = ["SCHEDULED", "COMPLETED", "CANCELLED"] as const;
+export const APPOINTMENT_MODALITY = ["IN_PERSON", "TELEMEDICINE"] as const;
+
+export type AppointmentStatus = (typeof APPOINTMENT_STATUS)[number];
+export type AppointmentModality = (typeof APPOINTMENT_MODALITY)[number];
+export type TelemedicineLink = string | null;
 
 type AppointmentRestoreProps = {
   id: Uuid;

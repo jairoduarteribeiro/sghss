@@ -1,17 +1,18 @@
 import z from "zod";
+import { APPOINTMENT_MODALITY, APPOINTMENT_STATUS } from "../../../domain/entities/appointment";
 
 export const registerAppointmentRequestSchema = z.object({
   slotId: z.uuidv7(),
   patientId: z.uuidv7(),
-  modality: z.enum(["IN_PERSON", "TELEMEDICINE"]),
+  modality: z.enum(APPOINTMENT_MODALITY),
 });
 
 const getAppointmentsCommonItemSchema = z.object({
   appointmentId: z.uuidv7(),
   startDateTime: z.date(),
   endDateTime: z.date(),
-  status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED"]),
-  modality: z.enum(["IN_PERSON", "TELEMEDICINE"]),
+  status: z.enum(APPOINTMENT_STATUS),
+  modality: z.enum(APPOINTMENT_MODALITY),
   telemedicineLink: z.url().nullable(),
 });
 
@@ -39,8 +40,8 @@ export const registerAppointmentResponseSchema = z.object({
   slotId: z.uuidv7(),
   patientId: z.uuidv7(),
   doctorId: z.uuidv7(),
-  status: z.enum(["SCHEDULED", "COMPLETED", "CANCELLED"]),
-  modality: z.enum(["IN_PERSON", "TELEMEDICINE"]),
+  status: z.enum(APPOINTMENT_STATUS),
+  modality: z.enum(APPOINTMENT_MODALITY),
   telemedicineLink: z.url().nullable(),
 });
 

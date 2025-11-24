@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { SLOT_STATUS } from "../../../domain/entities/slot";
 
 const slotSchema = z.object({
   slotId: z.uuidv7(),
   startDateTime: z.date(),
   endDateTime: z.date(),
-  status: z.enum(["AVAILABLE", "BOOKED", "CANCELLED"]),
+  status: z.enum(SLOT_STATUS),
 });
 
 export const registerAvailabilityRequestSchema = z.object({

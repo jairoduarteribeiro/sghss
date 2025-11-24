@@ -1,5 +1,11 @@
 import { inject, injectable } from "inversify";
-import { Consultation } from "../../domain/entities/consultation";
+import {
+  Consultation,
+  type ConsultationDiagnosis,
+  type ConsultationNotes,
+  type ConsultationPrescription,
+  type ConsultationReferral,
+} from "../../domain/entities/consultation";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { NotFoundError } from "../errors/not-found.error";
@@ -20,10 +26,10 @@ type RegisterConsultationInput = {
 type RegisterConsultationOutput = {
   consultationId: string;
   appointmentId: string;
-  notes: string | null;
-  diagnosis: string | null;
-  prescription: string | null;
-  referral: string | null;
+  notes: ConsultationNotes;
+  diagnosis: ConsultationDiagnosis;
+  prescription: ConsultationPrescription;
+  referral: ConsultationReferral;
 };
 
 @injectable()

@@ -1,10 +1,11 @@
 import { relations } from "drizzle-orm";
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { APPOINTMENT_MODALITY, APPOINTMENT_STATUS } from "../../../../domain/entities/appointment";
 import { patients } from "./patients";
 import { slots } from "./slots";
 
-export const appointmentStatusEnum = pgEnum("appointment_status", ["SCHEDULED", "COMPLETED", "CANCELLED"]);
-export const appointmentModalityEnum = pgEnum("appointment_modality", ["IN_PERSON", "TELEMEDICINE"]);
+export const appointmentStatusEnum = pgEnum("appointment_status", APPOINTMENT_STATUS);
+export const appointmentModalityEnum = pgEnum("appointment_modality", APPOINTMENT_MODALITY);
 
 export const appointments = pgTable("appointments", {
   id: uuid("id").primaryKey().defaultRandom(),

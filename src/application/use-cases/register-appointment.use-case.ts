@@ -1,5 +1,10 @@
 import { inject } from "inversify";
-import { Appointment } from "../../domain/entities/appointment";
+import {
+  Appointment,
+  type AppointmentModality,
+  type AppointmentStatus,
+  type TelemedicineLink,
+} from "../../domain/entities/appointment";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { ConflictError } from "../errors/conflict.error";
@@ -14,7 +19,7 @@ import type { IConferenceLinkGenerator } from "../ports/services/conference-link
 type RegisterAppointmentInput = {
   slotId: string;
   patientId: string;
-  modality: "IN_PERSON" | "TELEMEDICINE";
+  modality: AppointmentModality;
 };
 
 type RegisterAppointmentOutput = {
@@ -22,9 +27,9 @@ type RegisterAppointmentOutput = {
   slotId: string;
   patientId: string;
   doctorId: string;
-  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
-  modality: "IN_PERSON" | "TELEMEDICINE";
-  telemedicineLink: string | null;
+  status: AppointmentStatus;
+  modality: AppointmentModality;
+  telemedicineLink: TelemedicineLink;
 };
 
 export class RegisterAppointmentUseCase {

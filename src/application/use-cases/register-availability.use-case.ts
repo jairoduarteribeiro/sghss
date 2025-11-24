@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Availability } from "../../domain/entities/availability";
+import type { SlotStatus } from "../../domain/entities/slot";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import { ConflictError } from "../errors/conflict.error";
@@ -12,7 +13,7 @@ type SlotOutput = {
   slotId: string;
   startDateTime: Date;
   endDateTime: Date;
-  status: "AVAILABLE" | "BOOKED" | "CANCELLED";
+  status: SlotStatus;
 };
 
 type RegisterAvailabilityInput = {

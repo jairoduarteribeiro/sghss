@@ -1,4 +1,10 @@
 import { inject, injectable } from "inversify";
+import type {
+  ConsultationDiagnosis,
+  ConsultationNotes,
+  ConsultationPrescription,
+  ConsultationReferral,
+} from "../../domain/entities/consultation";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import type { IReadConsultationRepository } from "../ports/repositories/consultation.repository";
@@ -13,10 +19,10 @@ type HistoryItemOutput = {
   status: string;
   doctorName: string;
   specialty: string;
-  diagnosis: string | null;
-  prescription: string | null;
-  notes: string | null;
-  referral: string | null;
+  diagnosis: ConsultationDiagnosis;
+  prescription: ConsultationPrescription;
+  notes: ConsultationNotes;
+  referral: ConsultationReferral;
 };
 
 type GetPatientHistoryOutput = {

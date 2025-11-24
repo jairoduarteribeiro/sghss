@@ -1,9 +1,9 @@
 import { Uuid } from "../value-objects/uuid";
 
-type ConsultationNotes = string | null;
-type ConsultationDiagnosis = string | null;
-type ConsultationPrescription = string | null;
-type ConsultationReferral = string | null;
+export type ConsultationNotes = string | null;
+export type ConsultationDiagnosis = string | null;
+export type ConsultationPrescription = string | null;
+export type ConsultationReferral = string | null;
 
 type ConsultationCreateProps = {
   appointmentId: Uuid;
@@ -26,10 +26,10 @@ export class Consultation {
   private constructor(
     private readonly _id: Uuid,
     private readonly _appointmentId: Uuid,
-    private readonly _notes: string | null,
-    private readonly _diagnosis: string | null,
-    private readonly _prescription: string | null,
-    private readonly _referral: string | null,
+    private readonly _notes: ConsultationNotes,
+    private readonly _diagnosis: ConsultationDiagnosis,
+    private readonly _prescription: ConsultationPrescription,
+    private readonly _referral: ConsultationReferral,
   ) {}
 
   static from(props: ConsultationCreateProps): Consultation {

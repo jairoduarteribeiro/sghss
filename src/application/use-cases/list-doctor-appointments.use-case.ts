@@ -1,4 +1,5 @@
 import { inject, injectable } from "inversify";
+import type { TelemedicineLink } from "../../domain/entities/appointment";
 import { Uuid } from "../../domain/value-objects/uuid";
 import { SYMBOLS } from "../di/inversify.symbols";
 import type { IReadAppointmentRepository } from "../ports/repositories/appointment.repository";
@@ -13,7 +14,7 @@ type AppointmentOutput = {
   endDateTime: Date;
   status: string;
   modality: string;
-  telemedicineLink: string | null;
+  telemedicineLink: TelemedicineLink;
   patientName: string;
 };
 

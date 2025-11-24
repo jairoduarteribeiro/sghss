@@ -1,6 +1,7 @@
 import { Uuid } from "../value-objects/uuid";
 
-type SlotStatus = "AVAILABLE" | "BOOKED" | "CANCELLED";
+export const SLOT_STATUS = ["AVAILABLE", "BOOKED", "CANCELLED"] as const;
+export type SlotStatus = (typeof SLOT_STATUS)[number];
 
 type SlotRestoreProps = {
   id: Uuid;

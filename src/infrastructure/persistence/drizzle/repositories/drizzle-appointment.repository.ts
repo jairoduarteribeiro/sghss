@@ -8,10 +8,10 @@ import type {
   PatientAppointmentWithDetails,
   PatientWithUser,
 } from "../../../../application/ports/repositories/appointment.repository";
-import { Appointment } from "../../../../domain/entities/appointment";
+import { Appointment, type AppointmentModality, type AppointmentStatus } from "../../../../domain/entities/appointment";
 import { Doctor } from "../../../../domain/entities/doctor";
 import { Patient } from "../../../../domain/entities/patient";
-import { Slot } from "../../../../domain/entities/slot";
+import { Slot, type SlotStatus } from "../../../../domain/entities/slot";
 import { User } from "../../../../domain/entities/user";
 import { Cpf } from "../../../../domain/value-objects/cpf";
 import { Crm } from "../../../../domain/value-objects/crm";
@@ -32,8 +32,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     return row
       ? Appointment.restore({
           id: Uuid.fromString(row.id),
-          status: row.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-          modality: row.modality as "IN_PERSON" | "TELEMEDICINE",
+          status: row.status as AppointmentStatus,
+          modality: row.modality as AppointmentModality,
           telemedicineLink: row.telemedicineLink,
           slotId: Uuid.fromString(row.slotId),
           patientId: Uuid.fromString(row.patientId),
@@ -53,8 +53,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     return rows.map(({ appointment }) =>
       Appointment.restore({
         id: Uuid.fromString(appointment.id),
-        status: appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-        modality: appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        status: appointment.status as AppointmentStatus,
+        modality: appointment.modality as AppointmentModality,
         telemedicineLink: appointment.telemedicineLink,
         slotId: Uuid.fromString(appointment.slotId),
         patientId: Uuid.fromString(appointment.patientId),
@@ -67,8 +67,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     return rows.map((row) =>
       Appointment.restore({
         id: Uuid.fromString(row.id),
-        status: row.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-        modality: row.modality as "IN_PERSON" | "TELEMEDICINE",
+        status: row.status as AppointmentStatus,
+        modality: row.modality as AppointmentModality,
         telemedicineLink: row.telemedicineLink,
         slotId: Uuid.fromString(row.slotId),
         patientId: Uuid.fromString(row.patientId),
@@ -92,8 +92,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     return rows.map(({ appointment, slot, doctor }) => ({
       appointment: Appointment.restore({
         id: Uuid.fromString(appointment.id),
-        status: appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-        modality: appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        status: appointment.status as AppointmentStatus,
+        modality: appointment.modality as AppointmentModality,
         telemedicineLink: appointment.telemedicineLink,
         slotId: Uuid.fromString(appointment.slotId),
         patientId: Uuid.fromString(appointment.patientId),
@@ -102,7 +102,7 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
         id: Uuid.fromString(slot.id),
         startDateTime: new Date(slot.startDateTime),
         endDateTime: new Date(slot.endDateTime),
-        status: slot.status as "AVAILABLE" | "BOOKED" | "CANCELLED",
+        status: slot.status as SlotStatus,
         availabilityId: Uuid.fromString(slot.availabilityId),
       }),
       doctor: Doctor.restore({
@@ -131,8 +131,8 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
     return rows.map(({ appointment, slot, patient }) => ({
       appointment: Appointment.restore({
         id: Uuid.fromString(appointment.id),
-        status: appointment.status as "SCHEDULED" | "COMPLETED" | "CANCELLED",
-        modality: appointment.modality as "IN_PERSON" | "TELEMEDICINE",
+        status: appointment.status as AppointmentStatus,
+        modality: appointment.modality as AppointmentModality,
         telemedicineLink: appointment.telemedicineLink,
         slotId: Uuid.fromString(appointment.slotId),
         patientId: Uuid.fromString(appointment.patientId),
@@ -141,7 +141,7 @@ export class DrizzleReadAppointmentRepository implements IReadAppointmentReposit
         id: Uuid.fromString(slot.id),
         startDateTime: new Date(slot.startDateTime),
         endDateTime: new Date(slot.endDateTime),
-        status: slot.status as "AVAILABLE" | "BOOKED" | "CANCELLED",
+        status: slot.status as SlotStatus,
         availabilityId: Uuid.fromString(slot.availabilityId),
       }),
       patient: Patient.restore({

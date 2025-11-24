@@ -1,8 +1,9 @@
 import { relations } from "drizzle-orm";
 import { pgEnum, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
+import { SLOT_STATUS } from "../../../../domain/entities/slot";
 import { availabilities } from "./availabilities";
 
-export const slotStatusEnum = pgEnum("slot_status", ["AVAILABLE", "BOOKED", "CANCELLED"]);
+export const slotStatusEnum = pgEnum("slot_status", SLOT_STATUS);
 
 export const slots = pgTable("slots", {
   id: uuid("id").primaryKey().defaultRandom(),
