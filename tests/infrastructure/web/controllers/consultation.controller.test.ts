@@ -42,8 +42,10 @@ describe("Consultation - Controller", () => {
   let patientToken: string;
   let doctorId: string;
   let patientId: string;
-  let slotId: string;
-  let appointmentId: string;
+  let slotId1: string;
+  let slotId2: string;
+  let appointmentId1: string;
+  let appointmentId2: string;
 
   const createUserAndGetToken = async (role: "ADMIN" | "DOCTOR" | "PATIENT") => {
     const email = Email.from(`${role.toLowerCase()}${Date.now()}@example.com`);
@@ -66,7 +68,7 @@ describe("Consultation - Controller", () => {
     const doctorData = await createUserAndGetToken("DOCTOR");
     doctorToken = doctorData.token;
     const doctor = Doctor.from({
-      name: Name.from("Dr. Consultation"),
+      name: Name.from("Dr. Jane Smith"),
       crm: Crm.from("999999-SP"),
       specialty: MedicalSpecialty.from("Cardiology"),
       userId: Uuid.fromString(doctorData.user.id),
@@ -97,20 +99,31 @@ describe("Consultation - Controller", () => {
       startDateTime: startDateTime.toISOString(),
       endDateTime: endDateTime.toISOString(),
     });
-    slotId = response.body.slots[0].slotId;
-    const appointmentResponse = await request
+    slotId1 = response.body.slots[0].slotId;
+    slotId2 = response.body.slots[1].slotId;
+    const appointmentResponse1 = await request
       .post("/appointments")
       .set("Authorization", `Bearer ${patientToken}`)
       .send({
-        slotId,
+        slotId: slotId1,
         patientId,
         modality: "IN_PERSON",
       });
-    appointmentId = appointmentResponse.body.appointmentId;
+    const appointmentResponse2 = await request
+      .post("/appointments")
+      .set("Authorization", `Bearer ${patientToken}`)
+      .send({
+        slotId: slotId2,
+        patientId,
+        modality: "TELEMEDICINE",
+        telemedicineLink: "https://telemed.example.com/meeting/12345",
+      });
+    appointmentId1 = appointmentResponse1.body.appointmentId;
+    appointmentId2 = appointmentResponse2.body.appointmentId;
   });
 
   afterEach(async () => {
-    Promise.all([
+    await Promise.all([
       writeConsultationRepository.clear(),
       writeAppointmentRepository.clear(),
       writeAvailabilityRepository.clear(),
@@ -123,7 +136,7 @@ describe("Consultation - Controller", () => {
 
   test("POST /consultations should register a consultation successfully", async () => {
     const input = {
-      appointmentId,
+      appointmentId: appointmentId1,
       notes: "Patient complains about chest pain.",
       diagnosis: "Possible angina.",
       prescription: "Aspirin 100mg daily.",
@@ -132,10 +145,51 @@ describe("Consultation - Controller", () => {
     const response = await request.post("/consultations").set("Authorization", `Bearer ${doctorToken}`).send(input);
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.consultationId).toMatch(UUID7_REGEX);
-    expect(response.body.appointmentId).toBe(appointmentId);
+    expect(response.body.appointmentId).toBe(appointmentId1);
     expect(response.body.notes).toBe(input.notes);
     expect(response.body.diagnosis).toBe(input.diagnosis);
     expect(response.body.prescription).toBe(input.prescription);
     expect(response.body.referral).toBe(input.referral);
+  });
+
+  test("GET /patients/:patientId/history should return history for the patient owner", async () => {
+    const consultationInput1 = {
+      appointmentId: appointmentId1,
+      notes: "Flu symptoms",
+      diagnosis: "Influenza",
+      prescription: "Rest and fluids",
+    };
+    const consultationInput2 = {
+      appointmentId: appointmentId2,
+      notes: "Follow-up on flu symptoms",
+      diagnosis: "Recovering from Influenza",
+      prescription: "Continue rest",
+      referral: "General check-up in 1 week",
+    };
+    await request.post("/consultations").set("Authorization", `Bearer ${doctorToken}`).send(consultationInput1);
+    await request.post("/consultations").set("Authorization", `Bearer ${doctorToken}`).send(consultationInput2);
+    const response = await request.get(`/patients/${patientId}/history`).set("Authorization", `Bearer ${patientToken}`);
+    expect(response.status).toBe(HttpStatus.OK);
+    expect(response.body.patientId).toBe(patientId);
+    const history = response.body.history;
+    expect(history).toHaveLength(2);
+    expect(history[0].consultationId).toMatch(UUID7_REGEX);
+    expect(history[0].appointmentDate).toBeDefined();
+    expect(history[0].status).toBe("COMPLETED");
+    expect(history[0].doctorName).toBe("Dr. Jane Smith");
+    expect(history[0].specialty).toBe("Cardiology");
+    expect(history[0].diagnosis).toBe("Recovering from Influenza");
+    expect(history[0].prescription).toBe("Continue rest");
+    expect(history[0].notes).toBe("Follow-up on flu symptoms");
+    expect(history[0].referral).toBe("General check-up in 1 week");
+    expect(history[1].consultationId).toMatch(UUID7_REGEX);
+    expect(history[1].appointmentDate).toBeDefined();
+    expect(history[1].status).toBe("COMPLETED");
+    expect(history[1].doctorName).toBe("Dr. Jane Smith");
+    expect(history[1].specialty).toBe("Cardiology");
+    expect(history[1].diagnosis).toBe("Influenza");
+    expect(history[1].prescription).toBe("Rest and fluids");
+    expect(history[1].notes).toBe("Flu symptoms");
+    expect(history[1].referral).toBeNull();
   });
 });
