@@ -14,6 +14,7 @@ import { generateOpenApiDocument } from "./swagger/open-api-registry";
 import "./swagger/auth.swagger";
 import "./swagger/appointment.swagger";
 import "./swagger/availability.swagger";
+import "./swagger/consultation.swagger";
 import "./swagger/doctor.swagger";
 import "./swagger/patient.swagger";
 
