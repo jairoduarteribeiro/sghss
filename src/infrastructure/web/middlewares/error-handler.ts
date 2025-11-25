@@ -8,15 +8,20 @@ import { NotFoundError } from "../../../application/errors/not-found.error";
 import { UnauthorizedError } from "../../../application/errors/unauthorized.error";
 import { DomainError } from "../../../domain/errors/domain.error";
 import { HttpStatus } from "../http-status.constants";
-import { errorResponseSchema } from "../schemas/errors.schema";
+import { errorResponseSchema, errorResponseWithIssuesSchema } from "../schemas/errors.schema";
 import { sendResponse } from "../utils/http-helper";
 
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof ZodError) {
+    const issues = err.issues.map((issue) => ({
+      code: issue.code,
+      message: issue.message,
+      path: issue.path.filter((p) => typeof p === "string" || typeof p === "number"),
+    }));
     return sendResponse(
       res,
-      { message: "Invalid request data", issues: err.issues },
-      errorResponseSchema,
+      { message: "Invalid request data", issues },
+      errorResponseWithIssuesSchema,
       HttpStatus.UNPROCESSABLE_ENTITY,
     );
   }

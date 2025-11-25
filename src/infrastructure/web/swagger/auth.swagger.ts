@@ -4,7 +4,7 @@ import {
   signupRequestSchema,
   signupResponseSchema,
 } from "../schemas/auth.schema";
-import { errorResponseSchema } from "../schemas/errors.schema";
+import { errorResponseSchema, errorResponseWithIssuesSchema } from "../schemas/errors.schema";
 import { registry } from "./open-api-registry";
 
 const AUTH_TAG = "Auth";
@@ -32,8 +32,32 @@ registry.registerPath({
         },
       },
     },
+    400: {
+      description: "Bad Request - Invalid input data",
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+    },
     409: {
       description: "Conflict - Email or CPF already in use",
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    422: {
+      description: "Validation Error - Invalid input data",
+      content: {
+        "application/json": {
+          schema: errorResponseWithIssuesSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal Server Error",
       content: {
         "application/json": {
           schema: errorResponseSchema,
@@ -68,6 +92,22 @@ registry.registerPath({
     },
     401: {
       description: "Invalid credentials",
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+    },
+    422: {
+      description: "Validation Error - Invalid input data",
+      content: {
+        "application/json": {
+          schema: errorResponseWithIssuesSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal Server Error",
       content: {
         "application/json": {
           schema: errorResponseSchema,
