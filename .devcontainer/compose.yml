@@ -13,10 +13,8 @@ services:
   db:
     image: postgres:18.0-alpine
     container_name: sghss-db
-    environment:
-      POSTGRES_DB: sghss
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "@Password123"
+    env_file:
+      - ../.env
     volumes:
       - data:/var/lib/postgresql/18/docker
     healthcheck:
