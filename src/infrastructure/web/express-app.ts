@@ -12,6 +12,7 @@ import { errorHandler } from "./middlewares/error-handler";
 import type { RequestLogger } from "./middlewares/request-logger";
 import { generateOpenApiDocument } from "./swagger/open-api-registry";
 import "./swagger/auth.swagger";
+import "./swagger/availability.swagger";
 import "./swagger/doctor.swagger";
 import "./swagger/patient.swagger";
 
