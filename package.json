@@ -7,6 +7,7 @@
     "dev": "bun --watch src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:diagram": "bun ./scripts/generate-erd.ts",
     "test:coverage": "bun test --coverage --coverage-reporter=lcov && genhtml -o coverage coverage/lcov.info",
     "test:watch": "bun test --watch --only-failures"
   },
@@ -18,6 +19,7 @@
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
+    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.6",
     "supertest": "^7.1.4"
   },
